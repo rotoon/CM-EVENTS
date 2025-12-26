@@ -1,6 +1,6 @@
-import { cors } from "@elysiajs/cors";
 import Database from "better-sqlite3";
-import { Elysia, t } from "elysia";
+import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { runDetailScraper } from "../detail-scraper";
 import { runScraper } from "../scraper";
 
@@ -31,7 +31,7 @@ async function scheduledScrape() {
     );
 
     // Step 2: Scrape event details (batch of 10)
-    console.log("\n📚 Starting detail scrape...");
+    console.log("📚 Starting detail scrape...");
     const detailResult = await runDetailScraper(10);
     lastDetailScrapeTime = new Date();
     console.log(
@@ -51,16 +51,16 @@ async function scheduledScrape() {
   }
 }
 
-// Run scraper on startup (after 5 seconds delay to let server start)
-setTimeout(() => {
-  console.log("🚀 Running initial scrape on startup...");
-  scheduledScrape();
-}, 5000);
-
-// Schedule scraper every 12 hours
+// Initial scheduled run (check every minute)
 setInterval(() => {
-  scheduledScrape();
-}, TWELVE_HOURS);
+  const now = new Date();
+  if (
+    (now.getHours() === 0 || now.getHours() === 12) &&
+    now.getMinutes() === 0
+  ) {
+    scheduledScrape();
+  }
+}, 60 * 1000);
 
 console.log(`\n📅 Cron scheduled: Scraper will run every 12 hours`);
 console.log(`   - List scraper: scrape event listings`);
@@ -75,363 +75,316 @@ const db = new Database(DB_PATH, { readonly: true });
 // ============================================================================
 // Types
 // ============================================================================
-interface Event {
+interface EventRow {
   id: number;
-  source_url: string;
   title: string;
-  description: string | null;
-  description_markdown: string | null;
-  location: string | null;
-  date_text: string | null;
-  time_text: string | null;
-  month_wrapped: string | null;
-  cover_image_url: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  google_maps_url: string | null;
-  facebook_url: string | null;
-  is_ended: number | null;
-  first_scraped_at: string | null;
-  last_updated_at: string | null;
-  is_fully_scraped: number | null;
-}
-
-interface EventImage {
-  id: number;
-  event_id: number;
-  image_url: string;
-  is_cover: number | null;
-  created_at: string | null;
+  source_url: string;
+  image: string;
+  location: string;
+  date_text: string;
+  month_wrapped: string;
+  description?: string;
+  start_time?: string;
+  end_time?: string;
+  latitude?: number;
+  longitude?: number;
+  facebook_url?: string;
+  gallery_images?: string; // JSON string
+  is_fully_scraped: number;
 }
 
 // ============================================================================
-// Helper: Parse month_wrapped JSON array
+// Express App Setup
 // ============================================================================
-function parseMonthWrapped(monthWrapped: string | null): string[] {
-  if (!monthWrapped) return [];
-  try {
-    const parsed = JSON.parse(monthWrapped);
-    return Array.isArray(parsed) ? parsed : [monthWrapped];
-  } catch {
-    return [monthWrapped];
-  }
-}
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-// ============================================================================
-// Helper: Parse Thai date for sorting
-// ============================================================================
-const THAI_MONTHS: Record<string, number> = {
-  มกราคม: 0,
-  กุมภาพันธ์: 1,
-  มีนาคม: 2,
-  เมษายน: 3,
-  พฤษภาคม: 4,
-  มิถุนายน: 5,
-  กรกฎาคม: 6,
-  สิงหาคม: 7,
-  กันยายน: 8,
-  ตุลาคม: 9,
-  พฤศจิกายน: 10,
-  ธันวาคม: 11,
-};
+// Helper for success response
+const success = (data: any = null, message = "Success") => ({
+  success: true,
+  message,
+  data,
+  timestamp: new Date().toISOString(),
+});
 
-function parseThaiDate(dateStr: string): number | null {
-  const pattern =
-    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/;
-  const match = dateStr.match(pattern);
+// Helper for error response
+const error = (message = "Internal Server Error") => ({
+  success: false,
+  message,
+  timestamp: new Date().toISOString(),
+});
 
-  if (!match) return null;
-
-  const day = parseInt(match[1]);
-  const monthName = match[2];
-  const buddhistYear = parseInt(match[3]);
-
-  const month = THAI_MONTHS[monthName];
-  const gregorianYear = buddhistYear - 543;
-
-  return new Date(gregorianYear, month, day).getTime();
-}
-
-function getEndDateTimestamp(dateText: string | null): number {
-  if (!dateText) return 0;
-  const parts = dateText.split(/\s*[-–]\s*/);
-  const endDateStr = parts[parts.length - 1];
-  return parseThaiDate(endDateStr) || 0;
-}
-
-function sortByEndDate(events: Event[]): Event[] {
-  return [...events].sort((a, b) => {
-    const endA = getEndDateTimestamp(a.date_text);
-    const endB = getEndDateTimestamp(b.date_text);
-    return endB - endA; // Farthest end date first
-  });
-}
-
-// ============================================================================
-// API Server
-// ============================================================================
-const app = new Elysia()
-  .use(cors())
-
-  // GET / - API Info
-  .get("/", () => ({
+// GET / - API Info
+app.get("/", (req: Request, res: Response) => {
+  res.json({
     name: "CM Events API",
     version: "1.0.0",
+    status: "running",
+    tech: "Node.js + Express + SQLite",
     endpoints: [
-      "GET /events",
-      "GET /events/:id",
-      "GET /months",
-      "GET /stats",
-      "GET /search",
-      "GET /upcoming",
-      "GET /map",
+      "/events",
+      "/events/:id",
+      "/months",
+      "/stats",
+      "/search",
+      "/upcoming",
+      "/map",
+      "/scrape/status",
     ],
-  }))
+  });
+});
 
-  // GET /events - ดึง events ทั้งหมด (with pagination, sorted by end date)
-  .get(
-    "/events",
-    ({ query }) => {
-      const { month, page = "1", limit = "20" } = query;
+// GET /events - Get filtered events
+app.get("/events", (req: Request, res: Response) => {
+  try {
+    const { month, limit = "20", offset = "0" } = req.query;
+    const limitNum = Number(limit);
+    const offsetNum = Number(offset);
 
-      const pageNum = Math.max(1, parseInt(page));
-      const limitNum = Math.min(100, Math.max(1, parseInt(limit))); // Max 100 per page
+    let query =
+      "SELECT * FROM events WHERE is_fully_scraped = 1 AND description IS NOT NULL";
+    const params: any[] = [];
 
-      // Build WHERE clause
-      let whereSql = "";
-      const whereParams: (string | number | null)[] = [];
-
-      if (month) {
-        whereSql = ` WHERE month_wrapped LIKE ?`;
-        whereParams.push(`%"${month}"%`);
-      }
-
-      // Get all matching events (for sorting)
-      const dataSql = `SELECT * FROM events${whereSql}`;
-      const stmt = db.prepare(dataSql);
-      const allEvents = stmt.all(...whereParams) as Event[];
-
-      // Sort by end date (farthest end date first)
-      const sortedEvents = sortByEndDate(allEvents);
-
-      // Apply pagination after sorting
-      const total = sortedEvents.length;
-      const totalPages = Math.ceil(total / limitNum);
-      const offset = (pageNum - 1) * limitNum;
-      const paginatedEvents = sortedEvents.slice(offset, offset + limitNum);
-
-      return {
-        data: paginatedEvents,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-          totalPages,
-          hasNext: pageNum < totalPages,
-          hasPrev: pageNum > 1,
-        },
-      };
-    },
-    {
-      query: t.Object({
-        month: t.Optional(t.String()),
-        page: t.Optional(t.String()),
-        limit: t.Optional(t.String()),
-      }),
-    }
-  )
-
-  // GET /events/:id - ดึง event ตาม ID พร้อม images
-  .get(
-    "/events/:id",
-    ({ params: { id } }) => {
-      const eventStmt = db.prepare("SELECT * FROM events WHERE id = ?");
-      const event = eventStmt.get(parseInt(id)) as Event | undefined;
-
-      if (!event) {
-        return { error: "Event not found", status: 404 };
-      }
-
-      const imagesStmt = db.prepare(
-        "SELECT * FROM event_images WHERE event_id = ?"
-      );
-      const images = imagesStmt.all(parseInt(id)) as EventImage[];
-
-      return { data: { ...event, images } };
-    },
-    {
-      params: t.Object({
-        id: t.String(),
-      }),
-    }
-  )
-
-  // GET /months - ดึงรายการเดือนที่มี events
-  .get("/months", () => {
-    const stmt = db.prepare(
-      "SELECT month_wrapped FROM events WHERE month_wrapped IS NOT NULL"
-    );
-    const results = stmt.all() as { month_wrapped: string }[];
-
-    const monthSet = new Set<string>();
-    for (const row of results) {
-      const months = parseMonthWrapped(row.month_wrapped);
-      months.forEach((m) => monthSet.add(m));
+    if (month && typeof month === "string") {
+      query += " AND month_wrapped = ?";
+      params.push(month);
     }
 
-    return { data: Array.from(monthSet).sort().reverse() };
-  })
+    query += " ORDER BY month_wrapped DESC, id DESC LIMIT ? OFFSET ?";
+    params.push(limitNum, offsetNum);
 
-  // GET /stats - ดึงสถิติ events
-  .get("/stats", () => {
-    // Total events
-    const totalStmt = db.prepare("SELECT COUNT(*) as count FROM events");
-    const totalResult = totalStmt.get() as { count: number };
+    // Count query
+    let countQuery =
+      "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = 1 AND description IS NOT NULL";
+    const countParams: any[] = [];
 
-    // Events by month
-    const monthStmt = db.prepare(
-      "SELECT month_wrapped FROM events WHERE month_wrapped IS NOT NULL"
-    );
-    const monthResults = monthStmt.all() as { month_wrapped: string }[];
-
-    const monthCounts: Record<string, number> = {};
-    for (const row of monthResults) {
-      const months = parseMonthWrapped(row.month_wrapped);
-      for (const m of months) {
-        monthCounts[m] = (monthCounts[m] || 0) + 1;
-      }
+    if (month && typeof month === "string") {
+      countQuery += " AND month_wrapped = ?";
+      countParams.push(month);
     }
-    const eventsByMonth = Object.entries(monthCounts)
-      .map(([month, count]) => ({ month, count }))
-      .sort((a, b) => b.month.localeCompare(a.month));
 
-    // Top locations
-    const locationStmt = db.prepare(
-      "SELECT location, COUNT(*) as count FROM events WHERE location IS NOT NULL AND location != '' GROUP BY location ORDER BY count DESC LIMIT 10"
-    );
-    const locations = locationStmt.all() as {
-      location: string;
+    const { count } = db.prepare(countQuery).get(...countParams) as {
       count: number;
-    }[];
+    };
+    const events = db.prepare(query).all(...params) as EventRow[];
 
-    // With GPS
-    const gpsStmt = db.prepare(
-      "SELECT COUNT(*) as count FROM events WHERE latitude IS NOT NULL"
+    // Parse JSON fields
+    const parsedEvents = events.map((e) => ({
+      ...e,
+      gallery_images: e.gallery_images ? JSON.parse(e.gallery_images) : [],
+    }));
+
+    res.json(
+      success({
+        events: parsedEvents,
+        pagination: {
+          total: count,
+          limit: limitNum,
+          offset: offsetNum,
+          hasMore: offsetNum + events.length < count,
+        },
+      })
     );
-    const gpsResult = gpsStmt.get() as { count: number };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(error("Failed to fetch events"));
+  }
+});
 
-    // With Facebook
-    const fbStmt = db.prepare(
-      "SELECT COUNT(*) as count FROM events WHERE facebook_url IS NOT NULL"
+// GET /events/:id - Get single event
+app.get("/events/:id", (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const event = db.prepare("SELECT * FROM events WHERE id = ?").get(id) as
+      | EventRow
+      | undefined;
+
+    if (!event) {
+      res.status(404).json(error("Event not found"));
+      return;
+    }
+
+    res.json(
+      success({
+        ...event,
+        gallery_images: event.gallery_images
+          ? JSON.parse(event.gallery_images)
+          : [],
+      })
     );
-    const fbResult = fbStmt.get() as { count: number };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(error("Failed to fetch event"));
+  }
+});
 
-    return {
-      data: {
-        totalEvents: totalResult.count,
-        eventsWithGPS: gpsResult.count,
-        eventsWithFacebook: fbResult.count,
-        eventsByMonth,
-        topLocations: locations,
+// GET /months - Get available months
+app.get("/months", (req: Request, res: Response) => {
+  try {
+    const months = db
+      .prepare(
+        `SELECT DISTINCT month_wrapped FROM events 
+         WHERE month_wrapped IS NOT NULL 
+         ORDER BY month_wrapped DESC`
+      )
+      .all() as { month_wrapped: string }[];
+
+    res.json(success(months.map((m) => m.month_wrapped)));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(error("Failed to fetch months"));
+  }
+});
+
+// GET /stats - Get statistics
+app.get("/stats", (req: Request, res: Response) => {
+  try {
+    const totalEvents = db
+      .prepare("SELECT COUNT(*) as count FROM events")
+      .get() as { count: number };
+    const scrapedEvents = db
+      .prepare(
+        "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = 1"
+      )
+      .get() as { count: number };
+
+    res.json(
+      success({
+        total: totalEvents.count,
+        fullyScraped: scrapedEvents.count,
+        pending: totalEvents.count - scrapedEvents.count,
+      })
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(error("Failed to fetch stats"));
+  }
+});
+
+// GET /search - Search events
+app.get("/search", (req: Request, res: Response) => {
+  try {
+    const { q } = req.query;
+    if (!q || typeof q !== "string") {
+      res.status(400).json(error("Query parameter 'q' is required"));
+      return;
+    }
+
+    const events = db
+      .prepare(
+        `SELECT * FROM events 
+         WHERE (title LIKE ? OR description LIKE ? OR location LIKE ?)
+         AND is_fully_scraped = 1
+         ORDER BY id DESC LIMIT 50`
+      )
+      .all(`%${q}%`, `%${q}%`, `%${q}%`) as EventRow[];
+
+    res.json(
+      success(
+        events.map((e) => ({
+          ...e,
+          gallery_images: e.gallery_images ? JSON.parse(e.gallery_images) : [],
+        }))
+      )
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(error("Search failed"));
+  }
+});
+
+// GET /upcoming - Get upcoming events
+app.get("/upcoming", (req: Request, res: Response) => {
+  try {
+    // Simple logic: return latest 20 fully scraped events
+    const events = db
+      .prepare(
+        `SELECT * FROM events 
+         WHERE is_fully_scraped = 1
+         ORDER BY month_wrapped DESC, id DESC LIMIT 20`
+      )
+      .all() as EventRow[];
+
+    res.json(
+      success(
+        events.map((e) => ({
+          ...e,
+          gallery_images: e.gallery_images ? JSON.parse(e.gallery_images) : [],
+        }))
+      )
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(error("Failed to fetch upcoming events"));
+  }
+});
+
+// GET /map - Get events with coordinates
+app.get("/map", (req: Request, res: Response) => {
+  try {
+    const events = db
+      .prepare(
+        `SELECT id, title, latitude, longitude, location, cover_image_url 
+         FROM events
+         WHERE latitude IS NOT NULL AND longitude IS NOT NULL`
+      )
+      .all();
+    res.json(success(events));
+  } catch (err) {
+    // If table doesn't have lat/long columns yet, return empty list
+    res.json(success([]));
+  }
+});
+
+// POST /scrape - Trigger manual scrape
+app.post("/scrape", async (req: Request, res: Response) => {
+  if (isScraperRunning) {
+    res.status(409).json(error("Scraper is already running"));
+    return;
+  }
+
+  // Run in background
+  scheduledScrape();
+
+  res.json(
+    success(
+      {
+        startedAt: new Date().toISOString(),
       },
-    };
-  })
+      "Scraper started in background"
+    )
+  );
+});
 
-  // GET /search - ค้นหา events
-  .get(
-    "/search",
-    ({ query }) => {
-      const { q, limit = "20" } = query;
-
-      if (!q || q.length < 2) {
-        return { data: [], message: "Query must be at least 2 characters" };
-      }
-
-      const searchTerm = `%${q}%`;
-      const stmt = db.prepare(
-        "SELECT * FROM events WHERE title LIKE ? OR description LIKE ? OR location LIKE ? ORDER BY id DESC LIMIT ?"
-      );
-      const events = stmt.all(
-        searchTerm,
-        searchTerm,
-        searchTerm,
-        parseInt(limit)
-      ) as Event[];
-
-      return { data: events };
-    },
-    {
-      query: t.Object({
-        q: t.Optional(t.String()),
-        limit: t.Optional(t.String()),
-      }),
-    }
-  )
-
-  // GET /upcoming - ดึง events ที่ยังไม่สิ้นสุด
-  .get("/upcoming", () => {
-    const stmt = db.prepare(
-      "SELECT * FROM events WHERE is_ended = 0 ORDER BY id DESC"
-    );
-    const events = stmt.all() as Event[];
-    return { data: events };
-  })
-
-  // GET /map - ดึง events ที่มี GPS
-  .get("/map", () => {
-    const stmt = db.prepare(
-      "SELECT id, title, location, latitude, longitude, cover_image_url, date_text FROM events WHERE latitude IS NOT NULL AND longitude IS NOT NULL"
-    );
-    const events = stmt.all() as Partial<Event>[];
-    return { data: events };
-  })
-
-  // POST /scrape - Manual trigger scrape
-  .post("/scrape", async () => {
-    if (isScraperRunning) {
-      return {
-        success: false,
-        message: "Scraper is already running",
-        lastScrapeTime: lastScrapeTime?.toISOString() || null,
-      };
-    }
-
-    // Run in background
-    scheduledScrape();
-
-    return {
-      success: true,
-      message: "Scraper started in background",
-      startedAt: new Date().toISOString(),
-    };
-  })
-
-  // GET /scrape/status - Get scraper status
-  .get("/scrape/status", () => {
-    return {
+// GET /scrape/status - Get scraper status
+app.get("/scrape/status", (req: Request, res: Response) => {
+  res.json(
+    success({
       isRunning: isScraperRunning,
       lastScrapeTime: lastScrapeTime?.toISOString() || null,
       nextScheduledRun: lastScrapeTime
         ? new Date(lastScrapeTime.getTime() + TWELVE_HOURS).toISOString()
         : null,
       intervalHours: 12,
-    };
-  })
+    })
+  );
+});
 
-  .listen(process.env.PORT || 3001);
-
-console.log(`
-🦊 Events API is running at http://localhost:${app.server?.port}
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`
+🦊 Events API is running at http://localhost:${PORT}
 
 📚 Endpoints:
    GET  /               - API Info
-   GET  /events         - ดึง events (?month=2025-12&limit=20&offset=0)
-   GET  /events/:id     - ดึง event ตาม ID พร้อม images
-   GET  /months         - ดึงรายการเดือนที่มี events
-   GET  /stats          - ดึงสถิติ events
-   GET  /search         - ค้นหา events (?q=Christmas)
-   GET  /upcoming       - ดึง events ที่ยังไม่สิ้นสุด
-   GET  /map            - ดึง events ที่มี GPS coordinates
-   POST /scrape         - Trigger scrape manually
-   GET  /scrape/status  - Get scraper status
+   GET  /events         - List events
+   GET  /events/:id     - Get event detail
+   GET  /months         - List months
+   GET  /stats          - Statistics
+   GET  /search         - Search
+   GET  /upcoming       - Upcoming events
+   POST /scrape         - Trigger scrape
+   GET  /scrape/status  - Scraper status
 `);
+});
