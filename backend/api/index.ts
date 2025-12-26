@@ -1,6 +1,70 @@
 import { cors } from "@elysiajs/cors";
 import { Database } from "bun:sqlite";
 import { Elysia, t } from "elysia";
+import { runDetailScraper } from "../detail-scraper";
+import { runScraper } from "../scraper";
+
+// ============================================================================
+// Cron Job: Scrape every 12 hours (at 00:00 and 12:00)
+// ============================================================================
+const TWELVE_HOURS = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+
+let lastScrapeTime: Date | null = null;
+let isScraperRunning = false;
+let lastDetailScrapeTime: Date | null = null;
+
+async function scheduledScrape() {
+  if (isScraperRunning) {
+    console.log("⏳ Scraper is already running, skipping...");
+    return;
+  }
+
+  try {
+    isScraperRunning = true;
+
+    // Step 1: Scrape event list
+    console.log("\n⏰ Scheduled scrape starting...");
+    const listResult = await runScraper();
+    lastScrapeTime = new Date();
+    console.log(
+      `✅ List scrape completed at ${lastScrapeTime.toLocaleString("th-TH")}`
+    );
+
+    // Step 2: Scrape event details (batch of 10)
+    console.log("\n📚 Starting detail scrape...");
+    const detailResult = await runDetailScraper(10);
+    lastDetailScrapeTime = new Date();
+    console.log(
+      `✅ Detail scrape completed at ${lastDetailScrapeTime.toLocaleString(
+        "th-TH"
+      )}`
+    );
+    console.log(
+      `   Scraped: ${detailResult.scraped}, Remaining: ${detailResult.remaining}`
+    );
+
+    return { list: listResult, detail: detailResult };
+  } catch (error) {
+    console.error("❌ Scheduled scrape failed:", error);
+  } finally {
+    isScraperRunning = false;
+  }
+}
+
+// Run scraper on startup (after 5 seconds delay to let server start)
+setTimeout(() => {
+  console.log("🚀 Running initial scrape on startup...");
+  scheduledScrape();
+}, 5000);
+
+// Schedule scraper every 12 hours
+setInterval(() => {
+  scheduledScrape();
+}, TWELVE_HOURS);
+
+console.log(`\n📅 Cron scheduled: Scraper will run every 12 hours`);
+console.log(`   - List scraper: scrape event listings`);
+console.log(`   - Detail scraper: scrape event details with AI (10 per batch)`);
 
 // ============================================================================
 // Database Connection (using Bun's built-in SQLite)
@@ -321,18 +385,52 @@ const app = new Elysia()
     return { data: events };
   })
 
+  // POST /scrape - Manual trigger scrape
+  .post("/scrape", async () => {
+    if (isScraperRunning) {
+      return {
+        success: false,
+        message: "Scraper is already running",
+        lastScrapeTime: lastScrapeTime?.toISOString() || null,
+      };
+    }
+
+    // Run in background
+    scheduledScrape();
+
+    return {
+      success: true,
+      message: "Scraper started in background",
+      startedAt: new Date().toISOString(),
+    };
+  })
+
+  // GET /scrape/status - Get scraper status
+  .get("/scrape/status", () => {
+    return {
+      isRunning: isScraperRunning,
+      lastScrapeTime: lastScrapeTime?.toISOString() || null,
+      nextScheduledRun: lastScrapeTime
+        ? new Date(lastScrapeTime.getTime() + TWELVE_HOURS).toISOString()
+        : null,
+      intervalHours: 12,
+    };
+  })
+
   .listen(3001);
 
 console.log(`
 🦊 Events API is running at http://localhost:${app.server?.port}
 
 📚 Endpoints:
-   GET /               - API Info
-   GET /events         - ดึง events (?month=2025-12&limit=20&offset=0)
-   GET /events/:id     - ดึง event ตาม ID พร้อม images
-   GET /months         - ดึงรายการเดือนที่มี events
-   GET /stats          - ดึงสถิติ events
-   GET /search         - ค้นหา events (?q=Christmas)
-   GET /upcoming       - ดึง events ที่ยังไม่สิ้นสุด
-   GET /map            - ดึง events ที่มี GPS coordinates
+   GET  /               - API Info
+   GET  /events         - ดึง events (?month=2025-12&limit=20&offset=0)
+   GET  /events/:id     - ดึง event ตาม ID พร้อม images
+   GET  /months         - ดึงรายการเดือนที่มี events
+   GET  /stats          - ดึงสถิติ events
+   GET  /search         - ค้นหา events (?q=Christmas)
+   GET  /upcoming       - ดึง events ที่ยังไม่สิ้นสุด
+   GET  /map            - ดึง events ที่มี GPS coordinates
+   POST /scrape         - Trigger scrape manually
+   GET  /scrape/status  - Get scraper status
 `);
