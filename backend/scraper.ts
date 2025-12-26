@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Database } from "bun:sqlite";
+import Database from "better-sqlite3";
 
 interface EventData {
   title: string;
@@ -194,7 +194,7 @@ export async function runScraper(): Promise<{
   const db = new Database(DB_PATH);
 
   // Ensure tables exist
-  db.run(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       source_url TEXT UNIQUE NOT NULL,

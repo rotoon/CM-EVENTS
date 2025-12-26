@@ -1,5 +1,5 @@
 import { cors } from "@elysiajs/cors";
-import { Database } from "bun:sqlite";
+import Database from "better-sqlite3";
 import { Elysia, t } from "elysia";
 import { runDetailScraper } from "../detail-scraper";
 import { runScraper } from "../scraper";
@@ -67,7 +67,7 @@ console.log(`   - List scraper: scrape event listings`);
 console.log(`   - Detail scraper: scrape event details with AI (10 per batch)`);
 
 // ============================================================================
-// Database Connection (using Bun's built-in SQLite)
+// Database Connection (using better-sqlite3)
 // ============================================================================
 const DB_PATH = process.env.DB_PATH || "events.db";
 const db = new Database(DB_PATH, { readonly: true });

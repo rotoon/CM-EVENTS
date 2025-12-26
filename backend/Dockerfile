@@ -1,18 +1,17 @@
-# Backend Dockerfile for Railway (Bun + SQLite)
-# Use Debian-based image instead of Alpine for better native module compatibility
-FROM oven/bun:1
+# Backend Dockerfile for Railway (Node.js + pnpm)
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies for better-sqlite3 native builds
-# apt-get is available in oven/bun:1 (Debian)
+# Install pnpm and build dependencies for better-sqlite3
+RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN apt-get update && apt-get install -y python3 make g++ sqlite3 && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
-COPY package.json bun.lock* ./
+COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN bun install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Copy source files
 COPY . .
@@ -26,12 +25,15 @@ ENV DB_PATH=/data/events.db
 # Default port if not provided by Railway
 ENV PORT=3001 
 
-# Expose port (Railway will use PORT env var, but EXPOSE is good practice)
+# Expose port
 EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-3001}/ || exit 1
+# Health check (using curl which might not be in slim, install it or use node script)
+# Installing curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Start the server
-CMD ["bun", "run", "api/index.ts"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-3001}/scrape/status || exit 1
+
+# Start the server using tsx
+CMD ["pnpm", "exec", "tsx", "api/index.ts"]

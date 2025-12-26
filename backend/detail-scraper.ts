@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
-import { Database } from "bun:sqlite";
+import Database, { type Database as DatabaseType } from "better-sqlite3";
 import * as cheerio from "cheerio";
 import "dotenv/config";
 
@@ -63,7 +63,7 @@ ${rawDescription}`;
 // Scrape Event Detail
 // ============================================================================
 async function scrapeEventDetail(
-  db: Database,
+  db: DatabaseType,
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
   event: EventDetail
 ) {
@@ -277,7 +277,7 @@ export async function runDetailScraper(batchSize = 10): Promise<{
 
   for (const sql of alterStatements) {
     try {
-      db.run(sql);
+      db.prepare(sql).run();
     } catch {
       // Column already exists, ignore
     }
