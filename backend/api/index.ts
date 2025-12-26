@@ -418,7 +418,7 @@ const app = new Elysia()
     };
   })
 
-  .listen(3001);
+  .listen(process.env.PORT || 3001);
 
 console.log(`
 🦊 Events API is running at http://localhost:${app.server?.port}
