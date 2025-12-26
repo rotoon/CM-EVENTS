@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CM EVENTS: CYBER LANNA 2077</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-black': '#050510',
+                        'cyber-dark': '#0B0B1E',
+                        'neon-cyan': '#00F0FF',
+                        'neon-purple': '#B026FF',
+                        'neon-gold': '#FFD700',
+                        'neon-pink': '#FF0055',
+                    },
+                    fontFamily: {
+                        sans: ['Rajdhani', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                        thai: ['Noto Sans Thai', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px)",
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glitch': 'glitch 1s linear infinite',
+                    },
+                    keyframes: {
+                        glitch: {
+                            '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+                            '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+                            '62%': { transform: 'translate(0,0) skew(5deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background-color: #050510;
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+        }
+        .neon-text-cyan {
+            text-shadow: 0 0 5px #00F0FF, 0 0 10px #00F0FF, 0 0 20px #00F0FF;
+        }
+        .neon-text-purple {
+            text-shadow: 0 0 5px #B026FF, 0 0 10px #B026FF;
+        }
+        .neon-border-cyan {
+            box-shadow: 0 0 5px #00F0FF, inset 0 0 5px #00F0FF;
+        }
+        .cyber-card {
+            background: rgba(11, 11, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            clip-path: polygon(
+                0 10px, 
+                10px 0, 
+                100% 0, 
+                100% calc(100% - 10px), 
+                calc(100% - 10px) 100%, 
+                0 100%
+            );
+        }
+        .glitch-wrapper { position: relative; }
+        .glitch-wrapper::before, .glitch-wrapper::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        .glitch-wrapper::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff0055;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch-wrapper::after {
+            left: -2px;
+            text-shadow: -1px 0 #00f0ff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(13px, 9999px, 88px, 0); }
+            5% { clip: rect(74px, 9999px, 86px, 0); }
+            10% { clip: rect(23px, 9999px, 4px, 0); }
+            15% { clip: rect(54px, 9999px, 92px, 0); }
+            20% { clip: rect(6px, 9999px, 32px, 0); }
+            100% { clip: rect(34px, 9999px, 12px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 99px, 0); }
+            100% { clip: rect(2px, 9999px, 85px, 0); }
+        }
+    </style>
+</head>
+<body class="text-gray-300 font-sans antialiased selection:bg-neon-cyan selection:text-black">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 top-0 border-b border-neon-cyan/30 bg-cyber-black/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="relative w-10 h-10 flex items-center justify-center border border-neon-cyan/50 bg-neon-cyan/10 rounded-none clip-notch">
+                    <i data-lucide="cpu" class="w-6 h-6 text-neon-cyan animate-pulse"></i>
+                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-neon-cyan"></div>
+                    <div class="absolute -bottom-1 -left-1 w-2 h-2 bg-neon-cyan"></div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-display font-bold text-xl tracking-widest text-white neon-text-cyan glitch-wrapper" data-text="CM.OS">CM.OS</span>
+                    <span class="text-[10px] text-neon-purple tracking-[0.3em] font-bold">SYSTEM V.2077</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex gap-8 font-display text-sm tracking-wider">
+                <a href="#" class="text-white hover:text-neon-cyan transition-colors neon-text-cyan">NET_HOME</a>
+                <a href="#" class="text-gray-500 hover:text-neon-purple transition-colors">EVENTS_LOG</a>
+                <a href="#" class="text-gray-500 hover:text-neon-gold transition-colors">MAP_DATA</a>
+                <a href="#" class="text-gray-500 hover:text-neon-pink transition-colors">COMM_LINK</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-2 px-3 py-1 border border-neon-purple/30 bg-neon-purple/5 text-neon-purple text-xs font-mono">
+                    <div class="w-2 h-2 rounded-full bg-neon-purple animate-pulse"></div>
+                    ONLINE: 4,028
+                </div>
+                <button class="bg-neon-cyan text-black font-display font-bold px-6 py-2 hover:bg-white hover:neon-text-cyan transition-all clip-polygon hover:shadow-[0_0_15px_rgba(0,240,255,0.6)]">
+                    CONNECT
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="relative pt-32 pb-20 overflow-hidden">
+        <!-- Floating Elements -->
+        <div class="absolute top-1/4 left-10 w-32 h-32 border border-neon-purple/20 rounded-full animate-spin-slow opacity-50"></div>
+        <div class="absolute bottom-10 right-10 w-64 h-64 border border-neon-cyan/20 rounded-full animate-pulse opacity-30"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 border-l-4 border-neon-gold bg-gradient-to-r from-neon-gold/20 to-transparent">
+                    <span class="text-neon-gold font-display text-xs tracking-widest uppercase">Warning: Sensory Overload</span>
+                </div>
+                <h1 class="font-display font-black text-6xl md:text-8xl leading-none text-white mb-6 uppercase">
+                    Chiang Mai <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-white to-neon-purple neon-text-cyan">Neon City</span>
+                </h1>
+                <p class="text-gray-400 text-lg md:text-xl font-light mb-10 max-w-lg border-l-2 border-neon-purple/40 pl-6">
+                    Experience the fusion of ancient Lanna heritage and future technology. 
+                    <span class="text-neon-cyan">Augmented Reality Tours</span>, <span class="text-neon-purple">Holographic Temples</span>, and <span class="text-neon-gold">Cyber Street Food</span>.
+                </p>
+                
+                <div class="flex gap-4">
+                    <button class="px-8 py-3 bg-transparent border border-neon-cyan text-neon-cyan font-display hover:bg-neon-cyan hover:text-black transition-all shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+                        INITIATE SEQUENCE
+                    </button>
+                    <button class="px-8 py-3 bg-transparent border border-gray-700 text-gray-400 font-display hover:border-gray-500 hover:text-white transition-all flex items-center gap-2">
+                        <i data-lucide="play-circle" class="w-5 h-5"></i>
+                        VIEW HOLO
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-neon-cyan to-neon-purple opacity-30 blur-lg group-hover:opacity-60 transition duration-1000"></div>
+                <div class="relative cyber-card p-2">
+                    <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?q=80&w=2670&auto=format&fit=crop" class="w-full h-auto object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all duration-500" alt="Cyberpunk Chiang Mai">
+                    <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur border border-neon-gold/50 p-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="font-display text-neon-gold text-lg">WAT CHEDI LUANG [AR]</h3>
+                                <p class="text-xs text-gray-400 font-mono">COORD: 18.78, 98.98</p>
+                            </div>
+                            <i data-lucide="scan-line" class="w-8 h-8 text-neon-gold animate-pulse"></i>
+                        </div>
+                    </div>
+                    <!-- Scan lines overlay -->
+                    <div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-20 bg-[length:100%_4px,6px_100%] pointer-events-none"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Grid -->
+    <main class="max-w-7xl mx-auto px-6 py-20 relative">
+        <div class="flex justify-between items-end mb-12 border-b border-gray-800 pb-4">
+            <h2 class="font-display text-4xl text-white">
+                <span class="text-neon-purple">&gt;</span> ACTIVE_NODES
+            </h2>
+            <div class="flex gap-2">
+                <button class="px-3 py-1 text-xs border border-neon-cyan text-neon-cyan bg-neon-cyan/10">ALL</button>
+                <button class="px-3 py-1 text-xs border border-gray-700 text-gray-500 hover:border-gray-500">MUSIC</button>
+                <button class="px-3 py-1 text-xs border border-gray-700 text-gray-500 hover:border-gray-500">TECH</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="cyber-grid">
+            <!-- JS Injection -->
+        </div>
+        
+        <div class="mt-20 flex justify-center">
+             <div class="h-1 w-full max-w-xs bg-gray-800 rounded-full overflow-hidden">
+                 <div class="h-full bg-neon-cyan w-1/3 animate-pulse"></div>
+             </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-black/50 backdrop-blur pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h4 class="font-display font-bold text-2xl text-white tracking-widest">CM.OS</h4>
+                <p class="text-gray-600 text-sm font-mono mt-2">SYSTEM INTEGRITY: 100%</p>
+            </div>
+            <div class="font-mono text-xs text-gray-600">
+                &copy; 2077 CHIANG MAI MAINFRAME. ACCESS GRANTED.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const data = [
+            {
+                title: "Doi Suthep Hologram",
+                type: "VISUAL",
+                loc: "SECTOR A",
+                date: "TONIGHT",
+                color: "text-neon-gold"
+            },
+            {
+                title: "Cyber Monk Chat",
+                type: "SOCIAL",
+                loc: "SECTOR B",
+                date: "NOW",
+                color: "text-neon-purple"
+            },
+            {
+                title: "Synthwave Night Market",
+                type: "MUSIC",
+                loc: "SECTOR C",
+                date: "22:00",
+                color: "text-neon-cyan"
+            },
+            {
+                title: "Drone Racing League",
+                type: "SPORT",
+                loc: "STADIUM",
+                date: "TMRW",
+                color: "text-neon-pink"
+            },
+            {
+                title: "Smart Fabric Workshop",
+                type: "TECH",
+                loc: "TCDC 2.0",
+                date: "SAT",
+                color: "text-white"
+            },
+            {
+                title: "Crypto Lanna Meetup",
+                type: "BIZ",
+                loc: "HUB",
+                date: "SUN",
+                color: "text-neon-green"
+            }
+        ];
+
+        const grid = document.getElementById('cyber-grid');
+        data.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'cyber-card p-6 hover:bg-white/5 transition-all group cursor-pointer relative overflow-hidden';
+            el.innerHTML = `
+                <div class="absolute top-0 right-0 p-2 opacity-50">
+                    <i data-lucide="activity" class="w-4 h-4 ${item.color}"></i>
+                </div>
+                <div class="text-[10px] font-mono text-gray-400 mb-2 border-b border-gray-700 pb-2 inline-block">
+                    ID: ${Math.floor(Math.random() * 9999)} // ${item.type}
+                </div>
+                <h3 class="font-display font-bold text-xl text-white mb-4 group-hover:${item.color} transition-colors uppercase leading-tight">${item.title}</h3>
+                <div class="flex justify-between items-end font-mono text-sm">
+                    <span class="text-gray-500 flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> ${item.loc}</span>
+                    <span class="${item.color} border border-current px-2 py-0.5 text-xs">${item.date}</span>
+                </div>
+                <div class="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-neon-cyan to-neon-purple group-hover:w-full transition-all duration-300"></div>
+            `;
+            grid.appendChild(el);
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>

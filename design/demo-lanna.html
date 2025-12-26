@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiang Mai Events (Premium Demo)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'lanna-dark': '#0F231F', // Deep Jungle Night
+                        'lanna-green': '#24594A', // Doi Suthep Green
+                        'lanna-clay': '#C05F34', // Brick/Terracotta
+                        'lanna-gold': '#D4AF37', // Temple Gold (Accent)
+                        'lanna-cream': '#FDFBF7', // Rice Paper
+                        'lanna-stone': '#EAE8E4',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Thai', 'sans-serif'],
+                        display: ['Outfit', 'Noto Sans Thai', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'], // Adding Serif for elegance
+                    },
+                    backgroundImage: {
+                        'pattern-fade': "linear-gradient(to bottom, transparent, #FDFBF7)",
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+        .hero-gradient {
+            background: linear-gradient(180deg, rgba(15,35,31,0.4) 0%, rgba(15,35,31,0.6) 60%, #FDFBF7 100%);
+        }
+        /* Hide Scrollbar but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-lanna-cream text-lanna-dark font-sans antialiased selection:bg-lanna-clay selection:text-white">
+    
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 top-0 py-4 transition-all duration-300">
+        <div class="container mx-auto px-6">
+            <div class="glass-panel rounded-full px-6 py-4 flex justify-between items-center max-w-6xl mx-auto">
+                <div class="flex items-center gap-3">
+                    <div class="bg-lanna-green text-white p-1.5 rounded-lg">
+                         <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl tracking-tight text-lanna-dark">CM Events</span>
+                </div>
+                
+                <div class="hidden md:flex gap-8 text-sm font-medium text-slate-600">
+                    <a href="#" class="text-lanna-dark font-semibold">หน้าแรก</a>
+                    <a href="#" class="hover:text-lanna-clay transition-colors">อีเวนต์</a>
+                    <a href="#" class="hover:text-lanna-clay transition-colors">สถานที่</a>
+                    <a href="#" class="hover:text-lanna-clay transition-colors">บทความ</a>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium hover:bg-black/5 rounded-full transition-colors">
+                        <i data-lucide="globe" class="w-4 h-4"></i> TH
+                    </button>
+                    <button class="bg-lanna-dark text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-black transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2">
+                        เข้าสู่ระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-[85vh] flex items-center justify-center overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+            <!-- Curated Image: Yi Peng Lantern Festival (Abstract & Warm) -->
+            <img src="https://images.unsplash.com/photo-1532236395709-7d70320fec2d?q=80&w=3000&auto=format&fit=crop" class="w-full h-full object-cover" alt="Chiang Mai Atmosphere">
+            <div class="hero-gradient absolute inset-0"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-16">
+            <div class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white text-sm font-medium mb-6">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lanna-gold opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-lanna-gold"></span>
+                    </span>
+                    Update ล่าสุด: ธันวาคม 2026
+                </span>
+            </div>
+           
+            <h1 class="font-display text-5xl md:text-8xl font-bold text-white mb-6 leading-[1.1] tracking-tight drop-shadow-2xl animate-fade-in-up" style="animation-delay: 0.2s;">
+                Discover the Soul of <br>
+                <span class="font-serif italic text-lanna-gold">Chiang Mai</span>
+            </h1>
+            
+            <p class="text-white/90 text-lg md:text-xl font-light mb-12 max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.3s;">
+                ร่วมสัมผัสประสบการณ์อีเวนต์ ศิลปะ และดนตรี<br class="hidden md:block">ที่คัดสรรมาเพื่อสะท้อนตัวตนของเชียงใหม่ในมุมมองใหม่
+            </p>
+
+            <!-- Search Bar Component -->
+            <div class="glass-panel p-2 rounded-2xl max-w-2xl mx-auto flex shadow-2xl animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="flex-1 flex items-center pl-6 pr-4 border-r border-gray-200/50">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-3"></i>
+                    <div class="flex flex-col text-left w-full">
+                        <span class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">ค้นหา</span>
+                        <input type="text" placeholder="คอนเสิร์ต, นิทรรศการ..." class="w-full bg-transparent border-none focus:outline-none text-lanna-dark font-medium placeholder-slate-400 text-sm">
+                    </div>
+                </div>
+                <div class="flex-1 hidden md:flex items-center px-6 border-r border-gray-200/50">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-gray-400 mr-3"></i>
+                    <div class="flex flex-col text-left w-full">
+                        <span class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">ย่าน</span>
+                        <select class="w-full bg-transparent border-none focus:outline-none text-lanna-dark font-medium cursor-pointer text-sm -ml-1">
+                            <option>ทั้งหมด</option>
+                            <option>นิมมานเหมินท์</option>
+                            <option>เมืองเก่า</option>
+                            <option>แม่ริม</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="hidden md:flex items-center px-6 w-40">
+                    <div class="flex flex-col text-left w-full">
+                        <span class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">วันที่</span>
+                        <select class="w-full bg-transparent border-none focus:outline-none text-lanna-dark font-medium cursor-pointer text-sm -ml-1">
+                            <option>เร็วๆ นี้</option>
+                            <option>สุดสัปดาห์นี้</option>
+                            <option>เดือนนี้</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="bg-lanna-dark hover:bg-lanna-green text-white rounded-xl w-14 h-14 flex items-center justify-center transition-all shadow-lg ml-2">
+                    <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- Quick Tags -->
+            <div class="mt-8 flex justify-center gap-3 animate-fade-in-up" style="animation-delay: 0.5s;">
+                <span class="text-white/60 text-sm font-medium mr-2">Popular:</span>
+                <a href="#" class="px-4 py-1.5 rounded-full border border-white/20 text-white text-xs hover:bg-white/10 transition-colors bg-black/20 backdrop-blur-sm">Jazz Festival</a>
+                <a href="#" class="px-4 py-1.5 rounded-full border border-white/20 text-white text-xs hover:bg-white/10 transition-colors bg-black/20 backdrop-blur-sm">Craft Market</a>
+                <a href="#" class="px-4 py-1.5 rounded-full border border-white/20 text-white text-xs hover:bg-white/10 transition-colors bg-black/20 backdrop-blur-sm">Workshop</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Container -->
+    <main class="max-w-7xl mx-auto px-6 pb-24">
+        
+        <!-- Section Header -->
+        <div class="flex justify-between items-end mb-12 mt-12">
+            <div>
+                <h2 class="font-display text-4xl font-bold text-lanna-dark mb-3">
+                    Upcoming Events
+                </h2>
+                <div class="h-1 w-20 bg-lanna-clay rounded-full"></div>
+            </div>
+            <div class="flex gap-2">
+                <button class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-600"><i data-lucide="grid-2x2" class="w-5 h-5"></i></button>
+                <button class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-400 bg-white"><i data-lucide="list" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+
+        <!-- Filter Tab -->
+        <div class="flex gap-2 overflow-x-auto pb-6 scrollbar-hide mb-8">
+            <button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-lanna-dark text-white text-sm font-medium shadow-lg shadow-lanna-dark/20">ทั้งหมด</button>
+            <button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:border-lanna-green hover:text-lanna-green transition-colors">ดนตรี & คอนเสิร์ต</button>
+            <button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:border-lanna-green hover:text-lanna-green transition-colors">ศิลปะ & นิทรรศการ</button>
+            <button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:border-lanna-green hover:text-lanna-green transition-colors">เวิร์คช็อป</button>
+            <button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:border-lanna-green hover:text-lanna-green transition-colors">อาหาร</button>
+        </div>
+
+        <!-- Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8" id="events-grid">
+            <!-- JS Injection -->
+        </div>
+
+        <div class="mt-20 text-center">
+            <button class="bg-white border border-slate-200 text-lanna-dark font-medium px-8 py-4 rounded-full hover:bg-lanna-stone transition-colors shadow-sm inline-flex items-center gap-2">
+                โหลดเพิ่มเติม <i data-lucide="loader-2" class="w-4 h-4 animate-spin hidden"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-lanna-dark text-white pt-20 pb-10 border-t border-white/5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-lanna-green via-lanna-gold to-lanna-clay"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-3 mb-6">
+                         <div class="bg-white/10 text-white p-2 rounded-lg">
+                             <i data-lucide="flower" class="w-6 h-6"></i>
+                        </div>
+                        <span class="font-display font-bold text-2xl tracking-tight">CM Events</span>
+                    </div>
+                    <p class="text-white/60 leading-relaxed mb-8 max-w-md font-light">
+                        Connecting you to the heartbeat of Chiang Mai. <br>
+                        แพลตฟอร์มรวบรวมอีเวนต์ที่สะท้อนวิถีชีวิต ศิลปะ และวัฒนธรรมร่วมสมัยของเมืองเชียงใหม่
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-12 h-12 rounded-full bg-white/5 hover:bg-lanna-clay flex items-center justify-center transition-all border border-white/10"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-white/5 hover:bg-lanna-clay flex items-center justify-center transition-all border border-white/10"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-white/5 hover:bg-lanna-clay flex items-center justify-center transition-all border border-white/10"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+                <div class="md:col-span-2"></div>
+                <div class="md:col-span-2">
+                    <h4 class="font-bold text-lg mb-6 text-lanna-gold">Platform</h4>
+                    <ul class="space-y-4 text-white/70">
+                        <li><a href="#" class="hover:text-white transition-colors">Browse Events</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Map View</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Submit Event</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">For Organizers</a></li>
+                    </ul>
+                </div>
+                <div class="md:col-span-3">
+                     <h4 class="font-bold text-lg mb-6 text-lanna-gold">Contact</h4>
+                     <ul class="space-y-4 text-white/70">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="map-pin" class="w-5 h-5 mt-1 text-lanna-green"></i>
+                            <span>123 Nimmanhemin Rd,<br>Sudhep, Chiang Mai 50200</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="mail" class="w-5 h-5 text-lanna-green"></i>
+                            <span>contact@cmevents.city</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-white/40 text-sm">
+                <p>&copy; 2026 Chiang Mai Events. All rights reserved.</p>
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white">Privacy Policy</a>
+                    <a href="#" class="hover:text-white">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const events = [
+            {
+                title: "Chiang Mai Jazz Festival 2026",
+                location: "Lanna Rock Garden",
+                date: "26 DEC",
+                price: "฿1,500",
+                image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=2600&auto=format&fit=crop",
+                tag: "Music",
+                color: "bg-purple-100 text-purple-700"
+            },
+            {
+                title: "NAP: Nimman Art & Promenade",
+                location: "Nimman Soi 1",
+                date: "27 DEC",
+                price: "Free",
+                image: "https://images.unsplash.com/photo-1555529733-0e670560f7e1?q=80&w=2574&auto=format&fit=crop", // Coffee/Vibe
+                tag: "Market",
+                color: "bg-orange-100 text-orange-700"
+            },
+            {
+                title: "Contemporary Lanna Textile Weaving Exhibition",
+                location: "MAIIAM Contemporary Art Museum",
+                date: "28 DEC",
+                price: "฿300",
+                image: "https://images.unsplash.com/photo-1596263576926-282674e503bd?q=80&w=2671&auto=format&fit=crop", // Fabric texture
+                tag: "Exhibition",
+                color: "bg-blue-100 text-blue-700"
+            },
+            {
+                title: "Morning Yoga at Doi Suthep",
+                location: "Monk's Trail Start Point",
+                date: "29 DEC",
+                price: "Donation",
+                image: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?q=80&w=2669&auto=format&fit=crop",
+                tag: "Wellness",
+                color: "bg-green-100 text-green-700"
+            },
+             {
+                title: "Clay Pottery Workshop",
+                location: "In Clay Studio",
+                date: "30 DEC",
+                price: "฿1,200",
+                image: "https://images.unsplash.com/photo-1505309600762-b94f0f7f9011?q=80&w=2670&auto=format&fit=crop", // Pottery
+                tag: "Workshop",
+                color: "bg-amber-100 text-amber-700"
+            },
+            {
+                title: "Northern Thai Chef's Table",
+                location: "Huen Muan Jai",
+                date: "31 DEC",
+                price: "฿2,500",
+                image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=2574&auto=format&fit=crop", // Food
+                tag: "Dining",
+                color: "bg-red-100 text-red-700"
+            }
+        ];
+
+        const grid = document.getElementById('events-grid');
+        
+        events.forEach((event, i) => {
+            const el = document.createElement('div');
+            el.className = 'group rounded-3xl bg-white p-3 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-300 hover:-translate-y-2 border border-slate-100 animate-fade-in-up flex flex-col';
+            el.style.animationDelay = `${i * 0.1 + 0.2}s`;
+            
+            el.innerHTML = `
+                <div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4">
+                    <img src="${event.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="${event.title}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="px-3 py-1 rounded-full bg-white/95 backdrop-blur font-bold text-xs shadow-sm uppercase tracking-wide text-slate-800">
+                            ${event.date}
+                        </span>
+                    </div>
+                    <button class="absolute bottom-3 right-3 bg-white text-lanna-dark w-10 h-10 rounded-full flex items-center justify-center translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:bg-lanna-clay hover:text-white">
+                        <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="px-2 pb-2 flex-grow flex flex-col">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider ${event.color} px-2 py-0.5 rounded-full">${event.tag}</span>
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-lanna-dark leading-snug mb-2 group-hover:text-lanna-clay transition-colors">
+                        ${event.title}
+                    </h3>
+                    <div class="mt-auto pt-4 flex items-center justify-between border-t border-slate-50">
+                        <div class="flex items-center gap-1.5 text-slate-500 text-sm">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                            <span class="truncate max-w-[120px]">${event.location}</span>
+                        </div>
+                        <span class="font-semibold text-lanna-dark text-sm bg-slate-50 px-2 py-1 rounded-md">${event.price}</span>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(el);
+        });
+
+        // Add Animation Styles
+        const style = document.createElement('style');
+        style.innerText = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in-up {
+                animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        lucide.createIcons();
+    </script>
+</body>
+</html>

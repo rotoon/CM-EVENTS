@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiang Mai Events: Eco-Nomad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eco-paper': '#F0EFEB',
+                        'eco-forest': '#2E5C48',
+                        'eco-earth': '#5C4033',
+                        'eco-sand': '#D7CDBB',
+                        'eco-leaf': '#8DA399',
+                        'eco-dark': '#1A332A',
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        display: ['DM Sans', 'sans-serif'], // Very clean
+                        mono: ['Space Mono', 'monospace'],
+                    },
+                    borderRadius: {
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background-color: #F0EFEB;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235c4033' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .soft-card {
+            background: white;
+            box-shadow: 0 4px 20px -2px rgba(46, 92, 72, 0.05), 0 0 2px rgba(46, 92, 72, 0.1);
+            border-radius: 1.5rem;
+        }
+        .eco-badge {
+            background-color: #EFF5F2;
+            color: #2E5C48;
+            border: 1px solid #D1E0D9;
+        }
+    </style>
+</head>
+<body class="text-eco-dark font-sans antialiased selection:bg-eco-leaf selection:text-white">
+
+    <!-- Navbar (Floating) -->
+    <div class="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
+        <nav class="bg-white/90 backdrop-blur-xl border border-white/50 px-6 py-3 rounded-full shadow-sm flex items-center gap-8 max-w-4xl w-full justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-eco-forest rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="leaf" class="w-4 h-4"></i>
+                </div>
+                <span class="font-bold tracking-tight text-lg text-eco-forest">EcoCM</span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-500">
+                <a href="#" class="text-eco-forest">Discover</a>
+                <a href="#" class="hover:text-eco-forest transition-colors">Workspaces</a>
+                <a href="#" class="hover:text-eco-forest transition-colors">Community</a>
+                <a href="#" class="hover:text-eco-forest transition-colors">Sustainability</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-500"></i>
+                </button>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <button class="bg-eco-forest hover:bg-eco-dark text-white px-5 py-2 rounded-full text-sm font-medium transition-colors">
+                    Login
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 pt-32 pb-20">
+        
+        <!-- Hero Dashboard Style -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Welcome Card -->
+            <div class="lg:col-span-2 soft-card p-10 relative overflow-hidden flex flex-col justify-center min-h-[300px]">
+                <div class="relative z-10 max-w-lg">
+                    <span class="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold mb-4">🌿 Carbon Neutral Events</span>
+                    <h1 class="text-4xl md:text-5xl font-bold text-eco-forest mb-6 leading-tight">
+                        Work, Life, and <br> Nature in Harmony.
+                    </h1>
+                    <p class="text-eco-earth/80 text-lg mb-8 leading-relaxed">
+                        Curated events for the conscious digital nomad. Connect with the community while respecting the Lanna environment.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="bg-eco-forest text-white px-6 py-3 rounded-full font-medium hover:bg-eco-dark transition-colors shadow-lg shadow-eco-forest/20">
+                            Find Events
+                        </button>
+                        <button class="bg-white border border-gray-200 text-eco-dark px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors">
+                            Map View
+                        </button>
+                    </div>
+                </div>
+                <!-- Abstract bg shape -->
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-eco-leaf/20 rounded-full blur-3xl"></div>
+                <!-- Image -->
+                 <img src="https://images.unsplash.com/photo-1596079890744-c1a0462d0975?q=80&w=2671&auto=format&fit=crop" class="absolute right-0 top-0 h-full w-1/3 object-cover opacity-80 mask-image-gradient hidden md:block" style="mask-image: linear-gradient(to right, transparent, black);">
+            </div>
+
+            <!-- Stats & Quick Actions -->
+            <div class="space-y-6">
+                <!-- Weather / AQI Card -->
+                <div class="soft-card p-6 flex items-center justify-between bg-gradient-to-br from-white to-gray-50">
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Chiang Mai Air</span>
+                        <div class="flex items-end gap-2 mt-1">
+                            <span class="text-4xl font-bold text-eco-forest">42</span>
+                            <span class="text-sm text-green-600 font-medium mb-1">Good AQI</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                        <i data-lucide="wind" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Trending Topics -->
+                <div class="soft-card p-6">
+                    <h3 class="font-bold text-lg mb-4">Community Trends</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="#" class="eco-badge px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-eco-forest hover:text-white transition-colors">#VeganFood</a>
+                        <a href="#" class="eco-badge px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-eco-forest hover:text-white transition-colors">#RemoteWork</a>
+                        <a href="#" class="eco-badge px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-eco-forest hover:text-white transition-colors">#Yoga</a>
+                        <a href="#" class="eco-badge px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-eco-forest hover:text-white transition-colors">#CraftCoffee</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button class="bg-eco-forest text-white px-5 py-2 rounded-full text-sm font-medium shadow-md shadow-eco-forest/20">All Events</button>
+            <button class="bg-white text-gray-600 hover:text-eco-forest px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:shadow transition-all">Coworking</button>
+            <button class="bg-white text-gray-600 hover:text-eco-forest px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:shadow transition-all">Wellness</button>
+            <button class="bg-white text-gray-600 hover:text-eco-forest px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:shadow transition-all">Volunteering</button>
+        </div>
+
+        <!-- Event Cards (Clean Grid) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="eco-grid">
+            <!-- JS Injection -->
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 py-12">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-6 h-6 bg-eco-forest rounded-full flex items-center justify-center text-white text-xs">
+                        <i data-lucide="leaf" class="w-3 h-3"></i>
+                    </div>
+                    <span class="font-bold text-eco-forest">EcoCM</span>
+                </div>
+                <p class="text-sm text-gray-500 leading-relaxed max-w-xs">
+                    Building a sustainable digital nomad community in the heart of Northern Thailand.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-900 mb-4 text-sm">Community</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li><a href="#" class="hover:text-eco-forest">Events</a></li>
+                    <li><a href="#" class="hover:text-eco-forest">Coworking Map</a></li>
+                    <li><a href="#" class="hover:text-eco-forest">Partner with us</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-900 mb-4 text-sm">Legal & Eco</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li><a href="#" class="hover:text-eco-forest">Sustainability Report</a></li>
+                    <li><a href="#" class="hover:text-eco-forest">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-eco-forest">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const data = [
+            {
+                title: "Morning Mindfulness",
+                loc: "Suan Buak Haad",
+                date: "Today, 7:00 AM",
+                img: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?q=80&w=2669&auto=format&fit=crop",
+                tag: "Wellness"
+            },
+            {
+                title: "Sustainable Tech Talk",
+                loc: "Yellow Coworking",
+                date: "Tomorrow, 6:00 PM",
+                img: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2670&auto=format&fit=crop",
+                tag: "Tech"
+            },
+            {
+                title: "Organic Farm Visit",
+                loc: "Ginger Farm",
+                date: "Sat, 9:00 AM",
+                img: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2671&auto=format&fit=crop",
+                tag: "Outdoor"
+            },
+            {
+                title: "Nomad Coffee Meetup",
+                loc: "Akha Ama Coffee",
+                date: "Sun, 10:00 AM",
+                img: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2671&auto=format&fit=crop",
+                tag: "Social"
+            }
+        ];
+
+        const grid = document.getElementById('eco-grid');
+        data.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'soft-card p-3 hover:shadow-lg transition-transform hover:-translate-y-1 cursor-pointer flex flex-col h-full group';
+            el.innerHTML = `
+                <div class="relative h-40 rounded-xl overflow-hidden mb-3">
+                    <img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold text-gray-700 shadow-sm">
+                        ${item.tag}
+                    </div>
+                </div>
+                <div class="px-1 flex-grow">
+                    <h3 class="font-bold text-gray-900 mb-1 leading-tight group-hover:text-eco-forest transition-colors">${item.title}</h3>
+                    <p class="text-sm text-gray-500 flex items-center gap-1 mb-2">
+                        <i data-lucide="map-pin" class="w-3 h-3"></i> ${item.loc}
+                    </p>
+                </div>
+                <div class="mt-2 text-xs font-medium text-eco-forest bg-eco-forest/5 px-2 py-1.5 rounded-lg self-start">
+                    ${item.date}
+                </div>
+            `;
+            grid.appendChild(el);
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>
