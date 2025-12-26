@@ -1,0 +1,15 @@
+# Railway configuration for Backend
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+# Volume for SQLite persistence
+[[mounts]]
+source = "events_db"
+destination = "/data"

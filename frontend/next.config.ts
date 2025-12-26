@@ -3,6 +3,7 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: "standalone", // For Docker deployment
   turbopack: {
     root: path.resolve(__dirname),
   },

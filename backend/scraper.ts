@@ -11,7 +11,7 @@ interface EventData {
 }
 
 const BASE_URL = "https://www.cmhy.city/events";
-const DB_PATH = "events.db";
+const DB_PATH = process.env.DB_PATH || "events.db";
 
 const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

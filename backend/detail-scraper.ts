@@ -4,7 +4,7 @@ import { Database } from "bun:sqlite";
 import * as cheerio from "cheerio";
 import "dotenv/config";
 
-const DB_PATH = "events.db";
+const DB_PATH = process.env.DB_PATH || "events.db";
 
 // ============================================================================
 // Constants

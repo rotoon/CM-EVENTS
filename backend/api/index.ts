@@ -69,7 +69,8 @@ console.log(`   - Detail scraper: scrape event details with AI (10 per batch)`);
 // ============================================================================
 // Database Connection (using Bun's built-in SQLite)
 // ============================================================================
-const db = new Database("events.db", { readonly: true });
+const DB_PATH = process.env.DB_PATH || "events.db";
+const db = new Database(DB_PATH, { readonly: true });
 
 // ============================================================================
 // Types
