@@ -7,11 +7,14 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN apt-get update && apt-get install -y python3 make g++ sqlite3 && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
+# Copy package.json (skip lockfile to force fresh install and respect pnpm config)
+COPY package.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
+
+# Force rebuild of better-sqlite3 to ensure bindings exist
+RUN pnpm rebuild better-sqlite3
 
 # Copy source files
 COPY . .
