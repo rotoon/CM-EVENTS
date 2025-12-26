@@ -70,27 +70,52 @@ console.log(`   - Detail scraper: scrape event details with AI (10 per batch)`);
 // Database Connection (using better-sqlite3)
 // ============================================================================
 const DB_PATH = process.env.DB_PATH || "events.db";
-const db = new Database(DB_PATH, { readonly: true });
+const db = new Database(DB_PATH); // Default mode (read/write), creates file if missing
+
+// Create table if not exists (Full Verified Schema)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_url TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    location TEXT,
+    date_text TEXT,
+    month_wrapped TEXT,
+    cover_image_url TEXT,
+    first_scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_fully_scraped BOOLEAN DEFAULT 0,
+    -- Columns added by detail-scraper (included here for safety)
+    time_text TEXT,
+    latitude REAL,
+    longitude REAL,
+    google_maps_url TEXT,
+    facebook_url TEXT,
+    is_ended BOOLEAN DEFAULT 0,
+    description_markdown TEXT
+  )
+`);
 
 // ============================================================================
-// Types
+// Types (Matched to DB Schema)
 // ============================================================================
 interface EventRow {
   id: number;
   title: string;
   source_url: string;
-  image: string;
+  cover_image_url: string;
   location: string;
   date_text: string;
   month_wrapped: string;
   description?: string;
-  start_time?: string;
-  end_time?: string;
+  time_text?: string;
   latitude?: number;
   longitude?: number;
   facebook_url?: string;
-  gallery_images?: string; // JSON string
   is_fully_scraped: number;
+  description_markdown?: string;
+  google_maps_url?: string;
 }
 
 // ============================================================================
@@ -169,15 +194,15 @@ app.get("/events", (req: Request, res: Response) => {
     };
     const events = db.prepare(query).all(...params) as EventRow[];
 
-    // Parse JSON fields
-    const parsedEvents = events.map((e) => ({
+    // Map DB columns to API response format (if needed)
+    const mappedEvents = events.map((e) => ({
       ...e,
-      gallery_images: e.gallery_images ? JSON.parse(e.gallery_images) : [],
+      image: e.cover_image_url, // Alias for frontend compatibility
     }));
 
     res.json(
       success({
-        events: parsedEvents,
+        events: mappedEvents,
         pagination: {
           total: count,
           limit: limitNum,
@@ -208,9 +233,7 @@ app.get("/events/:id", (req: Request, res: Response) => {
     res.json(
       success({
         ...event,
-        gallery_images: event.gallery_images
-          ? JSON.parse(event.gallery_images)
-          : [],
+        image: event.cover_image_url, // Alias
       })
     );
   } catch (err) {
@@ -284,7 +307,7 @@ app.get("/search", (req: Request, res: Response) => {
       success(
         events.map((e) => ({
           ...e,
-          gallery_images: e.gallery_images ? JSON.parse(e.gallery_images) : [],
+          image: e.cover_image_url,
         }))
       )
     );
@@ -310,7 +333,7 @@ app.get("/upcoming", (req: Request, res: Response) => {
       success(
         events.map((e) => ({
           ...e,
-          gallery_images: e.gallery_images ? JSON.parse(e.gallery_images) : [],
+          image: e.cover_image_url,
         }))
       )
     );
@@ -332,7 +355,6 @@ app.get("/map", (req: Request, res: Response) => {
       .all();
     res.json(success(events));
   } catch (err) {
-    // If table doesn't have lat/long columns yet, return empty list
     res.json(success([]));
   }
 });
