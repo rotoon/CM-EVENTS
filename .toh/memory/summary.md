@@ -1,20 +1,22 @@
-# Project Summary: Hype CNX (formerly Chiang Mai Events)
+# Hype CNX - Production Ready 🚀
 
-## Overview
+## Project Status
 
-A modern lifestyle guide and event aggregator for Chiang Mai. Starting with events, expanding to food, travel, and experiences.
-**Vision**: From "Events" to "Lifestyle Guide" (Pulse of the City).
+The transformation from "Chiang Mai Events" to **Hype CNX** is complete. The application is now a modern, high-energy event discovery platform with interactive geo-discovery.
 
-## Key Features
+## Shipped Features (Dec 27, 2025)
 
-- **Event Discovery**: Grid/List view of events.
-- **Search & Filter**: Filter by date, category, location.
-- **Modern UI**: Clean, accessible, mobile-responsive design using shadcn/ui.
-- **Data Source**: Scraped data from local `events.db`.
+- **Rebrand**: Hype CNX identity, Sticker Bomb logo, and refreshed Hero.
+- **Maps**: Fully interactive Leaflet-based event map with custom markers.
+- **Layout**: Optimized global layout with shared components in `layout.tsx`.
+- **UX**: Smart view toggles and past-event indicators.
+- **Fixes**: Resolved Next.js Image issues (quality 100 configuration and missing `sizes` props).
 
-## Tech Stack (Toh Standard)
+## Production Link
 
-- **Frontend**: Next.js 14 (App Router)
-- **Styling**: Tailwind CSS + shadcn/ui
-- **State**: Zustand
-- **Database**: SQLite (Local) or Supabase (Production)
+- [Hype CNX Live](https://frontend-production-adc3.up.railway.app)
+
+## Next Phase
+
+- **Engagement**: Authentication and User Saves.
+- **UGC**: Social submission of events.

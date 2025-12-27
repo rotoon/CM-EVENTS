@@ -54,6 +54,7 @@ export function EventGallery({ event }: EventGalleryProps) {
                 className="object-contain"
                 quality={100}
                 priority
+                sizes="(max-width: 1280px) 100vw, 1280px"
               />
             </div>
           </div>,

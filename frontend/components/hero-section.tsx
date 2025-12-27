@@ -47,7 +47,7 @@ export function HeroSection() {
           </div>
         </div>
         {/* Sticker */}
-        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-neo-lime rounded-full border-4 border-neo-black flex items-center justify-center z-20 shadow-neo rotate-12 animate-bounce">
+        <div className="absolute -bottom-8 -right-10 w-24 h-24 bg-neo-lime rounded-full border-4 border-neo-black flex items-center justify-center z-20 shadow-neo rotate-12 animate-bounce">
           <span className="font-black text-center text-xs leading-none">
             NEW
             <br />

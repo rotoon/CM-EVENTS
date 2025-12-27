@@ -56,12 +56,12 @@ export function EventCardNeo({
 
       {/* Content */}
       <div className="p-5 flex-grow flex flex-col">
-        <h3 className="font-display font-black text-xl uppercase leading-tight mb-2 group-hover:underline decoration-neo-purple decoration-4 underline-offset-4 transition-all min-h-[5rem]">
+        <h3 className="font-display font-black text-xl uppercase leading-tight mb-2 group-hover:underline text-neo-black decoration-neo-purple decoration-4 underline-offset-4 transition-all min-h-[5rem]">
           {title}
         </h3>
         <p className="font-mono text-sm font-bold text-gray-500 mb-4 flex items-center gap-2 line-clamp-1">
           <MapPin className="w-4 h-4 shrink-0 text-neo-pink" />{" "}
-          <span className="truncate">{location}</span>
+          <span className="truncate text-neo-black">{location}</span>
         </p>
 
         <div className="mt-auto flex justify-between items-center border-t-2 border-gray-100 pt-4">
@@ -70,12 +70,12 @@ export function EventCardNeo({
               ENDED
             </span>
           ) : (
-            <span className="font-bold bg-neo-lime px-3 py-1 border-2 border-neo-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xs uppercase tracking-tight flex items-center gap-1">
+            <span className="font-bold bg-neo-lime text-neo-black px-3 py-1 border-2 border-neo-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xs uppercase tracking-tight flex items-center gap-1">
               <span className="animate-pulse w-2 h-2 bg-neo-black rounded-full block"></span>
               JOIN NOW
             </span>
           )}
-          <div className="w-10 h-10 border-2 border-neo-black flex items-center justify-center bg-white group-hover:bg-neo-black group-hover:text-white transition-all transform group-hover:rotate-12">
+          <div className="w-10 h-10 border-2 border-neo-black flex items-center justify-center bg-white text-neo-black group-hover:bg-neo-black group-hover:text-white transition-all transform group-hover:rotate-12">
             <ArrowUpRight className="w-6 h-6" />
           </div>
         </div>

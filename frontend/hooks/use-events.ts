@@ -11,9 +11,16 @@ import {
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 // ============================================================================
-// API Base URL (Now using internal Next.js API routes)
+// API Base URL (Forced build-time inlining v4)
 // ============================================================================
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://backend-production-14fd.up.railway.app"
+).replace(/\/$/, "");
+
+if (typeof window !== "undefined") {
+  console.log("🚀 [v4-FINAL] HYPE ACTIVE API:", API_BASE);
+}
 
 // ============================================================================
 // Fetch Functions
