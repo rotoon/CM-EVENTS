@@ -1,13 +1,14 @@
-# Railway configuration for Frontend
+# Railway configuration for Frontend (Next.js + SQLite)
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
-
-[build.args]
-NEXT_PUBLIC_API_URL = "${{NEXT_PUBLIC_API_URL}}"
 
 [deploy]
 healthcheckPath = "/"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+
+# Enable instrumentation for cron jobs
+[deploy.env]
+NEXT_RUNTIME = "nodejs"

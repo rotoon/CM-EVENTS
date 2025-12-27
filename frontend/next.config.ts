@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["better-sqlite3"],
+  serverExternalPackages: ["pg"],
 };
 
 export default nextConfig;

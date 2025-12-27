@@ -48,9 +48,9 @@ export interface EventStats {
 }
 
 // ============================================================================
-// API Base URL
+// API Base URL (Now using internal Next.js API routes)
 // ============================================================================
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = "/api";
 
 // ============================================================================
 // Helper: Parse Thai date for sorting
@@ -113,7 +113,8 @@ async function fetchEvents(month?: string): Promise<Event[]> {
 
   const response = await fetch(`${API_BASE}/events?${params.toString()}`);
   const json = await response.json();
-  return sortByEndDate(json.data as Event[]);
+  // API returns { data: { events: [...], pagination: {...} } }
+  return sortByEndDate((json.data?.events || json.data || []) as Event[]);
 }
 
 async function fetchEventById(id: number): Promise<EventWithImages | null> {
@@ -257,16 +258,35 @@ async function fetchEventsPaginated(
   month?: string
 ): Promise<EventsResponse> {
   const params = new URLSearchParams();
-  params.set("page", page.toString());
+  // Use offset instead of page for the API
+  const offset = (page - 1) * limit;
   params.set("limit", limit.toString());
+  params.set("offset", offset.toString());
   if (month) params.set("month", month);
 
   const response = await fetch(`${API_BASE}/events?${params.toString()}`);
   const json = await response.json();
 
+  // API returns { data: { events: [...], pagination: {...} } }
+  const apiData = json.data || {};
+  const events = apiData.events || [];
+  const apiPagination = apiData.pagination || {
+    total: 0,
+    limit,
+    offset,
+    hasMore: false,
+  };
+
   return {
-    data: sortByEndDate(json.data as Event[]),
-    pagination: json.pagination as Pagination,
+    data: sortByEndDate(events as Event[]),
+    pagination: {
+      page,
+      limit,
+      total: apiPagination.total,
+      totalPages: Math.ceil(apiPagination.total / limit),
+      hasNext: apiPagination.hasMore,
+      hasPrev: page > 1,
+    },
   };
 }
 

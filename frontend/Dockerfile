@@ -1,4 +1,4 @@
-# Frontend Dockerfile for Railway (Next.js)
+# Frontend Dockerfile for Railway (Next.js + PostgreSQL)
 FROM node:20-alpine AS base
 
 # Install pnpm
@@ -18,10 +18,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set build-time environment variables
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
+# Build the application
 RUN pnpm build
 
 # Production stage
@@ -34,7 +31,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy public files
 COPY --from=builder /app/public ./public
+
+# Copy standalone build
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
