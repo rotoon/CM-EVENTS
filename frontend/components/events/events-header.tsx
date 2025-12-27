@@ -4,12 +4,14 @@ interface EventsHeaderProps {
   category?: string;
   month?: string;
   totalEvents: number;
+  children?: React.ReactNode;
 }
 
 export function EventsHeader({
   category,
   month,
   totalEvents,
+  children,
 }: EventsHeaderProps) {
   const title = formatEventTitle(category, month);
 
@@ -23,11 +25,12 @@ export function EventsHeader({
           {title}
         </h2>
       </div>
-      {totalEvents > 0 && (
-        <div className="text-sm font-bold bg-white px-4 py-2 border-4 border-neo-black shadow-neo">
+      <div className="flex items-center gap-4">
+        {children}
+        <div className="text-sm font-bold bg-white px-4 py-2 border-4 border-neo-black shadow-neo hidden md:block">
           {totalEvents} events
         </div>
-      )}
+      </div>
     </div>
   );
 }

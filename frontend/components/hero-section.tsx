@@ -6,10 +6,10 @@ export function HeroSection() {
     <header className="max-w-7xl mx-auto px-4 mt-8 mb-20 grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-7 flex flex-col justify-center">
         <div className="inline-block bg-neo-pink border-2 border-neo-black px-4 py-1 font-mono font-bold text-white shadow-neo mb-6 w-max rotate-2">
-          #VIBE_CHECK_PASSED
+          #HYPE_CNX_REALNESS
         </div>
         <h2 className="font-display font-black text-6xl md:text-8xl leading-[0.9] mb-6">
-          FEEL <br />
+          UNLEASH <br />
           <span
             className="text-white"
             style={{ WebkitTextStroke: "2px black" }}
@@ -20,9 +20,10 @@ export function HeroSection() {
           HYPE.
         </h2>
         <p className="font-bold text-xl md:text-2xl mb-8 leading-tight max-w-lg bg-white inline-block">
-          Discover the raw energy of Chiang Mai. <br />
-          <span className="bg-neo-lime px-1">Art, Music, and Chaos</span> in one
-          place.
+          The loudest event feed in the North. <br />
+          <span className="bg-neo-lime px-1">
+            No filler, just pure Chiang Mai energy.
+          </span>
         </p>
 
         <SearchBar />
@@ -30,12 +31,12 @@ export function HeroSection() {
 
       <div className="lg:col-span-5 relative group cursor-pointer">
         <div className="bg-neo-purple w-full h-[500px] absolute top-4 left-4 border-4 border-neo-black"></div>
-        <div className="w-full h-[500px] border-4 border-neo-black bg-white relative z-10 overflow-hidden flex items-center justify-center">
+        <div className="w-full h-[500px] border-4 border-neo-black bg-white relative z-10 overflow-hidden flex items-center justify-center p-8">
           <Image
-            src="https://plus.unsplash.com/premium_photo-1661929242720-140374d97c94?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            src="/hype-sticker.png"
             alt="Hype CNX - Chiang Mai Lifestyle"
             fill
-            className="object-cover filter transition-all duration-300"
+            className="object-contain filter transition-all duration-300 p-4"
             priority
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />

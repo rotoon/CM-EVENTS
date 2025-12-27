@@ -5,10 +5,12 @@ import { EventsGrid } from "@/components/events-grid";
 import { EventsHeader } from "@/components/events/events-header";
 import { EventsSentinel } from "@/components/events/events-sentinel";
 import { EventsSkeleton } from "@/components/events/events-skeleton";
+import { EventsMap } from "@/components/events/map-wrapper";
 import { HeroSection } from "@/components/hero-section";
+import { ViewToggle } from "@/components/view-toggle";
 import { useEventsInfinite } from "@/hooks/use-events";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
 const EVENTS_PER_PAGE = 24;
 // Events Content
@@ -30,6 +32,8 @@ function EventsContent({
     isFetching,
   } = useEventsInfinite(EVENTS_PER_PAGE, month, category);
 
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+
   const allEvents = data?.pages.flatMap((page) => page.data) ?? [];
 
   // Infinite scroll callback
@@ -50,30 +54,36 @@ function EventsContent({
   return (
     <main id="events-list" className="max-w-7xl mx-auto px-4 py-16">
       {/* Header */}
-      <EventsHeader
-        category={category}
-        month={month}
-        totalEvents={totalEvents}
-      />
+      <EventsHeader category={category} month={month} totalEvents={totalEvents}>
+        <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+      </EventsHeader>
 
-      {/* Events Grid */}
-      <EventsGrid events={allEvents} />
+      {/* Content */}
+      <div className="min-h-[600px]">
+        {viewMode === "grid" ? (
+          <>
+            <EventsGrid events={allEvents} />
 
-      {/* Infinite Scroll Sentinel */}
-      <EventsSentinel
-        hasNextPage={hasNextPage}
-        isFetching={isFetching || isFetchingNextPage}
-        onLoadMore={loadMore}
-      />
+            {/* Infinite Scroll Sentinel */}
+            <EventsSentinel
+              hasNextPage={hasNextPage}
+              isFetching={isFetching || isFetchingNextPage}
+              onLoadMore={loadMore}
+            />
 
-      {/* End of results */}
-      {!hasNextPage && allEvents.length > 0 && (
-        <div className="text-center mt-12">
-          <div className="inline-block bg-neo-purple text-white px-6 py-3 font-bold border-4 border-neo-black shadow-neo rotate-1">
-            🎉 All Events displayed!
-          </div>
-        </div>
-      )}
+            {/* End of results */}
+            {!hasNextPage && allEvents.length > 0 && (
+              <div className="text-center mt-12">
+                <div className="inline-block bg-neo-purple text-white px-6 py-3 font-bold border-4 border-neo-black shadow-neo rotate-1">
+                  🎉 All Events displayed!
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <EventsMap events={allEvents} />
+        )}
+      </div>
     </main>
   );
 }
@@ -119,11 +129,9 @@ function HomeContent() {
 
   return (
     <>
-      <>
-        <HeroSection />
-        <FilterSection activeCategory={category} activeMonth={effectiveMonth} />
-        <EventsContent category={category} month={effectiveMonth} />
-      </>
+      <HeroSection />
+      <FilterSection activeCategory={category} activeMonth={effectiveMonth} />
+      <EventsContent category={category} month={effectiveMonth} />
     </>
   );
 }
