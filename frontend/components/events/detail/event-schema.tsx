@@ -1,3 +1,4 @@
+import { parseThaiDateToISO } from "@/lib/date-utils";
 import { EventWithImages } from "@/lib/types";
 
 export function EventSchema({ event }: { event: EventWithImages }) {
@@ -6,7 +7,7 @@ export function EventSchema({ event }: { event: EventWithImages }) {
     "@type": "Event",
     name: event.title,
     description: event.description || event.title,
-    startDate: event.date_text ? new Date(event.date_text).toISOString() : "",
+    startDate: parseThaiDateToISO(event.date_text),
     location: {
       "@type": "Place",
       name: event.location,

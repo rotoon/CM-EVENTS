@@ -138,20 +138,61 @@ export class EventController {
           WHERE month_wrapped IS NOT NULL
         `);
 
+        // Thai month name to month index mapping for normalization
+        const THAI_MONTH_TO_INDEX: Record<string, number> = {
+          มกราคม: 1,
+          กุมภาพันธ์: 2,
+          มีนาคม: 3,
+          เมษายน: 4,
+          พฤษภาคม: 5,
+          มิถุนายน: 6,
+          กรกฎาคม: 7,
+          สิงหาคม: 8,
+          กันยายน: 9,
+          ตุลาคม: 10,
+          พฤศจิกายน: 11,
+          ธันวาคม: 12,
+        };
+
         // Extract unique months from all JSON arrays
         const monthSet = new Set<string>();
+        const currentYear = new Date().getFullYear();
+
         for (const row of result.rows) {
           try {
             const months = JSON.parse(row.month_wrapped) as string[];
-            months.forEach((m) => monthSet.add(m));
+            months.forEach((m) => {
+              // Check if it's already in YYYY-MM format
+              if (/^\d{4}-\d{2}$/.test(m)) {
+                monthSet.add(m);
+              } else if (THAI_MONTH_TO_INDEX[m]) {
+                // Convert Thai month name to YYYY-MM (assume current year)
+                const monthIndex = THAI_MONTH_TO_INDEX[m];
+                const yearMonth = `${currentYear}-${String(monthIndex).padStart(
+                  2,
+                  "0"
+                )}`;
+                monthSet.add(yearMonth);
+              }
+              // Skip UNKNOWN or other invalid values
+            });
           } catch {
-            if (row.month_wrapped) {
-              monthSet.add(row.month_wrapped);
+            // Handle non-JSON values (legacy single strings)
+            const m = row.month_wrapped;
+            if (/^\d{4}-\d{2}$/.test(m)) {
+              monthSet.add(m);
+            } else if (THAI_MONTH_TO_INDEX[m]) {
+              const monthIndex = THAI_MONTH_TO_INDEX[m];
+              const yearMonth = `${currentYear}-${String(monthIndex).padStart(
+                2,
+                "0"
+              )}`;
+              monthSet.add(yearMonth);
             }
           }
         }
 
-        // Sort descending
+        // Sort descending (2026-01 comes before 2025-12)
         const sortedMonths = Array.from(monthSet).sort((a, b) =>
           b.localeCompare(a)
         );

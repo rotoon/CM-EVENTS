@@ -77,3 +77,25 @@ export function formatEventTitle(category?: string, month?: string): string {
   }
   return title;
 }
+
+/**
+ * Safely parse Thai date text to ISO string.
+ * Returns empty string if parsing fails.
+ * Handles date ranges like "19 ธันวาคม 2568 - 2 มกราคม 2569" by taking the first date.
+ */
+export function parseThaiDateToISO(dateText: string | null): string {
+  if (!dateText) return "";
+
+  // For date ranges, take the first (start) date
+  const parts = dateText.split(/\s*[-–]\s*/);
+  const startDateStr = parts[0];
+
+  const timestamp = parseThaiDate(startDateStr);
+  if (!timestamp) return "";
+
+  try {
+    return new Date(timestamp).toISOString();
+  } catch {
+    return "";
+  }
+}

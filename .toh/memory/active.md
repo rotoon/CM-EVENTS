@@ -2,17 +2,18 @@
 
 ## Current Focus
 
-- **Goal**: Redesign Logo.
-- **Task**: `/toh:design` (Applied EXACT original top-right logo).
+- **Goal**: Fix event detail page crash.
+- **Task**: `/toh:fix` (Fixed Thai date parsing in event-schema.tsx).
 - **Current Action**: Task Completed.
 
 ## Context
 
-- **Update**:
-  - The user insisted on the original top-right design from the first set of options.
-  - Used a two-stage `sips` crop to extract the quadrant exactly.
-  - Applied it to all branding assets (`logo-v2.png`, `city-gate.png`, `icon.png`).
+- **Issue**: `event-schema.tsx` used `new Date(event.date_text)` which crashed on Thai dates.
+- **Solution**:
+  - Added `parseThaiDateToISO` function to `lib/date-utils.ts`.
+  - Updated `event-schema.tsx` to use the new function.
 
 ## Next Steps
 
-1. Awaiting user feedback/next task.
+1. Test /events/74 page.
+2. Deploy frontend if needed.

@@ -37,3 +37,34 @@ export function getEndDateTimestamp(dateText: string | null): number {
   const endDateStr = parts[parts.length - 1];
   return parseThaiDate(endDateStr) || 0;
 }
+
+/**
+ * Extract all unique YYYY-MM values from a Thai date text.
+ * Handles ranges like "25 ธันวาคม 2568 - 5 มกราคม 2569"
+ * Returns an array of YYYY-MM strings.
+ */
+export function extractYearMonthsFromThaiDate(dateText: string): string[] {
+  if (!dateText) return [];
+
+  const pattern =
+    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/g;
+
+  const results = new Set<string>();
+  let match;
+
+  while ((match = pattern.exec(dateText)) !== null) {
+    const monthName = match[2];
+    const buddhistYear = parseInt(match[3]);
+    const monthIndex = THAI_MONTHS[monthName];
+    const gregorianYear = buddhistYear - 543;
+
+    // Format as YYYY-MM (e.g., 2025-12)
+    const yearMonth = `${gregorianYear}-${String(monthIndex + 1).padStart(
+      2,
+      "0"
+    )}`;
+    results.add(yearMonth);
+  }
+
+  return Array.from(results);
+}

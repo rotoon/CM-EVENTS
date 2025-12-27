@@ -92,6 +92,36 @@ async function scrapeEventDetail(
 
     const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
 
+    // Collect all image URLs from the page
+    const imageUrls = new Set<string>();
+
+    // 1. Banner image
+    if (bannerSrc) imageUrls.add(bannerSrc);
+
+    // 2. Gallery images (common selectors)
+    $(".gallery img, .event-gallery img, .activity-gallery img").each(
+      (_, el) => {
+        const src = $(el).attr("src") || $(el).attr("data-src");
+        if (src && src.startsWith("http")) imageUrls.add(src);
+      }
+    );
+
+    // 3. Images inside description
+    $(".activity-description img, .description img, article img").each(
+      (_, el) => {
+        const src = $(el).attr("src") || $(el).attr("data-src");
+        if (src && src.startsWith("http")) imageUrls.add(src);
+      }
+    );
+
+    // 4. Lightbox/carousel images
+    $('a[href*=".jpg"], a[href*=".png"], a[href*=".webp"]').each((_, el) => {
+      const href = $(el).attr("href");
+      if (href && href.startsWith("http")) imageUrls.add(href);
+    });
+
+    console.log(`   📷 Found ${imageUrls.size} images`);
+
     const enhancedDescription = await rewriteDescriptionWithAI(
       model,
       descriptionHtml
@@ -99,6 +129,7 @@ async function scrapeEventDetail(
 
     const client = await pool.connect();
     try {
+      // Update event details
       await client.query(
         `UPDATE events SET 
           cover_image_url = COALESCE($1, cover_image_url),
@@ -126,11 +157,25 @@ async function scrapeEventDetail(
           event.id,
         ]
       );
+
+      // Delete existing images for this event (to avoid duplicates on re-scrape)
+      await client.query(`DELETE FROM event_images WHERE event_id = $1`, [
+        event.id,
+      ]);
+
+      // Insert new images
+      for (const imageUrl of imageUrls) {
+        await client.query(
+          `INSERT INTO event_images (event_id, image_url) VALUES ($1, $2)`,
+          [event.id, imageUrl]
+        );
+      }
+
+      console.log(`   ✅ Detail + ${imageUrls.size} images saved.`);
     } finally {
       client.release();
     }
 
-    console.log(`   ✅ Detail updated successfully.`);
     return true;
   } catch (error: unknown) {
     const errorMessage =

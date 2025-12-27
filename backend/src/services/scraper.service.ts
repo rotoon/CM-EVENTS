@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import pool from "../config/database";
+import { extractYearMonthsFromThaiDate } from "../utils/date.util";
 
 interface EventData {
   title: string;
@@ -8,7 +9,7 @@ interface EventData {
   image: string;
   location: string;
   date: string;
-  monthWrapped: string;
+  monthWrapped: string; // JSON array of YYYY-MM strings
 }
 
 const BASE_URL = "https://www.cmhy.city/events";
@@ -60,7 +61,11 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
           ? rawLink
           : `https://www.cmhy.city${rawLink}`;
         fullLink = fullLink.replace(/\/$/, "");
-        const monthWrapped = dateRaw.split(" ")[1]?.toUpperCase() || "UNKNOWN";
+
+        // Extract all YYYY-MM from the date text (handles date ranges)
+        const months = extractYearMonthsFromThaiDate(dateRaw);
+        const monthWrapped =
+          months.length > 0 ? JSON.stringify(months) : '["UNKNOWN"]';
 
         if (!events.some((e) => e.link === fullLink)) {
           events.push({
