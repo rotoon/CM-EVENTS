@@ -2,18 +2,15 @@
 
 ## Current Focus
 
-- **Goal**: Build the "Modern Lanna" Demo Page.
-- **Task**: `/toh:vibe` (Execution) - Setup Next.js & Tailwind.
-- **Current Action**: Initializing Next.js project in `web/` directory.
+- **Goal**: Update `EventCardNeo` to show event status.
+- **Task**: `/toh:ds` (Completed)
+- **Current Action**: Validated UI update.
 
 ## Context
 
-- **Design**: Functional Minimalism + Modern Lanna.
-- **Tech**: Next.js 14, Tailwind, shadcn/ui.
-- **Directory**: `/Users/rotoon/Git/CM-EVENTS/web` (New)
+- **Update**: Replaced `price` prop with `isEnded`.
+- **UI**: Now shows "ENDED" (Red/Gray style) or "JOIN NOW" (Green/Live style).
 
 ## Next Steps
 
-1. Create Next.js App.
-2. Install shadcn/ui.
-3. Implement `page.tsx` with the new design.
+1. User to check implementation.

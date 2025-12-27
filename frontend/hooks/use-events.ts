@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 // ============================================================================
 // Types
@@ -324,5 +324,23 @@ export function useEventsPaginated(
   return useQuery({
     queryKey: ["events", "paginated", page, limit, month, category],
     queryFn: () => fetchEventsPaginated(page, limit, month, category),
+  });
+}
+
+/**
+ * ดึง events แบบ Infinite Scroll
+ */
+export function useEventsInfinite(
+  limit: number = 12,
+  month?: string,
+  category?: string
+) {
+  return useInfiniteQuery({
+    queryKey: ["events", "infinite", limit, month, category],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchEventsPaginated(pageParam as number, limit, month, category),
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.hasNext ? lastPage.pagination.page + 1 : undefined,
+    initialPageParam: 1,
   });
 }

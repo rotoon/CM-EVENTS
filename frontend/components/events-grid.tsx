@@ -27,7 +27,7 @@ export function EventsGrid({ events }: EventsGridProps) {
     title: e.title,
     location: e.location || "Chiang Mai",
     date: e.date_text || "TBD",
-    price: "FREE",
+    isEnded: e.is_ended,
     image:
       e.cover_image_url ||
       "https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?q=80&w=2670&auto=format&fit=crop",
