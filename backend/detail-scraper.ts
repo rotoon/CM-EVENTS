@@ -1,10 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
-import Database, { type Database as DatabaseType } from "better-sqlite3";
+import { type Database as DatabaseType } from "better-sqlite3";
 import * as cheerio from "cheerio";
 import "dotenv/config";
-
-const DB_PATH = process.env.DB_PATH || "events.db";
+import db from "./src/config/database";
 
 // ============================================================================
 // Constants
@@ -18,6 +17,9 @@ const USER_AGENTS = [
 interface EventDetail {
   id: number;
   source_url: string;
+  description_markdown?: string | null;
+  description?: string;
+  is_fully_scraped: boolean | number;
 }
 
 function getRandomUserAgent(): string {
@@ -25,37 +27,36 @@ function getRandomUserAgent(): string {
 }
 
 // ============================================================================
-// AI Rewrite Description to Markdown
+// AI Enhancement (Gemini)
 // ============================================================================
-async function rewriteToMarkdown(
+async function rewriteDescriptionWithAI(
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
-  rawDescription: string
+  rawHTML: string
 ): Promise<string> {
-  if (!rawDescription || rawDescription.length < 20) {
-    return rawDescription;
-  }
+  // If too short, skip
+  if (!rawHTML || rawHTML.length < 50) return rawHTML || "";
 
   try {
-    const prompt = `คุณคือผู้ช่วยจัดรูปแบบข้อความ ให้แปลงข้อความต่อไปนี้เป็น Markdown ที่อ่านง่าย:
-
-1. ใช้หัวข้อ (##, ###) ถ้าเหมาะสม
-2. ใช้ bullet points (-) สำหรับรายการ
-3. ใช้ **bold** สำหรับคำสำคัญ
-4. เก็บข้อมูลวันที่ เวลา สถานที่ให้ครบ
-5. ตอบเป็น Markdown เท่านั้น ไม่ต้องมีคำอธิบายเพิ่มเติม
-6. เขียนเป็นภาษาไทย
-
-ข้อความ:
-${rawDescription}`;
+    const prompt = `
+    Rewrite the following event description into clean, engaging markdown.
+    - Extract key details: Highlights, Agenda (if any), Price/Tickets.
+    - Keep it concise but informative.
+    - Format with headers, bullet points, and bold text.
+    - Remove any "Share this event" or irrelevant footer text.
+    - Translate strictly to Thai language if the original is English.
+    
+    Raw HTML content:
+    ${rawHTML.substring(0, 8000)} -- truncated
+    `;
 
     const result = await model.generateContent(prompt);
     const markdown = result.response.text().trim();
-    return markdown || rawDescription;
+    return markdown || rawHTML;
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.log(`   ⚠️ AI rewrite failed: ${errorMessage}`);
-    return rawDescription;
+    return rawHTML;
   }
 }
 
@@ -63,7 +64,7 @@ ${rawDescription}`;
 // Scrape Event Detail
 // ============================================================================
 async function scrapeEventDetail(
-  db: DatabaseType,
+  dbInstance: DatabaseType,
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
   event: EventDetail
 ) {
@@ -78,193 +79,95 @@ async function scrapeEventDetail(
 
     // 1. Banner Image (Best Quality)
     const bannerSrc = $("img.activity-image").attr("src") || "";
-    const bannerUrl = bannerSrc.startsWith("http")
-      ? bannerSrc
-      : bannerSrc
-      ? `https://www.cmhy.city${bannerSrc}`
-      : null;
 
-    // 2. Description - get all paragraphs in main content
-    const description = $("section.pb-3 p, .activity-content p")
-      .map((_, el) => $(el).text().trim())
-      .get()
-      .filter((text) => text.length > 0)
-      .join("\n\n")
-      .trim();
+    // 2. Full Description (HTML)
+    const descriptionHtml =
+      $(".activity-description").html() ||
+      $(".description").html() ||
+      $("article").html() ||
+      "";
 
-    // 3. AI Rewrite to Markdown
-    console.log(`   🤖 Rewriting description with AI...`);
-    const descriptionMarkdown = await rewriteToMarkdown(model, description);
+    // 3. Extract Metadata (Time, Coordinates, Maps)
+    const timeText = $(".activity-time").text().trim() || "";
+    // Attempt to find map link
+    const mapLink = $('a[href*="google.com/maps"]').attr("href") || "";
+    const facebookLink = $('a[href*="facebook.com"]').attr("href") || "";
 
-    // 4. Time - look for time pattern (XX:XX น. or XX:XX – XX:XX)
-    const timeText =
-      $("body")
-        .text()
-        .match(/\d{1,2}[:.]\d{2}\s*[–-]\s*\d{1,2}[:.]\d{2}\s*น?\.?/)?.[0] ||
-      $(".bi-clock").parent().text().trim() ||
-      null;
+    // Coordinates (sometimes in scripts or data attributes - basic check)
+    let lat: number | null = null;
+    let lng: number | null = null;
+    const scriptContent = $("script").text();
+    const latMatch = scriptContent.match(/lat["']?:\s*([0-9.]+)/);
+    const lngMatch = scriptContent.match(/lng["']?:\s*([0-9.]+)/);
+    if (latMatch) lat = parseFloat(latMatch[1]);
+    if (lngMatch) lng = parseFloat(lngMatch[1]);
 
-    // 5. GPS Coordinates from Google Maps link
-    let latitude: number | null = null;
-    let longitude: number | null = null;
-    let googleMapsUrl: string | null = null;
+    // Check if event is ended (basic logic: date passed)
+    // For now, trust the scraper listing logic, but flag if "Event Ended" text found
+    const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
 
-    // Look for Google Maps link
-    $(
-      "a[href*='maps.google.com'], a[href*='google.com/maps'], a[href*='maps.app.goo.gl']"
-    ).each((_, el) => {
-      const href = $(el).attr("href") || "";
-      googleMapsUrl = href;
+    // 4. AI Process Description
+    const enhancedDescription = await rewriteDescriptionWithAI(
+      model,
+      descriptionHtml
+    );
 
-      // Extract coordinates from URL like ?q=18.7871676,99.0070297
-      const coordMatch = href.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-      if (coordMatch) {
-        latitude = parseFloat(coordMatch[1]);
-        longitude = parseFloat(coordMatch[2]);
-      }
-    });
-
-    // Also check for coordinates in onclick or data attributes
-    if (!latitude) {
-      const bodyText = $("body").text();
-      const coordMatch = bodyText.match(
-        /(\d{1,2}\.\d{4,}),\s*(\d{2,3}\.\d{4,})/
+    // 5. Update Database using proper instance
+    dbInstance
+      .prepare(
+        `
+      UPDATE events SET 
+        cover_image_url = COALESCE(?, cover_image_url),
+        description = ?,
+        description_markdown = ?,
+        time_text = ?,
+        latitude = ?,
+        longitude = ?,
+        google_maps_url = ?,
+        facebook_url = ?,
+        is_ended = ?,
+        is_fully_scraped = 1,
+        last_updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `
+      )
+      .run(
+        bannerSrc,
+        descriptionHtml.replace(/<[^>]*>?/gm, "").trim(), // Plain text backup
+        enhancedDescription,
+        timeText,
+        lat,
+        lng,
+        mapLink,
+        facebookLink,
+        isEnded ? 1 : 0,
+        event.id
       );
-      if (coordMatch) {
-        latitude = parseFloat(coordMatch[1]);
-        longitude = parseFloat(coordMatch[2]);
-      }
-    }
 
-    // 6. Facebook URL
-    let facebookUrl: string | null = null;
-    $("a[href*='facebook.com']").each((_, el) => {
-      const href = $(el).attr("href") || "";
-      if (href.includes("facebook.com") && !href.includes("sharer")) {
-        facebookUrl = href;
-        return false; // break
-      }
-    });
-
-    // 7. Check if event has ended (look for badge/status)
-    const isEnded =
-      $("body").text().includes("สิ้นสุดแล้ว") ||
-      $(".badge").text().includes("สิ้นสุด")
-        ? 1
-        : 0;
-
-    // 8. Gallery Images
-    const galleryImages: string[] = [];
-    $("section img, .activity-content img, .gallery img").each((_, el) => {
-      const src = $(el).attr("src") || "";
-      // Filter out junk
-      if (
-        src &&
-        !$(el).hasClass("activity-image") &&
-        !src.includes("tile.openstreetmap.org") &&
-        !src.includes("/assets/") &&
-        !src.includes("icon") &&
-        !src.includes("logo")
-      ) {
-        const fullUrl = src.startsWith("http")
-          ? src
-          : `https://www.cmhy.city${src}`;
-        if (!galleryImages.includes(fullUrl)) {
-          galleryImages.push(fullUrl);
-        }
-      }
-    });
-
-    // 9. Update Database
-    const updateEventStmt = db.prepare(`
-        UPDATE events 
-        SET 
-            cover_image_url = COALESCE(?, cover_image_url),
-            description = ?,
-            description_markdown = ?,
-            time_text = ?,
-            latitude = ?,
-            longitude = ?,
-            google_maps_url = ?,
-            facebook_url = ?,
-            is_ended = ?,
-            is_fully_scraped = 1,
-            last_updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    `);
-
-    const insertImageStmt = db.prepare(`
-        INSERT OR IGNORE INTO event_images (event_id, image_url)
-        VALUES (?, ?)
-    `);
-
-    updateEventStmt.run(
-      bannerUrl,
-      description,
-      descriptionMarkdown,
-      timeText,
-      latitude,
-      longitude,
-      googleMapsUrl,
-      facebookUrl,
-      isEnded,
-      event.id
-    );
-
-    // Insert Gallery Images
-    for (const imgUrl of galleryImages) {
-      insertImageStmt.run(event.id, imgUrl);
-    }
-
-    // Log results
-    console.log(`✅ Updated Event #${event.id}`);
-    console.log(
-      `   📝 Description: ${description.length} chars → Markdown: ${descriptionMarkdown.length} chars`
-    );
-    console.log(`   🕐 Time: ${timeText || "N/A"}`);
-    console.log(`   📍 GPS: ${latitude ? `${latitude}, ${longitude}` : "N/A"}`);
-    console.log(`   🔗 Facebook: ${facebookUrl ? "Yes" : "No"}`);
-    console.log(`   📸 Gallery: ${galleryImages.length} images`);
-    console.log(`   🏁 Ended: ${isEnded ? "Yes" : "No"}`);
-
+    console.log(`   ✅ Detail updated successfully.`);
     return true;
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    console.error(
-      `❌ Error scraping detail for ${event.source_url}: ${errorMessage}`
-    );
+    console.error(`   ❌ Failed to scrape detail: ${errorMessage}`);
     return false;
   }
 }
 
 // ============================================================================
-// Run Detail Scraper (exported for cron)
+// Main Runner
 // ============================================================================
-export async function runDetailScraper(batchSize = 10): Promise<{
-  success: boolean;
-  scraped: number;
-  remaining: number;
-  error?: string;
-}> {
-  console.log("\n📚 Starting Detail Scraper...");
-  console.log(`📅 Time: ${new Date().toLocaleString("th-TH")}`);
-
+export async function runDetailScraper(limit: number = 10) {
   if (!process.env.GEMINI_API_KEY) {
-    console.error("❌ GEMINI_API_KEY not found in .env file!");
-    return {
-      success: false,
-      scraped: 0,
-      remaining: 0,
-      error: "GEMINI_API_KEY not configured",
-    };
+    console.error("❌ Missing GEMINI_API_KEY. Skipping detail scraper.");
+    return { scraped: 0, remaining: 0 };
   }
 
-  const db = new Database(DB_PATH);
+  // db imported from config
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  // Ensure columns exist
+  // Ensure columns exist (Idempotent ALTERS)
   const alterStatements = [
     `ALTER TABLE events ADD COLUMN time_text TEXT;`,
     `ALTER TABLE events ADD COLUMN latitude REAL;`,
@@ -288,42 +191,37 @@ export async function runDetailScraper(batchSize = 10): Promise<{
   // Select events that haven't been scraped yet (batch size at a time for rate limiting)
   const rows = db
     .prepare(
-      `SELECT id, source_url FROM events WHERE is_fully_scraped = 0 LIMIT ?`
+      `SELECT id, source_url, description_markdown, description, is_fully_scraped 
+       FROM events 
+       WHERE is_fully_scraped = 0 
+       ORDER BY id DESC 
+       LIMIT ?`
     )
-    .all(batchSize) as EventDetail[];
+    .all(limit) as EventDetail[];
 
   if (rows.length === 0) {
-    console.log("\n🎉 All events have been fully scraped!");
-    db.close();
-    return { success: true, scraped: 0, remaining: 0 };
+    console.log("🎉 All events have been fully scraped.");
+    return { scraped: 0, remaining: 0 };
   }
 
-  console.log(`\n📦 Processing ${rows.length} events...`);
+  console.log(`\n📚 Found ${rows.length} events needing detail scraping...`);
 
-  for (const row of rows) {
-    const success = await scrapeEventDetail(db, model, row);
-    if (success) totalScraped++;
-
-    // Be nice to the server and Gemini rate limit - 2-4 seconds delay
-    const delay = Math.floor(Math.random() * 2000) + 2000;
-    await new Promise((r) => setTimeout(r, delay));
+  for (const event of rows) {
+    const success = await scrapeEventDetail(db, model, event);
+    if (success) {
+      totalScraped++;
+    }
+    // Sleep to respect rate limits
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
+  // Check remaining count
   const remaining = db
     .prepare("SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = 0")
     .get() as { count: number };
 
-  console.log("\n==========================================");
-  console.log(`🎉 Scraped: ${totalScraped} events`);
-  console.log(`📋 Remaining: ${remaining.count} events`);
-  console.log("==========================================\n");
-
-  db.close();
-
-  return { success: true, scraped: totalScraped, remaining: remaining.count };
-}
-
-// Export for direct run
-if (import.meta.main) {
-  runDetailScraper();
+  console.log(
+    `\n✨ Batch completed. Scraped: ${totalScraped}, Pending: ${remaining.count}`
+  );
+  return { scraped: totalScraped, remaining: remaining.count };
 }

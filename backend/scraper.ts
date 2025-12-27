@@ -1,5 +1,5 @@
 import axios from "axios";
-import Database from "better-sqlite3";
+import db from "./src/config/database";
 
 interface EventData {
   title: string;
@@ -11,7 +11,6 @@ interface EventData {
 }
 
 const BASE_URL = "https://www.cmhy.city/events";
-const DB_PATH = process.env.DB_PATH || "events.db";
 
 const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -23,175 +22,71 @@ function getRandomUserAgent(): string {
   return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 }
 
-// Thai month names to number (1-12)
-const THAI_MONTHS: Record<string, number> = {
-  มกราคม: 1,
-  กุมภาพันธ์: 2,
-  มีนาคม: 3,
-  เมษายน: 4,
-  พฤษภาคม: 5,
-  มิถุนายน: 6,
-  กรกฎาคม: 7,
-  สิงหาคม: 8,
-  กันยายน: 9,
-  ตุลาคม: 10,
-  พฤศจิกายน: 11,
-  ธันวาคม: 12,
-};
-
-function extractMonthsFromDateText(dateText: string): string[] {
-  const months: Set<string> = new Set();
-  const pattern =
-    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/g;
-
-  let match;
-  while ((match = pattern.exec(dateText)) !== null) {
-    const monthName = match[2];
-    const buddhistYear = parseInt(match[3]);
-    const gregorianYear = buddhistYear - 543;
-    const monthNum = THAI_MONTHS[monthName];
-
-    if (monthNum) {
-      const monthStr = `${gregorianYear}-${String(monthNum).padStart(2, "0")}`;
-      months.add(monthStr);
-    }
-  }
-
-  if (months.size === 0) return [];
-  return Array.from(months).sort();
-}
-
-function getMonthsBetween(months: string[]): string[] {
-  if (months.length <= 1) return months;
-
-  const start = months[0];
-  const end = months[months.length - 1];
-
-  const [startYear, startMonth] = start.split("-").map(Number);
-  const [endYear, endMonth] = end.split("-").map(Number);
-
-  const result: string[] = [];
-  let year = startYear;
-  let month = startMonth;
-
-  while (year < endYear || (year === endYear && month <= endMonth)) {
-    result.push(`${year}-${String(month).padStart(2, "0")}`);
-    month++;
-    if (month > 12) {
-      month = 1;
-      year++;
-    }
-  }
-
-  return result;
-}
-
-function getTargetMonths(center: Date): string[] {
-  const months: string[] = [];
-  for (let i = -2; i <= 2; i++) {
-    const d = new Date(center);
-    d.setMonth(d.getMonth() + i);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    months.push(`${yyyy}-${mm}`);
-  }
-  return months;
-}
-
-async function scrapeMonth(monthStr: string): Promise<EventData[]> {
-  const url = `${BASE_URL}/${monthStr}/`;
-  const userAgent = getRandomUserAgent();
-  console.log(`\n🔍 Scraping: ${url}`);
+async function scrapeEventList(page: number = 1): Promise<EventData[]> {
+  const url = `${BASE_URL}?page=${page}`;
+  console.log(`\n📄 Scraping page ${page}...`);
 
   try {
     const { data } = await axios.get(url, {
-      headers: { "User-Agent": userAgent },
+      headers: {
+        "User-Agent": getRandomUserAgent(),
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+      },
     });
 
-    // Use Bun's built-in HTML parser via HTMLRewriter isn't ideal here,
-    // so we use a simple regex-based approach for Bun compatibility
     const events: EventData[] = [];
+    const regex =
+      /<article[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[\s\S]*?<img[^>]*src="([^"]+)"[\s\S]*?<div[^>]*class="activity-date"[^>]*>([\s\S]*?)<\/div>[\s\S]*?<div[^>]*class="activity-location"[^>]*>([\s\S]*?)<\/div>/g;
 
-    // Match card blocks
-    const cardPattern =
-      /<div[^>]*class="[^"]*card bg-activity-list[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/g;
-    let cardMatch;
+    let match;
+    while ((match = regex.exec(data)) !== null) {
+      const [_, link, title, image, dateRaw, locationRaw] = match;
 
-    while ((cardMatch = cardPattern.exec(data)) !== null) {
-      const cardHtml = cardMatch[0];
+      // Fix relative link
+      let fullLink = link.startsWith("http")
+        ? link
+        : `https://www.cmhy.city${link}`;
 
-      // Extract title
-      const titleMatch = cardHtml.match(
-        /<h\d[^>]*class="[^"]*card-title[^"]*"[^>]*>([^<]+)<\/h\d>/
-      );
-      const title = titleMatch ? titleMatch[1].trim() : "";
+      // 🧹 Clean trailing slash for consistency
+      fullLink = fullLink.replace(/\/$/, "");
 
-      // Extract link
-      const linkMatch = cardHtml.match(
-        /<a[^>]*class="[^"]*stretched-link[^"]*"[^>]*href="([^"]+)"/
-      );
-      const rawLink = linkMatch ? linkMatch[1] : "";
+      // Clean text
+      const cleanTitle = title.trim();
+      const cleanLocation = locationRaw.replace(/<[^>]*>/g, "").trim();
+      const cleanDate = dateRaw.replace(/<[^>]*>/g, "").trim();
 
-      // Extract image
-      const imageMatch = cardHtml.match(
-        /<img[^>]*class="[^"]*card-img-top[^"]*"[^>]*src="([^"]+)"/
-      );
-      const rawImage = imageMatch ? imageMatch[1] : "";
+      // Parse Month for wrapping (e.g., "DEC" from date text)
+      const monthWrapped = cleanDate.split(" ")[1]?.toUpperCase() || "UNKNOWN";
 
-      // Extract location (first li)
-      const locationMatch = cardHtml.match(
-        /<ul[^>]*class="[^"]*list-unstyled[^"]*"[^>]*>[\s\S]*?<li[^>]*>([^<]+)<\/li>/
-      );
-      const location = locationMatch ? locationMatch[1].trim() : "";
-
-      // Extract date (near bi-calendar3-week icon)
-      const dateMatch = cardHtml.match(
-        /<i[^>]*class="[^"]*bi-calendar3-week[^"]*"[^>]*><\/i>\s*([^<]+)/
-      );
-      const dateText = dateMatch ? dateMatch[1].trim() : "";
-
-      if (title) {
-        let extractedMonths = extractMonthsFromDateText(dateText);
-        if (extractedMonths.length >= 2) {
-          extractedMonths = getMonthsBetween(extractedMonths);
-        }
-        if (extractedMonths.length === 0) {
-          extractedMonths = [monthStr];
-        }
-
-        events.push({
-          title,
-          link: rawLink.startsWith("http")
-            ? rawLink
-            : `https://www.cmhy.city${rawLink}`,
-          image: rawImage.startsWith("http")
-            ? rawImage
-            : `https://www.cmhy.city${rawImage}`,
-          location: location.replace(/\s+/g, " "),
-          date: dateText.replace(/\s+/g, " "),
-          monthWrapped: JSON.stringify(extractedMonths),
-        });
-      }
+      events.push({
+        title: cleanTitle,
+        link: fullLink,
+        image: image,
+        location: cleanLocation,
+        date: cleanDate,
+        monthWrapped,
+      });
     }
 
-    console.log(`✅ Found ${events.length} events in ${monthStr}`);
+    // Attempt to extract next page number if exists
+    // Simple check: if we found exactly 15-20 events, there might be next page
+    // Better check: look for "next" button in HTML (regex for simplicity)
+    const hasNextPage = /class="next_page"/i.test(data);
+
+    console.log(`   ✅ Found ${events.length} events on page ${page}`);
     return events;
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    console.error(`❌ Error scraping ${monthStr}: ${errorMessage}`);
+  } catch (error) {
+    console.error(`❌ Error scraping page ${page}:`, error);
     return [];
   }
 }
 
-export async function runScraper(): Promise<{
-  totalScraped: number;
-  totalInDb: number;
-}> {
+export async function runScraper() {
   console.log("\n🚀 Starting scraper...");
   console.log(`📅 Time: ${new Date().toLocaleString("th-TH")}`);
 
-  const db = new Database(DB_PATH);
+  // Database initialized via import
 
   // Ensure tables exist
   db.exec(`
@@ -210,59 +105,70 @@ export async function runScraper(): Promise<{
     )
   `);
 
-  const insertStmt = db.prepare(`
-    INSERT INTO events (source_url, title, cover_image_url, location, date_text, month_wrapped)
-    VALUES (?, ?, ?, ?, ?, ?)
-    ON CONFLICT(source_url) DO UPDATE SET
-      title = excluded.title,
-      cover_image_url = excluded.cover_image_url,
-      location = excluded.location,
-      date_text = excluded.date_text,
-      month_wrapped = excluded.month_wrapped,
-      last_updated_at = CURRENT_TIMESTAMP
-  `);
+  let page = 1;
+  let totalSaved = 0;
+  let hasNext = true;
 
-  const months = getTargetMonths(new Date());
-  console.log(`📅 Target Months: ${months.join(", ")}`);
-
-  let totalScraped = 0;
-
-  for (const month of months) {
-    const events = await scrapeMonth(month);
-
-    // Save to DB
-    for (const event of events) {
-      insertStmt.run(
-        event.link,
-        event.title,
-        event.image,
-        event.location,
-        event.date,
-        event.monthWrapped
-      );
+  while (hasNext) {
+    const events = await scrapeEventList(page);
+    if (events.length === 0) {
+      console.log("🛑 No more events found or error occurred.");
+      break;
     }
 
-    totalScraped += events.length;
-    // Be nice to the server
-    await new Promise((r) => setTimeout(r, 1000));
+    const insert = db.prepare(`
+      INSERT INTO events (
+        title, source_url, cover_image_url, location, date_text, month_wrapped
+      ) VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(source_url) DO UPDATE SET
+        title = excluded.title,
+        cover_image_url = excluded.cover_image_url,
+        location = excluded.location,
+        date_text = excluded.date_text,
+        month_wrapped = excluded.month_wrapped,
+        last_updated_at = CURRENT_TIMESTAMP
+    `);
+
+    const insertMany = db.transaction((events: EventData[]) => {
+      let count = 0;
+      for (const event of events) {
+        try {
+          insert.run(
+            event.title,
+            event.link,
+            event.image,
+            event.location,
+            event.date,
+            event.monthWrapped
+          );
+          count++;
+        } catch (err: unknown) {
+          console.error(
+            `   ⚠️ Failed to insert: ${event.link}`,
+            err instanceof Error ? err.message : String(err)
+          );
+        }
+      }
+      return count;
+    });
+
+    const savedCount = insertMany(events);
+    totalSaved += savedCount;
+    console.log(`   💾 Saved/Updated ${savedCount} events from page ${page}`);
+
+    // Limit pages to avoid infinite loop (safety)
+    // Adjust max pages as needed
+    if (page >= 10 || events.length < 10) {
+      hasNext = false;
+    } else {
+      page++;
+      // Sleep slightly to respect server
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   }
 
-  // Get total count
-  const result = db.prepare("SELECT COUNT(*) as count FROM events").get() as {
-    count: number;
-  };
-
-  db.close();
-
-  console.log("\n==========================================");
-  console.log(`🎉 Total Scraped: ${totalScraped}`);
-  console.log(`💾 Total in SQLite DB: ${result.count}`);
-  console.log("==========================================\n");
-
-  return { totalScraped, totalInDb: result.count };
-}
-
-// Export for direct run
-if (import.meta.main) {
-  runScraper();
+  console.log(
+    `\n✨ Scraping completed. Total processed: ${totalSaved} events.`
+  );
+  return { total: totalSaved };
 }
