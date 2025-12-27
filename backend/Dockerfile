@@ -23,8 +23,9 @@ COPY . .
 RUN mkdir -p /data
 
 # Set environment variables
-ENV NODE_ENV=production
+ENV PORT=8080
 ENV DB_PATH=/data/events.db
+ENV NODE_ENV=production
 # Default port if not provided by Railway
 ENV PORT=3001 
 
