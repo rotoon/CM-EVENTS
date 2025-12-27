@@ -33,7 +33,7 @@ export function HeroSection() {
         <div className="bg-neo-purple w-full h-[500px] absolute top-4 left-4 border-4 border-neo-black"></div>
         <div className="w-full h-[500px] border-4 border-neo-black bg-white relative z-10 overflow-hidden flex items-center justify-center p-8">
           <Image
-            src="/city-gate.png"
+            src="/city-gate.webp"
             alt="Hype CNX - Chiang Mai Lifestyle"
             fill
             className="object-contain filter transition-all duration-300 p-4"
