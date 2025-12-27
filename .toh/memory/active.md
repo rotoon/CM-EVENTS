@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-- **Goal**: Fix Next.js Image Quality and Sizes Issues.
-- **Task**: `/toh:fix` (Completed).
-- **Current Action**: Task Finished.
+- **Goal**: SEO Optimization and Page Refactoring.
+- **Task**: `/toh:plan` (Refactor to Server Components, Add Metadata, Technical SEO).
+- **Current Action**: Task Completed.
 
 ## Context
 

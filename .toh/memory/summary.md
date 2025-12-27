@@ -11,10 +11,11 @@ The transformation from "Chiang Mai Events" to **Hype CNX** is complete. The app
 - **Layout**: Optimized global layout with shared components in `layout.tsx`.
 - **UX**: Smart view toggles and past-event indicators.
 - **Fixes**: Resolved Next.js Image issues (quality 100 configuration and missing `sizes` props).
+- **SEO**: Refactored to Server Components, added dynamic metadata, robots.txt, sitemap.xml, and JSON-LD schema.
 
 ## Production Link
 
-- [Hype CNX Live](https://frontend-production-adc3.up.railway.app)
+- [Hype CNX Live](https://hivecnx.up.railway.app)
 
 ## Next Phase
 

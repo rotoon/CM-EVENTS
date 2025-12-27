@@ -7,3 +7,4 @@
 | 2025-12-27 | Use `key` prop for filter resets      | Simplifies state management and avoids race conditions in `EventsContent`. |
 | 2025-12-27 | Rebrand to **HYPE CNX**               | "Pulze.cnx" was token. "Hype" fits the energetic/neo-brutalist vibe well.  |
 | 2025-12-27 | Direction: Lifestyle Guide            | Expand from just events to food, travel, and urban lifestyle.              |
+| 2025-12-27 | Refactor to Server Components         | Enable dynamic metadata and better SEO while maintaining client logic.     |
