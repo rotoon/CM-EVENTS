@@ -1,5 +1,4 @@
 import axios from "axios";
-import * as cheerio from "cheerio";
 import db from "../config/database";
 
 interface EventData {
@@ -32,108 +31,63 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       headers: {
         "User-Agent": getRandomUserAgent(),
         Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "Accept-Language": "th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7",
-        "Cache-Control": "max-age=0",
-        Referer: "https://www.google.com/",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "cross-site",
-        "Sec-Fetch-User": "?1",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
       },
       timeout: 10000,
     });
 
-    const $ = cheerio.load(data);
     const events: EventData[] = [];
+    const regex =
+      /<article[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[\s\S]*?<img[^>]*src="([^"]+)"[\s\S]*?<div[^>]*class="activity-date"[^>]*>([\s\S]*?)<\/div>[\s\S]*?<div[^>]*class="activity-location"[^>]*>([\s\S]*?)<\/div>/g;
 
-    // Helper to add event if valid
-    const addEvent = (
-      title: string,
-      rawLink: string,
-      image: string,
-      locationRaw: string,
-      dateRaw: string
-    ) => {
-      if (rawLink && title) {
-        let fullLink = rawLink.startsWith("http")
-          ? rawLink
-          : `https://www.cmhy.city${rawLink}`;
-        fullLink = fullLink.replace(/\/$/, "");
-        const monthWrapped = dateRaw.split(" ")[1]?.toUpperCase() || "UNKNOWN";
+    let match;
+    while ((match = regex.exec(data)) !== null) {
+      const [_, link, title, image, dateRaw, locationRaw] = match;
 
-        // Avoid duplicates
-        if (!events.some((e) => e.link === fullLink)) {
-          events.push({
-            title,
-            link: fullLink,
-            image,
-            location: locationRaw,
-            date: dateRaw,
-            monthWrapped,
-          });
-        }
-      }
-    };
+      // Fix relative link
+      let fullLink = link.startsWith("http")
+        ? link
+        : `https://www.cmhy.city${link}`;
 
-    // Strategy 1: Article (Desktop/Standard)
-    $("article").each((_, el) => {
-      const article = $(el);
-      const linkEl = article.find("a").first();
-      const imgEl = article.find("img").first();
-      const dateEl = article.find(".activity-date");
-      const locationEl = article.find(".activity-location");
+      // 🧹 Clean trailing slash for consistency
+      fullLink = fullLink.replace(/\/$/, "");
 
-      addEvent(
-        linkEl.attr("title") || "",
-        linkEl.attr("href") || "",
-        imgEl.attr("src") || "",
-        locationEl.text().trim(),
-        dateEl.text().trim()
-      );
-    });
+      // Clean text
+      const cleanTitle = title.trim();
+      const cleanLocation = locationRaw.replace(/<[^>]*>/g, "").trim();
+      const cleanDate = dateRaw.replace(/<[^>]*>/g, "").trim();
 
-    // Strategy 2: Bootstrap Card (Mobile/Alternative) - Only if Strategy 1 found nothing? Or just add both.
-    // Use .card.bg-activity-list
-    $(".card.bg-activity-list").each((_, el) => {
-      const card = $(el);
-      const title = card.find(".card-title").text().trim();
-      const rawLink = card.find("a.stretched-link").attr("href") || "";
-      const image = card.find(".card-img-top").attr("src") || "";
-      const location = card.find("ul.list-unstyled li").first().text().trim();
-      const dateText = card.find(".bi-calendar3-week").parent().text().trim();
+      // Parse Month for wrapping (e.g., "DEC" from date text)
+      const monthWrapped = cleanDate.split(" ")[1]?.toUpperCase() || "UNKNOWN";
 
-      addEvent(title, rawLink, image, location, dateText);
-    });
+      events.push({
+        title: cleanTitle,
+        link: fullLink,
+        image: image,
+        location: cleanLocation,
+        date: cleanDate,
+        monthWrapped,
+      });
+    }
 
-    // Strategy 3: Just .card with link if above fails?
-    // Let's stick to these two for now.
+    // Attempt to extract next page number if exists
+    const hasNextPage = /class="next_page"/i.test(data);
 
-    // Logging if no events found
     if (events.length === 0) {
-      const pageTitle = $("title").text().trim();
-      console.log(`   ⚠️ No events found! Page Title: "${pageTitle}"`);
-      // Log body sample to see what we got
-      const bodySample =
-        $("body").html()?.substring(0, 1000) || "No body content";
-      console.log(`   HTML Dump (Body Start): \n${bodySample}`);
+      console.log("   ⚠️ No events found using Regex!");
+      // console.log(`   HTML Dump: ${data.substring(0, 500)}`);
     }
 
     console.log(`   ✅ Found ${events.length} events on page ${page}`);
     return events;
   } catch (error) {
     console.error(`❌ Error scraping page ${page}:`, error);
-    if (axios.isAxiosError(error)) {
-      console.error(`   Status: ${error.response?.status}`);
-      console.error(`   Status Text: ${error.response?.statusText}`);
-    }
     return [];
   }
 }
 
 export async function runScraper() {
-  console.log("\n🚀 Starting scraper...");
+  console.log("\n🚀 Starting scraper (Original Regex Version)...");
   console.log(`📅 Time: ${new Date().toLocaleString("th-TH")}`);
 
   // Database initialized via import
