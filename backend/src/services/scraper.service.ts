@@ -48,6 +48,36 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
     const $ = cheerio.load(data);
     const events: EventData[] = [];
 
+    // Helper to add event if valid
+    const addEvent = (
+      title: string,
+      rawLink: string,
+      image: string,
+      locationRaw: string,
+      dateRaw: string
+    ) => {
+      if (rawLink && title) {
+        let fullLink = rawLink.startsWith("http")
+          ? rawLink
+          : `https://www.cmhy.city${rawLink}`;
+        fullLink = fullLink.replace(/\/$/, "");
+        const monthWrapped = dateRaw.split(" ")[1]?.toUpperCase() || "UNKNOWN";
+
+        // Avoid duplicates
+        if (!events.some((e) => e.link === fullLink)) {
+          events.push({
+            title,
+            link: fullLink,
+            image,
+            location: locationRaw,
+            date: dateRaw,
+            monthWrapped,
+          });
+        }
+      }
+    };
+
+    // Strategy 1: Article (Desktop/Standard)
     $("article").each((_, el) => {
       const article = $(el);
       const linkEl = article.find("a").first();
@@ -55,35 +85,30 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       const dateEl = article.find(".activity-date");
       const locationEl = article.find(".activity-location");
 
-      const rawLink = linkEl.attr("href") || "";
-      const title = linkEl.attr("title") || "";
-      const image = imgEl.attr("src") || "";
-      const dateRaw = dateEl.text().trim();
-      const locationRaw = locationEl.text().trim();
-
-      if (rawLink && title) {
-        // Fix relative link
-        let fullLink = rawLink.startsWith("http")
-          ? rawLink
-          : `https://www.cmhy.city${rawLink}`;
-
-        // 🧹 Clean trailing slash for consistency
-        fullLink = fullLink.replace(/\/$/, "");
-
-        // Parse Month for wrapping (e.g., "DEC" from date text)
-        // Date text format roughly: "12 DEC 2025" or similar
-        const monthWrapped = dateRaw.split(" ")[1]?.toUpperCase() || "UNKNOWN";
-
-        events.push({
-          title,
-          link: fullLink,
-          image,
-          location: locationRaw,
-          date: dateRaw,
-          monthWrapped,
-        });
-      }
+      addEvent(
+        linkEl.attr("title") || "",
+        linkEl.attr("href") || "",
+        imgEl.attr("src") || "",
+        locationEl.text().trim(),
+        dateEl.text().trim()
+      );
     });
+
+    // Strategy 2: Bootstrap Card (Mobile/Alternative) - Only if Strategy 1 found nothing? Or just add both.
+    // Use .card.bg-activity-list
+    $(".card.bg-activity-list").each((_, el) => {
+      const card = $(el);
+      const title = card.find(".card-title").text().trim();
+      const rawLink = card.find("a.stretched-link").attr("href") || "";
+      const image = card.find(".card-img-top").attr("src") || "";
+      const location = card.find("ul.list-unstyled li").first().text().trim();
+      const dateText = card.find(".bi-calendar3-week").parent().text().trim();
+
+      addEvent(title, rawLink, image, location, dateText);
+    });
+
+    // Strategy 3: Just .card with link if above fails?
+    // Let's stick to these two for now.
 
     // Logging if no events found
     if (events.length === 0) {
