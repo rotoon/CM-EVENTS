@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,6 +14,48 @@ interface EventCardProps {
   color?: string; // Tailwind class for tag bg, e.g. "bg-neo-lime"
 }
 
+// Parse Thai date to readable format
+function formatReadableDate(dateText: string): string {
+  const THAI_MONTHS: Record<string, string> = {
+    มกราคม: "JAN",
+    กุมภาพันธ์: "FEB",
+    มีนาคม: "MAR",
+    เมษายน: "APR",
+    พฤษภาคม: "MAY",
+    มิถุนายน: "JUN",
+    กรกฎาคม: "JUL",
+    สิงหาคม: "AUG",
+    กันยายน: "SEP",
+    ตุลาคม: "OCT",
+    พฤศจิกายน: "NOV",
+    ธันวาคม: "DEC",
+  };
+
+  // Pattern: "19 ธันวาคม 2568" - capture day, month, and year
+  const pattern =
+    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/g;
+
+  // Replace Thai months with English abbreviations and convert Buddhist year to Gregorian
+  let result = dateText;
+
+  // Find all matches and replace
+  const matches = dateText.matchAll(pattern);
+  for (const match of matches) {
+    const day = match[1];
+    const thaiMonth = match[2];
+    const buddhistYear = parseInt(match[3]);
+    const engMonth = THAI_MONTHS[thaiMonth] || thaiMonth;
+    const gregorianYear = buddhistYear - 543; // Convert to Gregorian
+    // Format: "19 DEC 2025"
+    result = result.replace(match[0], `${day} ${engMonth} ${gregorianYear}`);
+  }
+
+  // Clean up the separator: replace " - " or " – " with " → "
+  result = result.replace(/\s*[-–]\s*/g, " → ");
+
+  return result || "TBD";
+}
+
 export function EventCardNeo({
   id,
   title,
@@ -24,6 +66,8 @@ export function EventCardNeo({
   tag,
   color = "bg-neo-lime",
 }: EventCardProps) {
+  const readableDate = formatReadableDate(date);
+
   return (
     <Link
       href={`/events/${id}`}
@@ -48,9 +92,15 @@ export function EventCardNeo({
         >
           {tag}
         </div>
-        {/* Date */}
-        <div className="absolute bottom-0 left-0 bg-neo-black text-white px-4 py-1 font-mono font-bold text-xs uppercase z-10">
-          {date}
+
+        {/* Date Badge - Clean readable format */}
+        <div className="absolute bottom-3 left-3 z-10">
+          <div className="bg-white border-3 border-neo-black shadow-neo px-3 py-2 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-neo-pink shrink-0" />
+            <span className="font-mono font-bold text-xs text-neo-black tracking-tight">
+              {readableDate}
+            </span>
+          </div>
         </div>
       </div>
 
