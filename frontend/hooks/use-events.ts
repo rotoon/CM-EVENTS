@@ -1,106 +1,19 @@
 "use client";
 
+import { sortByEndDate } from "@/lib/date-utils";
+import {
+  Category,
+  Event,
+  EventsResponse,
+  EventStats,
+  EventWithImages,
+} from "@/lib/types";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface Event {
-  id: number;
-  source_url: string;
-  title: string;
-  description: string | null;
-  description_markdown: string | null;
-  location: string | null;
-  date_text: string | null;
-  time_text: string | null;
-  month_wrapped: string | null;
-  cover_image_url: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  google_maps_url: string | null;
-  facebook_url: string | null;
-  is_ended: number | null;
-  first_scraped_at: string | null;
-  last_updated_at: string | null;
-  is_fully_scraped: number | null;
-}
-
-export interface EventImage {
-  id: number;
-  event_id: number;
-  image_url: string;
-  is_cover: number | null;
-  created_at: string | null;
-}
-
-export interface EventWithImages extends Event {
-  images: EventImage[];
-}
-
-export interface EventStats {
-  totalEvents: number;
-  eventsWithGPS: number;
-  eventsWithFacebook: number;
-  eventsByMonth: { month: string; count: number }[];
-  topLocations: { location: string; count: number }[];
-}
 
 // ============================================================================
 // API Base URL (Now using internal Next.js API routes)
 // ============================================================================
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
-
-// ============================================================================
-// Helper: Parse Thai date for sorting
-// ============================================================================
-const THAI_MONTHS: Record<string, number> = {
-  มกราคม: 0,
-  กุมภาพันธ์: 1,
-  มีนาคม: 2,
-  เมษายน: 3,
-  พฤษภาคม: 4,
-  มิถุนายน: 5,
-  กรกฎาคม: 6,
-  สิงหาคม: 7,
-  กันยายน: 8,
-  ตุลาคม: 9,
-  พฤศจิกายน: 10,
-  ธันวาคม: 11,
-};
-
-function parseThaiDate(dateStr: string): number | null {
-  const pattern =
-    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/;
-  const match = dateStr.match(pattern);
-
-  if (!match) return null;
-
-  const day = parseInt(match[1]);
-  const monthName = match[2];
-  const buddhistYear = parseInt(match[3]);
-
-  const month = THAI_MONTHS[monthName];
-  const gregorianYear = buddhistYear - 543;
-
-  return new Date(gregorianYear, month, day).getTime();
-}
-
-function getEndDateTimestamp(dateText: string | null): number {
-  if (!dateText) return 0;
-  const parts = dateText.split(/\s*[-–]\s*/);
-  const endDateStr = parts[parts.length - 1];
-  return parseThaiDate(endDateStr) || 0;
-}
-
-function sortByEndDate(events: Event[]): Event[] {
-  return [...events].sort((a, b) => {
-    const endA = getEndDateTimestamp(a.date_text);
-    const endB = getEndDateTimestamp(b.date_text);
-    return endB - endA;
-  });
-}
 
 // ============================================================================
 // Fetch Functions
@@ -156,120 +69,10 @@ async function fetchMap(): Promise<Event[]> {
   return json.data as Event[];
 }
 
-// ============================================================================
-// React Query Hooks
-// ============================================================================
-
-/**
- * ดึง events ทั้งหมด หรือกรองตาม month
- */
-export function useEvents(month?: string) {
-  return useQuery({
-    queryKey: ["events", month],
-    queryFn: () => fetchEvents(month),
-  });
-}
-
-/**
- * ดึง event ตาม ID พร้อม images
- */
-export function useEventById(id: number) {
-  return useQuery({
-    queryKey: ["event", id],
-    queryFn: () => fetchEventById(id),
-    enabled: !!id,
-  });
-}
-
-/**
- * ดึงรายการเดือนที่มี events
- */
-export function useMonths() {
-  return useQuery({
-    queryKey: ["months"],
-    queryFn: fetchMonths,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-}
-
-/**
- * ดึงสถิติ events
- */
-export function useEventStats() {
-  return useQuery({
-    queryKey: ["stats"],
-    queryFn: fetchStats,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-}
-
-/**
- * ค้นหา events
- */
-export function useSearchEvents(query: string) {
-  return useQuery({
-    queryKey: ["search", query],
-    queryFn: () => fetchSearch(query),
-    enabled: query.length >= 2,
-  });
-}
-
-/**
- * ดึง events ที่ยังไม่สิ้นสุด
- */
-export function useUpcomingEvents() {
-  return useQuery({
-    queryKey: ["upcoming"],
-    queryFn: fetchUpcoming,
-  });
-}
-
-/**
- * ดึง events ที่มี GPS
- */
-export function useMapEvents() {
-  return useQuery({
-    queryKey: ["map"],
-    queryFn: fetchMap,
-  });
-}
-
-// ============================================================================
-// Pagination Types & Hook
-// ============================================================================
-
-export interface Category {
-  id: string;
-  label: string;
-  keywords?: string[];
-}
-
 async function fetchCategories(): Promise<Category[]> {
   const response = await fetch(`${API_BASE}/categories`);
   const json = await response.json();
   return json.data as Category[];
-}
-
-export function useCategories() {
-  return useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
-    staleTime: 60 * 60 * 1000, // 1 hour
-  });
-}
-
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-export interface EventsResponse {
-  data: Event[];
-  pagination: Pagination;
 }
 
 async function fetchEventsPaginated(
@@ -312,9 +115,71 @@ async function fetchEventsPaginated(
   };
 }
 
-/**
- * ดึง events แบบ pagination
- */
+// ============================================================================
+// React Query Hooks
+// ============================================================================
+
+export function useEvents(month?: string) {
+  return useQuery({
+    queryKey: ["events", month],
+    queryFn: () => fetchEvents(month),
+  });
+}
+
+export function useEventById(id: number) {
+  return useQuery({
+    queryKey: ["event", id],
+    queryFn: () => fetchEventById(id),
+    enabled: !!id,
+  });
+}
+
+export function useMonths() {
+  return useQuery({
+    queryKey: ["months"],
+    queryFn: fetchMonths,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useEventStats() {
+  return useQuery({
+    queryKey: ["stats"],
+    queryFn: fetchStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useSearchEvents(query: string) {
+  return useQuery({
+    queryKey: ["search", query],
+    queryFn: () => fetchSearch(query),
+    enabled: query.length >= 2,
+  });
+}
+
+export function useUpcomingEvents() {
+  return useQuery({
+    queryKey: ["upcoming"],
+    queryFn: fetchUpcoming,
+  });
+}
+
+export function useMapEvents() {
+  return useQuery({
+    queryKey: ["map"],
+    queryFn: fetchMap,
+  });
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
 export function useEventsPaginated(
   page: number,
   limit: number = 12,
@@ -327,9 +192,6 @@ export function useEventsPaginated(
   });
 }
 
-/**
- * ดึง events แบบ Infinite Scroll
- */
 export function useEventsInfinite(
   limit: number = 12,
   month?: string,

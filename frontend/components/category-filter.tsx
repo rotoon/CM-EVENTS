@@ -1,93 +1,82 @@
 "use client";
 
 import { ButtonNeo } from "@/components/ui/button-neo";
-import { useCategories } from "@/hooks/use-events";
+import { useCategories, useMonths } from "@/hooks/use-events";
 import {
-  BookOpen,
-  Coffee,
-  Mic,
-  Palette,
-  ShoppingBag,
-  Sparkles,
-  Tag,
-  Utensils,
-} from "lucide-react";
+  CATEGORY_STYLES,
+  DEFAULT_CATEGORY_STYLE,
+  ICON_MAP,
+} from "@/lib/constants";
+import { Tag } from "lucide-react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-// Icon mapping default
-const ICON_MAP: Record<string, any> = {
-  festival: Sparkles,
-  music: Mic,
-  art: Palette,
-  cafe: Coffee,
-  market: ShoppingBag,
-  workshop: BookOpen,
-  food: Utensils,
-};
-
-const CATEGORY_STYLES: Record<string, { active: string; hover: string }> = {
-  festival: {
-    active:
-      "bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white",
-    hover: "hover:bg-neo-black hover:text-white",
-  },
-  music: {
-    active:
-      "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
-    hover: "hover:bg-neo-lime",
-  },
-  art: {
-    active:
-      "bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black",
-    hover: "hover:bg-neo-pink hover:text-black",
-  },
-  cafe: {
-    active:
-      "bg-neo-purple text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-purple hover:text-white",
-    hover: "hover:bg-neo-purple hover:text-white ",
-  },
-  market: {
-    active:
-      "bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white",
-    hover: "hover:bg-neo-black hover:text-white",
-  },
-  workshop: {
-    active:
-      "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
-    hover: "hover:bg-neo-lime",
-  },
-  food: {
-    active:
-      "bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black",
-    hover: "hover:bg-neo-pink ",
-  },
-};
-
-const DEFAULT_STYLE = {
-  active:
-    "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
-  hover: "hover:bg-neo-lime",
-};
-
 interface CategoryFilterProps {
   activeCategory?: string;
   activeMonth?: string;
-  availableMonths?: string[];
+}
+
+export function CategoryFilterSkeleton() {
+  return (
+    <div className="border-y-4 border-neo-black bg-white py-6 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 space-y-6">
+        <div className="flex items-center justify-center gap-3 mb-5">
+          <div className="w-8 h-1 bg-neo-black" aria-hidden="true" />
+          <span className="font-display font-black text-sm uppercase tracking-wider">
+            Select Month
+          </span>
+          <div className="w-8 h-1 bg-neo-black" aria-hidden="true" />
+        </div>
+        <div className="flex justify-center gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="w-32 h-10 bg-gray-200 animate-pulse border-4 border-neo-black shadow-neo"
+            />
+          ))}
+        </div>
+        <div className="border-t-4 border-neo-black pt-6">
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="w-8 h-1 bg-neo-black" aria-hidden="true" />
+            <span className="font-display font-black text-sm uppercase tracking-wider">
+              Filter by Category
+            </span>
+            <div className="w-8 h-1 bg-neo-black" aria-hidden="true" />
+          </div>
+          <div className="flex justify-center gap-4 flex-wrap">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="w-32 h-11 bg-gray-200 animate-pulse border-4 border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function CategoryFilterContent({
   activeMonth: activeMonthProp,
-  availableMonths = [],
 }: CategoryFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: categories = [], isLoading } = useCategories();
+  const { data: categories = [], isLoading: isCategoriesLoading } =
+    useCategories();
+  const { data: availableMonths = [], isLoading: isMonthsLoading } =
+    useMonths();
+
+  const isLoading = isCategoriesLoading || isMonthsLoading;
 
   // Derive active state directly from URL, fallback to prop for initial load
   const activeCategory = searchParams.get("category");
   const activeMonth = searchParams.get("month") || activeMonthProp;
+
+  if (isLoading) {
+    return <CategoryFilterSkeleton />;
+  }
 
   const handleToggle = (key: "category" | "month", value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -173,7 +162,7 @@ function CategoryFilterContent({
                       px-5 py-2.5 font-mono font-bold text-sm 
                       border-4 border-neo-black 
                       transition-all duration-150 cursor-pointer
-                      animate-in fade-in slide-in-from-bottom-2
+                      animate-fadeIn
                       ${
                         isActive
                           ? "bg-neo-purple text-white shadow-none translate-x-1 translate-y-1"
@@ -191,7 +180,7 @@ function CategoryFilterContent({
 
         {/* Categories - Secondary Filter */}
         <div
-          className="pt-6 border-t-4 border-neo-black animate-in fade-in slide-in-from-top-4 duration-500"
+          className="pt-6 border-t-4 border-neo-black animate-fadeIn"
           role="group"
           aria-label="Filter by category"
         >
@@ -203,31 +192,21 @@ function CategoryFilterContent({
             <div className="w-8 h-1 bg-neo-black" aria-hidden="true" />
           </div>
 
-          {isLoading ? (
-            <div className="flex gap-4 justify-center flex-wrap">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-32 h-11 bg-gray-200 animate-pulse border-4 border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                />
-              ))}
-            </div>
-          ) : (
+          {categories.length > 0 && (
             <div className="flex gap-4 justify-center flex-wrap">
               {categories.map((cat, index) => {
                 const Icon = ICON_MAP[cat.id] || Tag;
                 const isActive = activeCategory === cat.id;
-                const style = CATEGORY_STYLES[cat.id] || DEFAULT_STYLE;
+                const style = CATEGORY_STYLES[cat.id] || DEFAULT_CATEGORY_STYLE;
 
                 return (
                   <div
                     key={cat.id}
-                    className="animate-in fade-in zoom-in-95"
+                    className="animate-fadeIn"
                     style={{
                       animationDelay: `${
                         (index + availableMonths.length) * 50
                       }ms`,
-                      animationFillMode: "backwards",
                     }}
                   >
                     <ButtonNeo
@@ -261,11 +240,7 @@ function CategoryFilterContent({
 
 export function CategoryFilter(props: CategoryFilterProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="py-6 text-center animate-pulse">Loading filters...</div>
-      }
-    >
+    <Suspense fallback={<CategoryFilterSkeleton />}>
       <CategoryFilterContent {...props} />
     </Suspense>
   );

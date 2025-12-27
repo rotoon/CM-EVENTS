@@ -9,7 +9,7 @@ import { FooterNeo } from "@/components/footer-neo";
 import { HeroSection } from "@/components/hero-section";
 import { NavbarNeo } from "@/components/navbar-neo";
 import { TopMarquee } from "@/components/top-marquee";
-import { useEventsInfinite, useMonths } from "@/hooks/use-events";
+import { useEventsInfinite } from "@/hooks/use-events";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect } from "react";
 
@@ -92,20 +92,8 @@ function FilterSection({
   activeCategory?: string;
   activeMonth?: string;
 }) {
-  const { data: availableMonths = [], isLoading } = useMonths();
-
-  if (isLoading) {
-    return (
-      <div className="border-y-4 border-neo-black bg-white py-12 animate-pulse"></div>
-    );
-  }
-
   return (
-    <CategoryFilter
-      activeCategory={activeCategory}
-      activeMonth={activeMonth}
-      availableMonths={availableMonths}
-    />
+    <CategoryFilter activeCategory={activeCategory} activeMonth={activeMonth} />
   );
 }
 

@@ -1,20 +1,9 @@
 "use client";
 
-import { Event } from "@/hooks/use-events";
-import { EventCardNeo } from "./event-card-neo";
-
-// Neo-Pop Colors Cycle
-const NEO_COLORS = [
-  "bg-neo-pink",
-  "bg-neo-lime",
-  "bg-neo-purple text-white",
-  "bg-neo-black text-white",
-  "bg-white border-2 border-black",
-];
-
-const TAGS = ["ART", "MUSIC", "FOOD", "VIBE", "PARTY"];
-
+import { NEO_COLORS, TAGS } from "@/lib/constants";
+import { Event } from "@/lib/types";
 import { CalendarDays, RefreshCw, SearchX } from "lucide-react";
+import { EventCardNeo } from "./event-card-neo";
 
 interface EventsGridProps {
   events: Event[];

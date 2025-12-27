@@ -1,36 +1,60 @@
-export interface EventRow {
+export interface Event {
   id: number;
+  source_url: string;
   title: string;
-  source_url: string;
-  cover_image_url: string;
-  location: string;
-  date_text: string;
-  month_wrapped: string;
-  description?: string;
-  time_text?: string;
-  latitude?: number;
-  longitude?: number;
-  facebook_url?: string;
-  is_fully_scraped: number;
-  description_markdown?: string;
-  google_maps_url?: string;
-  is_ended?: number;
+  description: string | null;
+  description_markdown: string | null;
+  location: string | null;
+  date_text: string | null;
+  time_text: string | null;
+  month_wrapped: string | null;
+  cover_image_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  google_maps_url: string | null;
+  facebook_url: string | null;
+  is_ended: number | null;
+  first_scraped_at: string | null;
+  last_updated_at: string | null;
+  is_fully_scraped: number | null;
 }
 
-export interface EventDetail {
+export interface EventImage {
   id: number;
-  source_url: string;
-  description_markdown?: string | null;
-  description?: string;
-  is_fully_scraped: boolean | number;
+  event_id: number;
+  image_url: string;
+  is_cover: number | null;
+  created_at: string | null;
 }
 
-export interface PaginationResult<T> {
-  data: T[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
+export interface EventWithImages extends Event {
+  images: EventImage[];
+}
+
+export interface EventStats {
+  totalEvents: number;
+  eventsWithGPS: number;
+  eventsWithFacebook: number;
+  eventsByMonth: { month: string; count: number }[];
+  topLocations: { location: string; count: number }[];
+}
+
+export interface Category {
+  id: string;
+  label: string;
+  keywords?: string[];
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface EventsResponse {
+  data: Event[];
+  pagination: Pagination;
 }

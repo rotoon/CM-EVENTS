@@ -2,15 +2,15 @@
 
 ## Current Focus
 
-- **Goal**: Update `EventCardNeo` to show event status.
-- **Task**: `/toh:ds` (Completed)
-- **Current Action**: Validated UI update.
+- **Goal**: Enable animations.
+- **Task**: `/toh:design` (Completed)
+- **Current Action**: Verification.
 
 ## Context
 
-- **Update**: Replaced `price` prop with `isEnded`.
-- **UI**: Now shows "ENDED" (Red/Gray style) or "JOIN NOW" (Green/Live style).
+- **Fix**: Replaced broken `tailwindcss-animate` classes with custom `.animate-fadeIn`.
+- **Note**: `animate-fadeIn` is defined in `globals.css` with `opacity: 0` initial state.
 
 ## Next Steps
 
-1. User to check implementation.
+1. User to verify "pop" effect.
