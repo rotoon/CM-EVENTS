@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "@/components/error-boundary";
 import { FooterNeo } from "@/components/footer-neo";
 import { NavbarNeo } from "@/components/navbar-neo";
 import { TopMarquee } from "@/components/top-marquee";
@@ -99,7 +100,7 @@ export default function RootLayout({
         <QueryProvider>
           <TopMarquee />
           <NavbarNeo />
-          {children}
+          <ErrorBoundary>{children}</ErrorBoundary>
           <FooterNeo />
         </QueryProvider>
       </body>

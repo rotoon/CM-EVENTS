@@ -17,19 +17,21 @@ export function FooterNeo() {
             </span>
           </h2>
           <p className="font-mono text-sm max-w-sm">
-            What's the hype? Events, Lifestyle, and Culture in Chiang Mai.
+            What&apos;s the hype? Events, Lifestyle, and Culture in Chiang Mai.
           </p>
         </div>
         <div className="flex flex-col items-start md:items-end justify-center">
           <div className="flex gap-4">
             <Link
               href="#"
+              aria-label="Follow us on Instagram"
               className="w-12 h-12 border-2 border-white flex items-center justify-center hover:bg-neo-lime hover:text-black hover:border-black transition-colors"
             >
               <Instagram />
             </Link>
             <Link
               href="#"
+              aria-label="Follow us on Twitter"
               className="w-12 h-12 border-2 border-white flex items-center justify-center hover:bg-neo-pink hover:text-black hover:border-black transition-colors"
             >
               <Twitter />

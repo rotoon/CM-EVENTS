@@ -3,7 +3,6 @@
 import { Event } from "@/lib/types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 // Fix Leaflet marker icon issue in Next.js
@@ -23,13 +22,8 @@ interface EventMapProps {
 }
 
 export default function EventMap({ event }: EventMapProps) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted || !event.latitude || !event.longitude) {
+  // SSR-safe check: only render map on client
+  if (typeof window === "undefined" || !event.latitude || !event.longitude) {
     return null;
   }
 

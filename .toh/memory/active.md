@@ -2,18 +2,18 @@
 
 ## Current Focus
 
-- **Goal**: Fix event detail page crash.
-- **Task**: `/toh:fix` (Fixed Thai date parsing in event-schema.tsx).
+- **Goal**: Frontend Improvements completed.
+- **Task**: `/toh:p` - Code quality and accessibility review.
 - **Current Action**: Task Completed.
 
 ## Context
 
-- **Issue**: `event-schema.tsx` used `new Date(event.date_text)` which crashed on Thai dates.
-- **Solution**:
-  - Added `parseThaiDateToISO` function to `lib/date-utils.ts`.
-  - Updated `event-schema.tsx` to use the new function.
+- **ESLint**: 9 errors → 0 errors (7 files fixed).
+- **Error Boundary**: New component added to catch runtime errors.
+- **Accessibility**: aria-labels and sizes props added.
+- **Build**: Passing ✅
 
 ## Next Steps
 
-1. Test /events/74 page.
-2. Deploy frontend if needed.
+1. Deploy updated frontend to production.
+2. Consider adding tests in the future.

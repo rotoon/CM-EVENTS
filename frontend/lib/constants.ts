@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Coffee,
+  LucideIcon,
   Mic,
   Palette,
   ShoppingBag,
@@ -9,7 +10,7 @@ import {
 } from "lucide-react";
 
 // Icon mapping default
-export const ICON_MAP: Record<string, any> = {
+export const ICON_MAP: Record<string, LucideIcon> = {
   festival: Sparkles,
   music: Mic,
   art: Palette,

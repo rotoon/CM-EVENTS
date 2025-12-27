@@ -40,6 +40,7 @@ export function NavbarNeo() {
               alt="HYPE CNX Logo"
               fill
               className="object-contain"
+              sizes="56px"
             />
           </div>
           <h1 className="font-display font-black text-xl md:text-2xl tracking-tighter italic uppercase">
@@ -90,6 +91,7 @@ export function NavbarNeo() {
           </Link>
           <button
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
             className="w-10 h-10 border-2 border-neo-black flex items-center justify-center bg-neo-lime shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

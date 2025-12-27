@@ -36,8 +36,8 @@ export function EventsGrid({ events }: EventsGridProps) {
             No Events Found!
           </h3>
           <p className="font-mono text-lg max-w-md mx-auto mb-8">
-            We couldn't find any events matching your selection in this month.
-            Try exploring other months or categories!
+            We couldn&apos;t find any events matching your selection in this
+            month. Try exploring other months or categories!
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <button

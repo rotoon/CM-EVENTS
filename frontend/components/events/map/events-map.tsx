@@ -72,7 +72,6 @@ export default function EventsMap({ events }: EventsMapProps) {
                 {/* Image Header */}
                 <div className="relative h-32 w-full bg-neo-black border-b-2 border-neo-black">
                   {event.cover_image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <div
                       className="w-full h-full bg-cover bg-center"
                       style={{

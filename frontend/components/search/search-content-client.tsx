@@ -2,6 +2,7 @@
 
 import { EventsGrid } from "@/components/events-grid";
 import { useEventsPaginated, useSearchEvents } from "@/hooks/use-events";
+import { EventsResponse } from "@/lib/types";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -28,7 +29,7 @@ function SearchResults({ query }: { query: string }) {
     24
   );
 
-  const recentEvents = (recentData as any)?.data || [];
+  const recentEvents = (recentData as EventsResponse | undefined)?.data || [];
 
   if (isLoading || loadingRecent) return <SearchLoading />;
 
@@ -69,7 +70,7 @@ function SearchResults({ query }: { query: string }) {
           SEARCH RESULTS
         </div>
         <h2 className="font-display font-black text-5xl md:text-6xl uppercase">
-          FINDING: "{query}"
+          FINDING: &quot;{query}&quot;
         </h2>
       </div>
       <EventsGrid events={events} />
