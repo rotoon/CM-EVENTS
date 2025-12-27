@@ -36,8 +36,8 @@ export function NavbarNeo() {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative w-12 h-12 md:w-14 md:h-14 transform group-hover:rotate-12 transition-transform duration-300">
             <Image
-              src="/hype-sticker.png"
-              alt="HYPE CNX"
+              src="/logo.png"
+              alt="HYPE CNX Logo"
               fill
               className="object-contain"
             />

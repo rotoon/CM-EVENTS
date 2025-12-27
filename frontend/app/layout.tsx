@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     siteName: "Hype CNX",
     images: [
       {
-        url: "/hype-sticker.png",
+        url: "/logo-v2.png",
         width: 800,
         height: 600,
         alt: "Hype CNX Logo",
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     title: "Hype CNX - Chiang Mai Lifestyle & Events",
     description:
       "The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.",
-    images: ["/hype-sticker.png"],
+    images: ["/logo-v2.png"],
   },
   icons: {
     icon: "/icon.png",
