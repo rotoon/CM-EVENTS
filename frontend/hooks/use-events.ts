@@ -50,7 +50,7 @@ export interface EventStats {
 // ============================================================================
 // API Base URL (Now using internal Next.js API routes)
 // ============================================================================
-const API_BASE = "/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 // ============================================================================
 // Helper: Parse Thai date for sorting
@@ -238,6 +238,26 @@ export function useMapEvents() {
 // Pagination Types & Hook
 // ============================================================================
 
+export interface Category {
+  id: string;
+  label: string;
+  keywords?: string[];
+}
+
+async function fetchCategories(): Promise<Category[]> {
+  const response = await fetch(`${API_BASE}/categories`);
+  const json = await response.json();
+  return json.data as Category[];
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
 export interface Pagination {
   page: number;
   limit: number;
@@ -255,7 +275,8 @@ export interface EventsResponse {
 async function fetchEventsPaginated(
   page: number,
   limit: number,
-  month?: string
+  month?: string,
+  category?: string
 ): Promise<EventsResponse> {
   const params = new URLSearchParams();
   // Use offset instead of page for the API
@@ -263,6 +284,7 @@ async function fetchEventsPaginated(
   params.set("limit", limit.toString());
   params.set("offset", offset.toString());
   if (month) params.set("month", month);
+  if (category) params.set("category", category);
 
   const response = await fetch(`${API_BASE}/events?${params.toString()}`);
   const json = await response.json();
@@ -296,11 +318,12 @@ async function fetchEventsPaginated(
 export function useEventsPaginated(
   page: number,
   limit: number = 12,
-  month?: string
+  month?: string,
+  category?: string
 ) {
   return useQuery({
-    queryKey: ["events", "paginated", page, limit, month],
-    queryFn: () => fetchEventsPaginated(page, limit, month),
+    queryKey: ["events", "paginated", page, limit, month, category],
+    queryFn: () => fetchEventsPaginated(page, limit, month, category),
     placeholderData: (previousData) => previousData, // Keep previous data while loading
   });
 }

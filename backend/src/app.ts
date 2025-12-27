@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
     name: "CM Events API",
     version: "1.0.0",
     status: "running",
-    tech: "Node.js + Express + SQLite",
+    tech: "Node.js + Express + PostgreSQL",
     endpoints: [
       "/events",
       "/events/:id",

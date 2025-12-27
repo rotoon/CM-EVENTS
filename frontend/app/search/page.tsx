@@ -29,22 +29,24 @@ function SearchResults({ query }: { query: string }) {
 
   if (isLoading) return <SearchLoading />;
   if (error)
-    return <div className="text-center py-16 text-red-500">เกิดข้อผิดพลาด</div>;
+    return (
+      <div className="text-center py-16 text-red-500">
+        Internal Server Error
+      </div>
+    );
 
   if (query.length < 2) {
     return (
       <main className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <p className="text-xl font-bold">กรุณาพิมพ์อย่างน้อย 2 ตัวอักษร</p>
+        <p className="text-xl font-bold">Please enter at least 2 characters</p>
       </main>
     );
   }
 
   return (
-    <EventsGrid
-      events={events}
-      title={`Results for "${query}"`}
-      showLoadMore={false}
-    />
+    <main className="max-w-7xl mx-auto px-4 py-16">
+      <EventsGrid events={events} />
+    </main>
   );
 }
 

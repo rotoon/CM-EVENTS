@@ -1,4 +1,3 @@
-import { ButtonNeo } from "@/components/ui/button-neo";
 import { Zap } from "lucide-react";
 import Link from "next/link";
 
@@ -41,10 +40,6 @@ export function NavbarNeo() {
             Vibe Check
           </Link>
         </div>
-
-        <ButtonNeo variant="primary" className="font-black text-sm">
-          Join Now
-        </ButtonNeo>
       </div>
     </nav>
   );

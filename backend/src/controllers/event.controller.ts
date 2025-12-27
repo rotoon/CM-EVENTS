@@ -1,58 +1,88 @@
 import { Request, Response } from "express";
-import db from "../config/database";
-import { EventRow } from "../types";
+import pool from "../config/database";
 import { error, success } from "../utils/response.util";
 
+import { getEndDateTimestamp } from "../utils/date.util";
+
+import { CATEGORIES, getCategoryKeywords } from "../config/categories";
+
 export class EventController {
+  static async getCategories(req: Request, res: Response) {
+    res.json(success(CATEGORIES));
+  }
+
   static async getEvents(req: Request, res: Response) {
     try {
-      const { month, limit = "20", offset = "0" } = req.query;
+      const { month, category, limit = "20", offset = "0" } = req.query;
       const limitNum = Number(limit);
       const offsetNum = Number(offset);
 
-      let query =
-        "SELECT * FROM events WHERE is_fully_scraped = 1 AND description IS NOT NULL";
-      const params: any[] = [];
+      let query = `
+        SELECT * FROM events 
+        WHERE is_fully_scraped = TRUE AND description IS NOT NULL
+      `;
+      const params: (string | number)[] = [];
+      let paramIndex = 1;
 
       if (month && typeof month === "string") {
-        query += " AND month_wrapped = ?";
-        params.push(month);
+        query += ` AND month_wrapped LIKE $${paramIndex}`;
+        params.push(`%"${month}"%`);
+        paramIndex++;
       }
 
-      query += " ORDER BY month_wrapped DESC, id DESC LIMIT ? OFFSET ?";
-      params.push(limitNum, offsetNum);
+      if (category && typeof category === "string") {
+        const keywords = getCategoryKeywords(category);
 
-      // Count query
-      let countQuery =
-        "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = 1 AND description IS NOT NULL";
-      const countParams: any[] = [];
+        const conditions = keywords
+          .map(
+            (_, i) =>
+              `(title ILIKE $${paramIndex + i} OR description ILIKE $${
+                paramIndex + i
+              } OR location ILIKE $${paramIndex + i})`
+          )
+          .join(" OR ");
 
-      if (month && typeof month === "string") {
-        countQuery += " AND month_wrapped = ?";
-        countParams.push(month);
+        query += ` AND (${conditions})`;
+        keywords.forEach((k) => params.push(`%${k}%`));
+        paramIndex += keywords.length;
       }
 
-      const { count } = db.prepare(countQuery).get(...countParams) as {
-        count: number;
-      };
-      const events = db.prepare(query).all(...params) as EventRow[];
+      // No ORDER BY or LIMIT in SQL - we sort in memory
 
-      const mappedEvents = events.map((e) => ({
-        ...e,
-        image: e.cover_image_url,
-      }));
+      const client = await pool.connect();
+      try {
+        const result = await client.query(query, params);
+        let events = result.rows;
 
-      res.json(
-        success({
-          events: mappedEvents,
-          pagination: {
-            total: count,
-            limit: limitNum,
-            offset: offsetNum,
-            hasMore: offsetNum + events.length < count,
-          },
-        })
-      );
+        // Sort by End Date DESC (Latest first)
+        events.sort((a, b) => {
+          const endA = getEndDateTimestamp(a.date_text);
+          const endB = getEndDateTimestamp(b.date_text);
+          return endB - endA;
+        });
+
+        const total = events.length;
+        const slicedEvents = events.slice(offsetNum, offsetNum + limitNum);
+
+        const mappedEvents = slicedEvents.map((e) => ({
+          ...e,
+          image: e.cover_image_url,
+        }));
+
+        res.json(
+          success({
+            events: mappedEvents,
+            pagination: {
+              total: total,
+              limit: limitNum,
+              offset: offsetNum,
+              hasMore: offsetNum + slicedEvents.length < total,
+            },
+          })
+        );
+      } finally {
+        client.release();
+      }
     } catch (err) {
       console.error(err);
       res.status(500).json(error("Failed to fetch events"));
@@ -62,21 +92,29 @@ export class EventController {
   static async getEventById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const event = db.prepare("SELECT * FROM events WHERE id = ?").get(id) as
-        | EventRow
-        | undefined;
 
-      if (!event) {
-        res.status(404).json(error("Event not found"));
-        return;
+      const client = await pool.connect();
+      try {
+        const result = await client.query(
+          "SELECT * FROM events WHERE id = $1",
+          [id]
+        );
+
+        if (result.rows.length === 0) {
+          res.status(404).json(error("Event not found"));
+          return;
+        }
+
+        const event = result.rows[0];
+        res.json(
+          success({
+            ...event,
+            image: event.cover_image_url,
+          })
+        );
+      } finally {
+        client.release();
       }
-
-      res.json(
-        success({
-          ...event,
-          image: event.cover_image_url,
-        })
-      );
     } catch (err) {
       console.error(err);
       res.status(500).json(error("Failed to fetch event"));
@@ -85,15 +123,35 @@ export class EventController {
 
   static async getMonths(req: Request, res: Response) {
     try {
-      const months = db
-        .prepare(
-          `SELECT DISTINCT month_wrapped FROM events 
-           WHERE month_wrapped IS NOT NULL 
-           ORDER BY month_wrapped DESC`
-        )
-        .all() as { month_wrapped: string }[];
+      const client = await pool.connect();
+      try {
+        const result = await client.query(`
+          SELECT month_wrapped FROM events 
+          WHERE month_wrapped IS NOT NULL
+        `);
 
-      res.json(success(months.map((m) => m.month_wrapped)));
+        // Extract unique months from all JSON arrays
+        const monthSet = new Set<string>();
+        for (const row of result.rows) {
+          try {
+            const months = JSON.parse(row.month_wrapped) as string[];
+            months.forEach((m) => monthSet.add(m));
+          } catch {
+            if (row.month_wrapped) {
+              monthSet.add(row.month_wrapped);
+            }
+          }
+        }
+
+        // Sort descending
+        const sortedMonths = Array.from(monthSet).sort((a, b) =>
+          b.localeCompare(a)
+        );
+
+        res.json(success(sortedMonths));
+      } finally {
+        client.release();
+      }
     } catch (err) {
       console.error(err);
       res.status(500).json(error("Failed to fetch months"));
@@ -102,22 +160,30 @@ export class EventController {
 
   static async getStats(req: Request, res: Response) {
     try {
-      const totalEvents = db
-        .prepare("SELECT COUNT(*) as count FROM events")
-        .get() as { count: number };
-      const scrapedEvents = db
-        .prepare(
-          "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = 1"
-        )
-        .get() as { count: number };
+      console.log("Debug: Fetching stats...");
+      const client = await pool.connect();
+      console.log("Debug: Pool connected for stats");
+      try {
+        const totalResult = await client.query(
+          "SELECT COUNT(*) as count FROM events"
+        );
+        const scrapedResult = await client.query(
+          "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = TRUE"
+        );
 
-      res.json(
-        success({
-          total: totalEvents.count,
-          fullyScraped: scrapedEvents.count,
-          pending: totalEvents.count - scrapedEvents.count,
-        })
-      );
+        const total = parseInt(totalResult.rows[0].count);
+        const fullyScraped = parseInt(scrapedResult.rows[0].count);
+
+        res.json(
+          success({
+            total,
+            fullyScraped,
+            pending: total - fullyScraped,
+          })
+        );
+      } finally {
+        client.release();
+      }
     } catch (err) {
       console.error(err);
       res.status(500).json(error("Failed to fetch stats"));
@@ -132,23 +198,28 @@ export class EventController {
         return;
       }
 
-      const events = db
-        .prepare(
+      const client = await pool.connect();
+      try {
+        const searchPattern = `%${q}%`;
+        const result = await client.query(
           `SELECT * FROM events 
-           WHERE (title LIKE ? OR description LIKE ? OR location LIKE ?)
-           AND is_fully_scraped = 1
-           ORDER BY id DESC LIMIT 50`
-        )
-        .all(`%${q}%`, `%${q}%`, `%${q}%`) as EventRow[];
+           WHERE (title ILIKE $1 OR description ILIKE $1 OR location ILIKE $1)
+           AND is_fully_scraped = TRUE
+           ORDER BY id DESC LIMIT 50`,
+          [searchPattern]
+        );
 
-      res.json(
-        success(
-          events.map((e) => ({
-            ...e,
-            image: e.cover_image_url,
-          }))
-        )
-      );
+        res.json(
+          success(
+            result.rows.map((e) => ({
+              ...e,
+              image: e.cover_image_url,
+            }))
+          )
+        );
+      } finally {
+        client.release();
+      }
     } catch (err) {
       console.error(err);
       res.status(500).json(error("Search failed"));
@@ -157,22 +228,25 @@ export class EventController {
 
   static async getUpcomingEvents(req: Request, res: Response) {
     try {
-      const events = db
-        .prepare(
-          `SELECT * FROM events 
-           WHERE is_fully_scraped = 1
-           ORDER BY month_wrapped DESC, id DESC LIMIT 20`
-        )
-        .all() as EventRow[];
+      const client = await pool.connect();
+      try {
+        const result = await client.query(`
+          SELECT * FROM events 
+          WHERE is_fully_scraped = TRUE
+          ORDER BY id DESC LIMIT 20
+        `);
 
-      res.json(
-        success(
-          events.map((e) => ({
-            ...e,
-            image: e.cover_image_url,
-          }))
-        )
-      );
+        res.json(
+          success(
+            result.rows.map((e) => ({
+              ...e,
+              image: e.cover_image_url,
+            }))
+          )
+        );
+      } finally {
+        client.release();
+      }
     } catch (err) {
       console.error(err);
       res.status(500).json(error("Failed to fetch upcoming events"));
@@ -181,15 +255,18 @@ export class EventController {
 
   static async getMapEvents(req: Request, res: Response) {
     try {
-      const events = db
-        .prepare(
-          `SELECT id, title, latitude, longitude, location, cover_image_url 
-           FROM events
-           WHERE latitude IS NOT NULL AND longitude IS NOT NULL`
-        )
-        .all();
-      res.json(success(events));
-    } catch (err) {
+      const client = await pool.connect();
+      try {
+        const result = await client.query(`
+          SELECT id, title, latitude, longitude, location, cover_image_url 
+          FROM events
+          WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+        `);
+        res.json(success(result.rows));
+      } finally {
+        client.release();
+      }
+    } catch {
       res.json(success([]));
     }
   }

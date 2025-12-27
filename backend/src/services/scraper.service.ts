@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import db from "../config/database";
+import pool from "../config/database";
 
 interface EventData {
   title: string;
@@ -48,7 +48,6 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
     const $ = cheerio.load(data);
     const events: EventData[] = [];
 
-    // Helper to add event if valid
     const addEvent = (
       title: string,
       rawLink: string,
@@ -63,7 +62,6 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
         fullLink = fullLink.replace(/\/$/, "");
         const monthWrapped = dateRaw.split(" ")[1]?.toUpperCase() || "UNKNOWN";
 
-        // Avoid duplicates
         if (!events.some((e) => e.link === fullLink)) {
           events.push({
             title,
@@ -77,7 +75,7 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       }
     };
 
-    // Strategy 1: Article (Desktop/Standard)
+    // Strategy 1: Article
     $("article").each((_, el) => {
       const article = $(el);
       const linkEl = article.find("a").first();
@@ -94,8 +92,7 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       );
     });
 
-    // Strategy 2: Bootstrap Card (Mobile/Alternative)
-    // Use .card.bg-activity-list
+    // Strategy 2: Bootstrap Card
     $(".card.bg-activity-list").each((_, el) => {
       const card = $(el);
       const title = card.find(".card-title").text().trim();
@@ -107,24 +104,10 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       addEvent(title, rawLink, image, location, dateText);
     });
 
-    // Logging if no events found
-    if (events.length === 0) {
-      const pageTitle = $("title").text().trim();
-      console.log(`   ⚠️ No events found! Page Title: "${pageTitle}"`);
-      // Log body sample to see what we got
-      const bodySample =
-        $("body").html()?.substring(0, 1000) || "No body content";
-      console.log(`   HTML Dump (Body Start): \n${bodySample}`);
-    }
-
     console.log(`   ✅ Found ${events.length} events on page ${page}`);
     return events;
   } catch (error) {
     console.error(`❌ Error scraping page ${page}:`, error);
-    if (axios.isAxiosError(error)) {
-      console.error(`   Status: ${error.response?.status}`);
-      console.error(`   Status Text: ${error.response?.statusText}`);
-    }
     return [];
   }
 }
@@ -133,62 +116,42 @@ export async function runScraper() {
   console.log("\n🚀 Starting scraper...");
   console.log(`📅 Time: ${new Date().toLocaleString("th-TH")}`);
 
-  // Database initialized via import
+  const client = await pool.connect();
 
-  // Ensure tables exist
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS events (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      source_url TEXT UNIQUE NOT NULL,
-      title TEXT NOT NULL,
-      description TEXT,
-      location TEXT,
-      date_text TEXT,
-      month_wrapped TEXT,
-      cover_image_url TEXT,
-      first_scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      is_fully_scraped BOOLEAN DEFAULT 0
-    )
-  `);
+  try {
+    let page = 1;
+    let totalSaved = 0;
+    let hasNext = true;
 
-  let page = 1;
-  let totalSaved = 0;
-  let hasNext = true;
+    while (hasNext) {
+      const events = await scrapeEventList(page);
+      if (events.length === 0) {
+        console.log("🛑 No more events found or error occurred.");
+        break;
+      }
 
-  while (hasNext) {
-    const events = await scrapeEventList(page);
-    if (events.length === 0) {
-      console.log("🛑 No more events found or error occurred.");
-      break;
-    }
-
-    const insert = db.prepare(`
-      INSERT INTO events (
-        title, source_url, cover_image_url, location, date_text, month_wrapped
-      ) VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT(source_url) DO UPDATE SET
-        title = excluded.title,
-        cover_image_url = excluded.cover_image_url,
-        location = excluded.location,
-        date_text = excluded.date_text,
-        month_wrapped = excluded.month_wrapped,
-        last_updated_at = CURRENT_TIMESTAMP
-    `);
-
-    const insertMany = db.transaction((events: EventData[]) => {
-      let count = 0;
       for (const event of events) {
         try {
-          insert.run(
-            event.title,
-            event.link,
-            event.image,
-            event.location,
-            event.date,
-            event.monthWrapped
+          await client.query(
+            `INSERT INTO events (title, source_url, cover_image_url, location, date_text, month_wrapped)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             ON CONFLICT (source_url) DO UPDATE SET
+               title = EXCLUDED.title,
+               cover_image_url = EXCLUDED.cover_image_url,
+               location = EXCLUDED.location,
+               date_text = EXCLUDED.date_text,
+               month_wrapped = EXCLUDED.month_wrapped,
+               last_updated_at = CURRENT_TIMESTAMP`,
+            [
+              event.title,
+              event.link,
+              event.image,
+              event.location,
+              event.date,
+              event.monthWrapped,
+            ]
           );
-          count++;
+          totalSaved++;
         } catch (err: unknown) {
           console.error(
             `   ⚠️ Failed to insert: ${event.link}`,
@@ -196,26 +159,24 @@ export async function runScraper() {
           );
         }
       }
-      return count;
-    });
 
-    const savedCount = insertMany(events);
-    totalSaved += savedCount;
-    console.log(`   💾 Saved/Updated ${savedCount} events from page ${page}`);
+      console.log(
+        `   💾 Saved/Updated ${events.length} events from page ${page}`
+      );
 
-    // Limit pages to avoid infinite loop (safety)
-    // Adjust max pages as needed
-    if (page >= 10 || events.length < 10) {
-      hasNext = false;
-    } else {
-      page++;
-      // Sleep slightly to respect server
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (page >= 10 || events.length < 10) {
+        hasNext = false;
+      } else {
+        page++;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
-  }
 
-  console.log(
-    `\n✨ Scraping completed. Total processed: ${totalSaved} events.`
-  );
-  return { total: totalSaved };
+    console.log(
+      `\n✨ Scraping completed. Total processed: ${totalSaved} events.`
+    );
+    return { total: totalSaved };
+  } finally {
+    client.release();
+  }
 }

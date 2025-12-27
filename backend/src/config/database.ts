@@ -1,38 +1,56 @@
-import Database from "better-sqlite3";
 import dotenv from "dotenv";
-import path from "path";
+import { Pool } from "pg";
 
 dotenv.config();
 
-const DB_PATH =
-  process.env.DB_PATH || path.resolve(__dirname, "../../events.db");
+// Create connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // SSL required for Railway/Production
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : undefined,
+  // Connection pool settings
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
 
-// Default mode (read/write), creates file if missing
-const db = new Database(DB_PATH);
+// Initialize database schema
+async function initDb() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        source_url TEXT UNIQUE NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        location TEXT,
+        date_text TEXT,
+        month_wrapped TEXT,
+        cover_image_url TEXT,
+        first_scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_fully_scraped BOOLEAN DEFAULT FALSE,
+        time_text TEXT,
+        latitude REAL,
+        longitude REAL,
+        google_maps_url TEXT,
+        facebook_url TEXT,
+        is_ended BOOLEAN DEFAULT FALSE,
+        description_markdown TEXT
+      )
+    `);
+    console.log("✅ Database schema initialized");
+  } finally {
+    client.release();
+  }
+}
 
-// Create table if not exists (Full Verified Schema)
-db.exec(`
-  CREATE TABLE IF NOT EXISTS events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    source_url TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    location TEXT,
-    date_text TEXT,
-    month_wrapped TEXT,
-    cover_image_url TEXT,
-    first_scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_fully_scraped BOOLEAN DEFAULT 0,
-    -- Columns added by detail-scraper (included here for safety)
-    time_text TEXT,
-    latitude REAL,
-    longitude REAL,
-    google_maps_url TEXT,
-    facebook_url TEXT,
-    is_ended BOOLEAN DEFAULT 0,
-    description_markdown TEXT
-  )
-`);
+// Initialize on import
+if (process.env.DATABASE_URL) {
+  initDb().catch(console.error);
+} else {
+  console.warn("⚠️ DATABASE_URL not set, skipping database initialization");
+}
 
-export default db;
+export default pool;

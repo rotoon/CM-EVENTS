@@ -11,6 +11,7 @@ router.get("/months", EventController.getMonths);
 router.get("/stats", EventController.getStats);
 router.get("/search", EventController.searchEvents);
 router.get("/upcoming", EventController.getUpcomingEvents);
+router.get("/categories", EventController.getCategories);
 router.get("/map", EventController.getMapEvents);
 
 // Scraper Routes

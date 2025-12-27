@@ -7,8 +7,8 @@ import { HeroSection } from "@/components/hero-section";
 import { NavbarNeo } from "@/components/navbar-neo";
 import { TopMarquee } from "@/components/top-marquee";
 import { useEventsPaginated, useMonths, type Event } from "@/hooks/use-events";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 // ============================================================================
 // Loading Fallback
@@ -48,11 +48,14 @@ function EventsContent({
 }) {
   const [page, setPage] = useState(1);
   const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
+  // Use backend pagination and filtering
   const { data, isLoading, isFetching } = useEventsPaginated(
     page,
     EVENTS_PER_PAGE,
-    month
+    month,
+    category
   );
 
   // Update allEvents when data changes
@@ -71,21 +74,35 @@ function EventsContent({
     }
   }, [data, page]);
 
-  // Reset when month changes
+  // Reset when month or category changes
   useEffect(() => {
     setPage(1);
     setAllEvents([]);
-  }, [month]);
+  }, [month, category]);
 
-  // Filter by category client-side if provided
-  const filteredEvents = category
-    ? allEvents.filter(
-        (e) =>
-          e.title?.toLowerCase().includes(category.toLowerCase()) ||
-          e.description?.toLowerCase().includes(category.toLowerCase()) ||
-          e.location?.toLowerCase().includes(category.toLowerCase())
-      )
-    : allEvents;
+  // Infinite scroll with Intersection Observer
+  const loadMore = useCallback(() => {
+    if (data?.pagination?.hasNext && !isFetching) {
+      setPage((p) => p + 1);
+    }
+  }, [data?.pagination?.hasNext, isFetching]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   const pagination = data?.pagination;
 
@@ -116,14 +133,8 @@ function EventsContent({
     title = parts.join(" • ");
   }
 
-  const handleLoadMore = () => {
-    if (pagination?.hasNext && !isFetching) {
-      setPage((p) => p + 1);
-    }
-  };
-
   return (
-    <main className="max-w-7xl mx-auto px-4 py-16">
+    <main id="events-list" className="max-w-7xl mx-auto px-4 py-16">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
         <div>
@@ -136,65 +147,49 @@ function EventsContent({
         </div>
         {pagination && (
           <div className="text-sm font-bold bg-white px-4 py-2 border-4 border-neo-black shadow-neo">
-            {filteredEvents.length} / {pagination.total} events
+            {pagination?.total} events
           </div>
         )}
       </div>
 
       {/* Events Grid */}
-      <EventsGrid events={filteredEvents} showLoadMore={false} />
+      <EventsGrid events={allEvents} />
 
-      {/* Load More Button */}
+      {/* Infinite Scroll Sentinel */}
       {pagination?.hasNext && (
-        <div className="flex justify-center mt-12">
-          <button
-            onClick={handleLoadMore}
-            disabled={isFetching}
-            className={`
-              bg-neo-lime border-4 border-neo-black px-8 py-4 font-black text-xl
-              shadow-neo transition-all uppercase
-              ${
-                isFetching
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
-              }
-            `}
-          >
-            {isFetching ? (
-              <span className="flex items-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Loading...
-              </span>
-            ) : (
-              `Load More (${page} / ${pagination.totalPages})`
-            )}
-          </button>
+        <div ref={loadMoreRef} className="flex justify-center mt-12 py-8">
+          {isFetching && (
+            <div className="flex items-center gap-3 bg-neo-lime border-4 border-neo-black px-6 py-3 shadow-neo">
+              <svg
+                className="animate-spin h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              <span className="font-bold">Loading...</span>
+            </div>
+          )}
         </div>
       )}
 
       {/* End of results */}
-      {pagination && !pagination.hasNext && filteredEvents.length > 0 && (
+      {pagination && !pagination.hasNext && allEvents.length > 0 && (
         <div className="text-center mt-12">
           <div className="inline-block bg-neo-purple text-white px-6 py-3 font-bold border-4 border-neo-black shadow-neo rotate-1">
-            🎉 คุณดู Events ครบทั้งหมดแล้ว!
+            🎉 All Events displayed!
           </div>
         </div>
       )}
@@ -235,11 +230,22 @@ function FilterSection({
 // ============================================================================
 
 function HomeContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const category = searchParams.get("category") || undefined;
   const month = searchParams.get("month") || undefined;
 
   const currentMonth = new Date().toISOString().slice(0, 7);
+
+  // Auto-set current month in URL if not present
+  useEffect(() => {
+    if (!month) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("month", currentMonth);
+      router.replace(`/?${params.toString()}`, { scroll: false });
+    }
+  }, [month, currentMonth, router, searchParams]);
+
   const effectiveMonth = month ?? currentMonth;
 
   return (

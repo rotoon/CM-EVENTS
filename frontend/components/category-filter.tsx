@@ -1,30 +1,75 @@
 "use client";
 
 import { ButtonNeo } from "@/components/ui/button-neo";
-import { Coffee, Mic, Palette, ShoppingBag } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCategories } from "@/hooks/use-events";
+import {
+  BookOpen,
+  Coffee,
+  Mic,
+  Palette,
+  ShoppingBag,
+  Sparkles,
+  Tag,
+  Utensils,
+} from "lucide-react";
 
-const categories = [
-  { id: "music", label: "Live Music", icon: Mic, color: "bg-neo-lime" },
-  {
-    id: "art",
-    label: "Art Gallery",
-    icon: Palette,
-    hoverColor: "hover:bg-neo-pink",
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+// Icon mapping default
+const ICON_MAP: Record<string, any> = {
+  festival: Sparkles,
+  music: Mic,
+  art: Palette,
+  cafe: Coffee,
+  market: ShoppingBag,
+  workshop: BookOpen,
+  food: Utensils,
+};
+
+const CATEGORY_STYLES: Record<string, { active: string; hover: string }> = {
+  festival: {
+    active:
+      "bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white",
+    hover: "hover:bg-neo-black hover:text-white",
   },
-  {
-    id: "cafe",
-    label: "Cafe Hopping",
-    icon: Coffee,
-    hoverColor: "hover:bg-neo-purple hover:text-white",
+  music: {
+    active:
+      "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
+    hover: "hover:bg-neo-lime",
   },
-  {
-    id: "market",
-    label: "Night Market",
-    icon: ShoppingBag,
-    hoverColor: "hover:bg-neo-black hover:text-white",
+  art: {
+    active:
+      "bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black",
+    hover: "hover:bg-neo-pink hover:text-black",
   },
-];
+  cafe: {
+    active:
+      "bg-neo-purple text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-purple hover:text-white",
+    hover: "hover:bg-neo-purple hover:text-white ",
+  },
+  market: {
+    active:
+      "bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white",
+    hover: "hover:bg-neo-black hover:text-white",
+  },
+  workshop: {
+    active:
+      "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
+    hover: "hover:bg-neo-lime",
+  },
+  food: {
+    active:
+      "bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black",
+    hover: "hover:bg-neo-pink ",
+  },
+};
+
+const DEFAULT_STYLE = {
+  active:
+    "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
+  hover: "hover:bg-neo-lime",
+};
 
 interface CategoryFilterProps {
   activeCategory?: string;
@@ -32,25 +77,48 @@ interface CategoryFilterProps {
   availableMonths?: string[];
 }
 
-export function CategoryFilter({
-  activeCategory,
-  activeMonth = "2025-12",
+function CategoryFilterContent({
+  activeMonth: activeMonthProp,
   availableMonths = [],
 }: CategoryFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: categories = [], isLoading } = useCategories();
+
+  // Derive active state directly from URL, fallback to prop for initial load
+  const activeCategory = searchParams.get("category");
+  const activeMonth = searchParams.get("month") || activeMonthProp;
 
   const handleToggle = (key: "category" | "month", value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (searchParams.get(key) === value) {
+    // Strict toggle logic
+    const currentValue = params.get(key);
+    if (currentValue === value) {
       params.delete(key);
     } else {
       params.set(key, value);
     }
 
     const queryString = params.toString();
-    router.push(queryString ? `/?${queryString}` : "/");
+    router.push(queryString ? `/?${queryString}` : "/", { scroll: false });
+
+    // Scroll to events list after a short delay to allow Next.js to start navigation/rendering
+    setTimeout(() => {
+      const element = document.getElementById("events-list");
+      if (element) {
+        const offset = 100; // Small offset for a better view
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = element.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
   };
 
   return (
@@ -132,30 +200,50 @@ export function CategoryFilter({
             </span>
             <div className="w-8 h-1 bg-neo-black" aria-hidden="true" />
           </div>
-          <div className="flex gap-4 justify-center flex-wrap">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.id;
 
-              return (
-                <ButtonNeo
-                  key={cat.id}
-                  variant={isActive ? "primary" : "secondary"}
-                  onClick={() => handleToggle("category", cat.id)}
-                  className={`flex gap-2 ${
-                    isActive
-                      ? cat.color || "bg-neo-lime"
-                      : `bg-white ${cat.hoverColor || "hover:bg-neo-lime"}`
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {cat.label}
-                </ButtonNeo>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-4">
+              <span className="font-mono text-sm animate-pulse">
+                Loading categories...
+              </span>
+            </div>
+          ) : (
+            <div className="flex gap-4 justify-center flex-wrap">
+              {categories.map((cat) => {
+                const Icon = ICON_MAP[cat.id] || Tag;
+                const isActive = activeCategory === cat.id;
+                const style = CATEGORY_STYLES[cat.id] || DEFAULT_STYLE;
+
+                return (
+                  <ButtonNeo
+                    key={cat.id}
+                    variant={isActive ? "primary" : "secondary"}
+                    onClick={() => handleToggle("category", cat.id)}
+                    className={`flex gap-2 transition-all ${
+                      isActive ? style.active : `bg-white ${style.hover}`
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {cat.label}
+                  </ButtonNeo>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+export function CategoryFilter(props: CategoryFilterProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-6 text-center animate-pulse">Loading filters...</div>
+      }
+    >
+      <CategoryFilterContent {...props} />
+    </Suspense>
   );
 }

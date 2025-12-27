@@ -1,9 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
-import { type Database as DatabaseType } from "better-sqlite3";
 import * as cheerio from "cheerio";
 import "dotenv/config";
-import db from "../config/database";
+import pool from "../config/database";
 
 // ============================================================================
 // Constants
@@ -17,9 +16,6 @@ const USER_AGENTS = [
 interface EventDetail {
   id: number;
   source_url: string;
-  description_markdown?: string | null;
-  description?: string;
-  is_fully_scraped: boolean | number;
 }
 
 function getRandomUserAgent(): string {
@@ -33,7 +29,6 @@ async function rewriteDescriptionWithAI(
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
   rawHTML: string
 ): Promise<string> {
-  // If too short, skip
   if (!rawHTML || rawHTML.length < 50) return rawHTML || "";
 
   try {
@@ -64,7 +59,6 @@ async function rewriteDescriptionWithAI(
 // Scrape Event Detail
 // ============================================================================
 async function scrapeEventDetail(
-  dbInstance: DatabaseType,
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
   event: EventDetail
 ) {
@@ -77,23 +71,17 @@ async function scrapeEventDetail(
 
     const $ = cheerio.load(data);
 
-    // 1. Banner Image (Best Quality)
     const bannerSrc = $("img.activity-image").attr("src") || "";
-
-    // 2. Full Description (HTML)
     const descriptionHtml =
       $(".activity-description").html() ||
       $(".description").html() ||
       $("article").html() ||
       "";
 
-    // 3. Extract Metadata (Time, Coordinates, Maps)
     const timeText = $(".activity-time").text().trim() || "";
-    // Attempt to find map link
     const mapLink = $('a[href*="google.com/maps"]').attr("href") || "";
     const facebookLink = $('a[href*="facebook.com"]').attr("href") || "";
 
-    // Coordinates (sometimes in scripts or data attributes - basic check)
     let lat: number | null = null;
     let lng: number | null = null;
     const scriptContent = $("script").text();
@@ -102,47 +90,45 @@ async function scrapeEventDetail(
     if (latMatch) lat = parseFloat(latMatch[1]);
     if (lngMatch) lng = parseFloat(lngMatch[1]);
 
-    // Check if event is ended (basic logic: date passed)
-    // For now, trust the scraper listing logic, but flag if "Event Ended" text found
     const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
 
-    // 4. AI Process Description
     const enhancedDescription = await rewriteDescriptionWithAI(
       model,
       descriptionHtml
     );
 
-    // 5. Update Database using proper instance
-    dbInstance
-      .prepare(
-        `
-      UPDATE events SET 
-        cover_image_url = COALESCE(?, cover_image_url),
-        description = ?,
-        description_markdown = ?,
-        time_text = ?,
-        latitude = ?,
-        longitude = ?,
-        google_maps_url = ?,
-        facebook_url = ?,
-        is_ended = ?,
-        is_fully_scraped = 1,
-        last_updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `
-      )
-      .run(
-        bannerSrc,
-        descriptionHtml.replace(/<[^>]*>?/gm, "").trim(), // Plain text backup
-        enhancedDescription,
-        timeText,
-        lat,
-        lng,
-        mapLink,
-        facebookLink,
-        isEnded ? 1 : 0,
-        event.id
+    const client = await pool.connect();
+    try {
+      await client.query(
+        `UPDATE events SET 
+          cover_image_url = COALESCE($1, cover_image_url),
+          description = $2,
+          description_markdown = $3,
+          time_text = $4,
+          latitude = $5,
+          longitude = $6,
+          google_maps_url = $7,
+          facebook_url = $8,
+          is_ended = $9,
+          is_fully_scraped = TRUE,
+          last_updated_at = CURRENT_TIMESTAMP
+        WHERE id = $10`,
+        [
+          bannerSrc,
+          descriptionHtml.replace(/<[^>]*>?/gm, "").trim(),
+          enhancedDescription,
+          timeText,
+          lat,
+          lng,
+          mapLink,
+          facebookLink,
+          isEnded,
+          event.id,
+        ]
       );
+    } finally {
+      client.release();
+    }
 
     console.log(`   ✅ Detail updated successfully.`);
     return true;
@@ -163,65 +149,50 @@ export async function runDetailScraper(limit: number = 10) {
     return { scraped: 0, remaining: 0 };
   }
 
-  // db imported from config
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  // Ensure columns exist (Idempotent ALTERS)
-  const alterStatements = [
-    `ALTER TABLE events ADD COLUMN time_text TEXT;`,
-    `ALTER TABLE events ADD COLUMN latitude REAL;`,
-    `ALTER TABLE events ADD COLUMN longitude REAL;`,
-    `ALTER TABLE events ADD COLUMN google_maps_url TEXT;`,
-    `ALTER TABLE events ADD COLUMN facebook_url TEXT;`,
-    `ALTER TABLE events ADD COLUMN is_ended BOOLEAN DEFAULT 0;`,
-    `ALTER TABLE events ADD COLUMN description_markdown TEXT;`,
-  ];
+  const client = await pool.connect();
 
-  for (const sql of alterStatements) {
-    try {
-      db.prepare(sql).run();
-    } catch {
-      // Column already exists, ignore
-    }
-  }
-
-  let totalScraped = 0;
-
-  // Select events that haven't been scraped yet (batch size at a time for rate limiting)
-  const rows = db
-    .prepare(
-      `SELECT id, source_url, description_markdown, description, is_fully_scraped 
+  try {
+    const result = await client.query(
+      `SELECT id, source_url 
        FROM events 
-       WHERE is_fully_scraped = 0 
+       WHERE is_fully_scraped = FALSE 
        ORDER BY id DESC 
-       LIMIT ?`
-    )
-    .all(limit) as EventDetail[];
+       LIMIT $1`,
+      [limit]
+    );
 
-  if (rows.length === 0) {
-    console.log("🎉 All events have been fully scraped.");
-    return { scraped: 0, remaining: 0 };
-  }
+    const rows = result.rows as EventDetail[];
 
-  console.log(`\n📚 Found ${rows.length} events needing detail scraping...`);
-
-  for (const event of rows) {
-    const success = await scrapeEventDetail(db, model, event);
-    if (success) {
-      totalScraped++;
+    if (rows.length === 0) {
+      console.log("🎉 All events have been fully scraped.");
+      return { scraped: 0, remaining: 0 };
     }
-    // Sleep to respect rate limits
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    console.log(`\n📚 Found ${rows.length} events needing detail scraping...`);
+
+    let totalScraped = 0;
+
+    for (const event of rows) {
+      const success = await scrapeEventDetail(model, event);
+      if (success) {
+        totalScraped++;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+
+    const remainingResult = await client.query(
+      "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = FALSE"
+    );
+    const remaining = parseInt(remainingResult.rows[0].count);
+
+    console.log(
+      `\n✨ Batch completed. Scraped: ${totalScraped}, Pending: ${remaining}`
+    );
+    return { scraped: totalScraped, remaining };
+  } finally {
+    client.release();
   }
-
-  // Check remaining count
-  const remaining = db
-    .prepare("SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = 0")
-    .get() as { count: number };
-
-  console.log(
-    `\n✨ Batch completed. Scraped: ${totalScraped}, Pending: ${remaining.count}`
-  );
-  return { scraped: totalScraped, remaining: remaining.count };
 }
