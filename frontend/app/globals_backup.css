@@ -113,18 +113,3 @@ button {
     transform: translateY(0); 
   }
 }
-
-.animate-pulse-fast {
-  animation: pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse-fast {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: .8;
-    transform: scale(1.05);
-  }
-}

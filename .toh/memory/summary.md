@@ -1,8 +1,9 @@
-# Project Summary: Chiang Mai Events
+# Project Summary: Hype CNX (formerly Chiang Mai Events)
 
 ## Overview
 
-A modern, accessible website to aggregate and display events in Chiang Mai. The goal is to make finding events easy and visually appealing.
+A modern lifestyle guide and event aggregator for Chiang Mai. Starting with events, expanding to food, travel, and experiences.
+**Vision**: From "Events" to "Lifestyle Guide" (Pulse of the City).
 
 ## Key Features
 

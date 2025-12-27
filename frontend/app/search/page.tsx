@@ -1,9 +1,6 @@
 "use client";
 
 import { EventsGrid } from "@/components/events-grid";
-import { FooterNeo } from "@/components/footer-neo";
-import { NavbarNeo } from "@/components/navbar-neo";
-import { TopMarquee } from "@/components/top-marquee";
 import { useSearchEvents } from "@/hooks/use-events";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -56,9 +53,6 @@ function SearchContent() {
 
   return (
     <>
-      <TopMarquee />
-      <NavbarNeo />
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         <a
           href="/"
@@ -69,8 +63,6 @@ function SearchContent() {
       </div>
 
       <SearchResults query={query} />
-
-      <FooterNeo />
     </>
   );
 }

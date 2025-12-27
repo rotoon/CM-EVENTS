@@ -9,15 +9,15 @@ export function HeroSection() {
           #VIBE_CHECK_PASSED
         </div>
         <h2 className="font-display font-black text-6xl md:text-8xl leading-[0.9] mb-6">
-          THE CITY <br />
+          FEEL <br />
           <span
             className="text-white"
             style={{ WebkitTextStroke: "2px black" }}
           >
-            NEVER
+            THE
           </span>{" "}
           <br />
-          SLEEPS.
+          HYPE.
         </h2>
         <p className="font-bold text-xl md:text-2xl mb-8 leading-tight max-w-lg bg-white inline-block">
           Discover the raw energy of Chiang Mai. <br />
@@ -33,7 +33,7 @@ export function HeroSection() {
         <div className="w-full h-[500px] border-4 border-neo-black bg-white relative z-10 overflow-hidden flex items-center justify-center">
           <Image
             src="https://plus.unsplash.com/premium_photo-1661929242720-140374d97c94?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Chiang Mai Events"
+            alt="Hype CNX - Chiang Mai Lifestyle"
             fill
             className="object-cover filter transition-all duration-300"
             priority

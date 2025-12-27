@@ -4,9 +4,6 @@ import { EventActions } from "@/components/events/detail/event-actions";
 import { EventGallery } from "@/components/events/detail/event-gallery";
 import { EventHeader } from "@/components/events/detail/event-header";
 import { EventInfo } from "@/components/events/detail/event-info";
-import { FooterNeo } from "@/components/footer-neo";
-import { NavbarNeo } from "@/components/navbar-neo";
-import { TopMarquee } from "@/components/top-marquee";
 import { useEventById } from "@/hooks/use-events";
 import { EventWithImages } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
@@ -63,10 +60,7 @@ export default function EventDetailPage() {
   if (isLoading) {
     return (
       <>
-        <TopMarquee />
-        <NavbarNeo />
         <EventLoading />
-        <FooterNeo />
       </>
     );
   }
@@ -74,10 +68,7 @@ export default function EventDetailPage() {
   if (error || !event) {
     return (
       <>
-        <TopMarquee />
-        <NavbarNeo />
         <EventNotFound />
-        <FooterNeo />
       </>
     );
   }
@@ -88,9 +79,6 @@ export default function EventDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f0f0f0] flex flex-col">
-      <TopMarquee />
-      <NavbarNeo />
-
       {/* Breadcrumb / Back Navigation */}
       {/* Breadcrumb / Back Navigation */}
       <div className="bg-neo-black border-y-4 border-neo-black py-4 z-30">
@@ -129,8 +117,6 @@ export default function EventDetailPage() {
           </div>
         </div>
       </main>
-
-      <FooterNeo />
     </div>
   );
 }

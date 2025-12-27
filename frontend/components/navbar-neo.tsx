@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { Activity } from "lucide-react";
 import Link from "next/link";
 
 export function NavbarNeo() {
@@ -6,11 +6,11 @@ export function NavbarNeo() {
     <nav className="sticky top-0 z-50 px-4 py-4 backdrop-blur-sm">
       <div className="bg-neo-white border-4 border-neo-black shadow-neo flex justify-between items-center p-4 max-w-7xl mx-auto transform transition-transform hover:-translate-y-1">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-neo-pink border-2 border-neo-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-            <Zap className="w-6 h-6 text-white" />
+          <div className="w-8 h-8 bg-neo-pink border-2 border-neo-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse-fast">
+            <Activity className="w-5 h-5 text-white" />
           </div>
-          <h1 className="font-display font-black text-2xl tracking-tighter italic">
-            CM.EVENTS
+          <h1 className="font-display font-black text-xl tracking-tighter italic">
+            HYPE CNX
           </h1>
         </div>
 

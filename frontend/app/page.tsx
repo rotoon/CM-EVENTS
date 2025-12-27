@@ -5,15 +5,12 @@ import { EventsGrid } from "@/components/events-grid";
 import { EventsHeader } from "@/components/events/events-header";
 import { EventsSentinel } from "@/components/events/events-sentinel";
 import { EventsSkeleton } from "@/components/events/events-skeleton";
-import { FooterNeo } from "@/components/footer-neo";
 import { HeroSection } from "@/components/hero-section";
-import { NavbarNeo } from "@/components/navbar-neo";
-import { TopMarquee } from "@/components/top-marquee";
 import { useEventsInfinite } from "@/hooks/use-events";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect } from "react";
 
-const EVENTS_PER_PAGE = 12;
+const EVENTS_PER_PAGE = 24;
 // Events Content
 // ============================================================================
 
@@ -122,12 +119,11 @@ function HomeContent() {
 
   return (
     <>
-      <TopMarquee />
-      <NavbarNeo />
-      <HeroSection />
-      <FilterSection activeCategory={category} activeMonth={effectiveMonth} />
-      <EventsContent category={category} month={effectiveMonth} />
-      <FooterNeo />
+      <>
+        <HeroSection />
+        <FilterSection activeCategory={category} activeMonth={effectiveMonth} />
+        <EventsContent category={category} month={effectiveMonth} />
+      </>
     </>
   );
 }

@@ -7,17 +7,17 @@ export function FooterNeo() {
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12">
         <div>
           <h2 className="font-display font-black text-5xl md:text-7xl mb-4 leading-none">
-            CM.EVENTS
+            HYPE
             <br />
             <span
               className="text-transparent"
               style={{ WebkitTextStroke: "1px white" }}
             >
-              NIMMAN
+              CNX
             </span>
           </h2>
           <p className="font-mono text-sm max-w-sm">
-            Keep Chiang Mai weird. Support local artists. Drink good coffee.
+            What's the hype? Events, Lifestyle, and Culture in Chiang Mai.
           </p>
         </div>
         <div className="flex flex-col items-start md:items-end justify-center">
@@ -36,7 +36,7 @@ export function FooterNeo() {
             </Link>
           </div>
           <p className="mt-8 font-mono text-xs text-gray-400">
-            © 2026 ANTIGRAVITY CORP.
+            © 2025 HYPE CNX.
           </p>
         </div>
       </div>

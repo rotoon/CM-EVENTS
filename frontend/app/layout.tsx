@@ -1,3 +1,6 @@
+import { FooterNeo } from "@/components/footer-neo";
+import { NavbarNeo } from "@/components/navbar-neo";
+import { TopMarquee } from "@/components/top-marquee";
 import QueryProvider from "@/lib/query-provider";
 import type { Metadata } from "next";
 import { JetBrains_Mono, Kanit, Outfit } from "next/font/google";
@@ -20,8 +23,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chiang Mai Events",
-  description: "Discover the vibe of Chiang Mai",
+  title: "Hype CNX - Chiang Mai Lifestyle & Events",
+  description:
+    "The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.",
 };
 
 export default function RootLayout({
@@ -38,7 +42,12 @@ export default function RootLayout({
           backgroundSize: "20px 20px",
         }}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <TopMarquee />
+          <NavbarNeo />
+          {children}
+          <FooterNeo />
+        </QueryProvider>
       </body>
     </html>
   );
