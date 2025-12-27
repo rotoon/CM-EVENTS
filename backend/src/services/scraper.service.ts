@@ -32,8 +32,17 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       headers: {
         "User-Agent": getRandomUserAgent(),
         Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Language": "th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Cache-Control": "max-age=0",
+        Referer: "https://www.google.com/",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "cross-site",
+        "Sec-Fetch-User": "?1",
       },
+      timeout: 10000,
     });
 
     const $ = cheerio.load(data);
@@ -80,7 +89,10 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
     if (events.length === 0) {
       const pageTitle = $("title").text().trim();
       console.log(`   ⚠️ No events found! Page Title: "${pageTitle}"`);
-      // console.log(`   HTML Dump: ${data.substring(0, 500)}`); // Uncomment for deep debug
+      // Log body sample to see what we got
+      const bodySample =
+        $("body").html()?.substring(0, 1000) || "No body content";
+      console.log(`   HTML Dump (Body Start): \n${bodySample}`);
     }
 
     console.log(`   ✅ Found ${events.length} events on page ${page}`);
