@@ -7,11 +7,11 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN apt-get update && apt-get install -y python3 make g++ sqlite3 && rm -rf /var/lib/apt/lists/*
 
-# Copy package.json (skip lockfile to force fresh install and respect pnpm config)
-COPY package.json ./
+# Copy package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm install
+# Install dependencies (use frozen-lockfile for reproducible builds)
+RUN pnpm install --frozen-lockfile
 
 # Force rebuild of better-sqlite3 to ensure bindings exist
 RUN pnpm rebuild better-sqlite3
@@ -36,7 +36,7 @@ EXPOSE 3001
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-3001}/scrape/status || exit 1
+  CMD curl -f http://localhost:${PORT:-3001}/ || exit 1
 
 # Start the server using tsx
 CMD ["pnpm", "exec", "tsx", "api/index.ts"]

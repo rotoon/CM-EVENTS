@@ -1,5 +1,5 @@
 import axios from "axios";
-import db from "./src/config/database";
+import db from "../config/database";
 
 interface EventData {
   title: string;

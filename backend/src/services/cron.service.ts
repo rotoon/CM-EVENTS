@@ -1,5 +1,5 @@
-import { runDetailScraper } from "../../detail-scraper";
-import { runScraper } from "../../scraper";
+import { runDetailScraper } from "./detail-scraper.service";
+import { runScraper } from "./scraper.service";
 
 const TWELVE_HOURS = 12 * 60 * 60 * 1000;
 let lastScrapeTime: Date | null = null;

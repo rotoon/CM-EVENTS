@@ -3,7 +3,7 @@ import axios from "axios";
 import { type Database as DatabaseType } from "better-sqlite3";
 import * as cheerio from "cheerio";
 import "dotenv/config";
-import db from "./src/config/database";
+import db from "../config/database";
 
 // ============================================================================
 // Constants
