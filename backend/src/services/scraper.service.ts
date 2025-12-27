@@ -1,4 +1,5 @@
 import axios from "axios";
+import * as cheerio from "cheerio";
 import db from "../config/database";
 
 interface EventData {
@@ -35,49 +36,61 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       },
     });
 
+    const $ = cheerio.load(data);
     const events: EventData[] = [];
-    const regex =
-      /<article[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[\s\S]*?<img[^>]*src="([^"]+)"[\s\S]*?<div[^>]*class="activity-date"[^>]*>([\s\S]*?)<\/div>[\s\S]*?<div[^>]*class="activity-location"[^>]*>([\s\S]*?)<\/div>/g;
 
-    let match;
-    while ((match = regex.exec(data)) !== null) {
-      const [_, link, title, image, dateRaw, locationRaw] = match;
+    $("article").each((_, el) => {
+      const article = $(el);
+      const linkEl = article.find("a").first();
+      const imgEl = article.find("img").first();
+      const dateEl = article.find(".activity-date");
+      const locationEl = article.find(".activity-location");
 
-      // Fix relative link
-      let fullLink = link.startsWith("http")
-        ? link
-        : `https://www.cmhy.city${link}`;
+      const rawLink = linkEl.attr("href") || "";
+      const title = linkEl.attr("title") || "";
+      const image = imgEl.attr("src") || "";
+      const dateRaw = dateEl.text().trim();
+      const locationRaw = locationEl.text().trim();
 
-      // 🧹 Clean trailing slash for consistency
-      fullLink = fullLink.replace(/\/$/, "");
+      if (rawLink && title) {
+        // Fix relative link
+        let fullLink = rawLink.startsWith("http")
+          ? rawLink
+          : `https://www.cmhy.city${rawLink}`;
 
-      // Clean text
-      const cleanTitle = title.trim();
-      const cleanLocation = locationRaw.replace(/<[^>]*>/g, "").trim();
-      const cleanDate = dateRaw.replace(/<[^>]*>/g, "").trim();
+        // 🧹 Clean trailing slash for consistency
+        fullLink = fullLink.replace(/\/$/, "");
 
-      // Parse Month for wrapping (e.g., "DEC" from date text)
-      const monthWrapped = cleanDate.split(" ")[1]?.toUpperCase() || "UNKNOWN";
+        // Parse Month for wrapping (e.g., "DEC" from date text)
+        // Date text format roughly: "12 DEC 2025" or similar
+        const monthWrapped = dateRaw.split(" ")[1]?.toUpperCase() || "UNKNOWN";
 
-      events.push({
-        title: cleanTitle,
-        link: fullLink,
-        image: image,
-        location: cleanLocation,
-        date: cleanDate,
-        monthWrapped,
-      });
+        events.push({
+          title,
+          link: fullLink,
+          image,
+          location: locationRaw,
+          date: dateRaw,
+          monthWrapped,
+        });
+      }
+    });
+
+    // Logging if no events found
+    if (events.length === 0) {
+      const pageTitle = $("title").text().trim();
+      console.log(`   ⚠️ No events found! Page Title: "${pageTitle}"`);
+      // console.log(`   HTML Dump: ${data.substring(0, 500)}`); // Uncomment for deep debug
     }
-
-    // Attempt to extract next page number if exists
-    // Simple check: if we found exactly 15-20 events, there might be next page
-    // Better check: look for "next" button in HTML (regex for simplicity)
-    const hasNextPage = /class="next_page"/i.test(data);
 
     console.log(`   ✅ Found ${events.length} events on page ${page}`);
     return events;
   } catch (error) {
     console.error(`❌ Error scraping page ${page}:`, error);
+    if (axios.isAxiosError(error)) {
+      console.error(`   Status: ${error.response?.status}`);
+      console.error(`   Status Text: ${error.response?.statusText}`);
+    }
     return [];
   }
 }
