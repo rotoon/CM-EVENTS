@@ -106,10 +106,18 @@ export class EventController {
         }
 
         const event = result.rows[0];
+
+        // Fetch associated images
+        const imagesResult = await client.query(
+          "SELECT * FROM event_images WHERE event_id = $1",
+          [id]
+        );
+
         res.json(
           success({
             ...event,
             image: event.cover_image_url,
+            images: imagesResult.rows,
           })
         );
       } finally {

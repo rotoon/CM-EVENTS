@@ -40,6 +40,15 @@ async function initDb() {
         description_markdown TEXT
       )
     `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS event_images (
+        id SERIAL PRIMARY KEY,
+        event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
+        image_url TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
     console.log("✅ Database schema initialized");
   } finally {
     client.release();

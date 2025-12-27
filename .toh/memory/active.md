@@ -2,15 +2,17 @@
 
 ## Current Focus
 
-- **Goal**: Enable animations.
-- **Task**: `/toh:design` (Completed)
+- **Goal**: Polish Action Buttons.
+- **Task**: `/toh:dev` (Completed).
 - **Current Action**: Verification.
 
 ## Context
 
-- **Fix**: Replaced broken `tailwindcss-animate` classes with custom `.animate-fadeIn`.
-- **Note**: `animate-fadeIn` is defined in `globals.css` with `opacity: 0` initial state.
+- **Change**:
+  - Removed "Map" Button (Redundant with `EventMap`).
+  - Added **"VISIT WEBSITE"** Button (`source_url`).
+  - Styled as **Primary** (Neo-Lime) to encourage click-through.
 
 ## Next Steps
 
-1. User to verify "pop" effect.
+1. User to check Action Bar on Mobile/Desktop.
