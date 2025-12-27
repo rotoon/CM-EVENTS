@@ -164,9 +164,13 @@ export function getCategoryKeywords(categoryId: string): string[] {
   const category = CATEGORIES.find(
     (c) => c.id.toLowerCase() === categoryId.toLowerCase()
   );
-  if (!category) {
-    // If category not found in config, use the id itself as a fallback keyword
-    return [categoryId.toLowerCase()];
+
+  const keywords = new Set<string>();
+  keywords.add(categoryId.toLowerCase());
+
+  if (category) {
+    category.keywords.forEach((k) => keywords.add(k.toLowerCase()));
   }
-  return [categoryId.toLowerCase(), ...category.keywords];
+
+  return Array.from(keywords);
 }

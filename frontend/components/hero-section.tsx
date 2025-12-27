@@ -37,6 +37,7 @@ export function HeroSection() {
             fill
             className="object-cover filter transition-all duration-300"
             priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-neo-lime/80 backdrop-blur-sm mix-blend-multiply">
             <span className="font-display font-black text-6xl italic -rotate-12 bg-white px-4 border-4 border-neo-black shadow-neo">

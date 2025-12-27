@@ -14,6 +14,8 @@ const NEO_COLORS = [
 
 const TAGS = ["ART", "MUSIC", "FOOD", "VIBE", "PARTY"];
 
+import { CalendarDays, RefreshCw, SearchX } from "lucide-react";
+
 interface EventsGridProps {
   events: Event[];
 }
@@ -37,20 +39,33 @@ export function EventsGrid({ events }: EventsGridProps) {
   return (
     <>
       {displayEvents.length === 0 ? (
-        <div className="text-center flex flex-col items-center justify-center py-16">
-          <p className="font-display font-black text-3xl text-gray-800">
-            No Events Found
+        <div className="text-center flex flex-col items-center justify-center py-20 px-4 bg-white border-4 border-neo-black shadow-neo-lg rotate-[-0.5deg]">
+          <div className="w-20 h-20 bg-neo-pink border-4 border-neo-black shadow-neo flex items-center justify-center mb-6 rotate-3">
+            <SearchX className="w-10 h-10 text-white" />
+          </div>
+          <h3 className="font-display font-black text-4xl uppercase mb-4">
+            No Events Found!
+          </h3>
+          <p className="font-mono text-lg max-w-md mx-auto mb-8">
+            We couldn't find any events matching your selection in this month.
+            Try exploring other months or categories!
           </p>
-          <p className="bg-neo-black text-white font-mono mt-2 mb-6 px-4 py-2 rounded ">
-            Try searching or selecting another category
-          </p>
-          <a
-            href="/"
-            className="inline-block bg-neo-lime border-4 border-neo-black px-6 py-3 font-bold shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-            aria-label="See all Events"
-          >
-            See all Events
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="bg-neo-lime border-4 border-neo-black px-8 py-3 font-bold shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
+            >
+              <CalendarDays className="w-5 h-5" />
+              View Current Month
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-white border-4 border-neo-black px-8 py-3 font-bold shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
+            >
+              <RefreshCw className="w-5 h-5" />
+              Refresh
+            </button>
+          </div>
         </div>
       ) : (
         <div

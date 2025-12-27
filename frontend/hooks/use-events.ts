@@ -324,6 +324,5 @@ export function useEventsPaginated(
   return useQuery({
     queryKey: ["events", "paginated", page, limit, month, category],
     queryFn: () => fetchEventsPaginated(page, limit, month, category),
-    placeholderData: (previousData) => previousData, // Keep previous data while loading
   });
 }

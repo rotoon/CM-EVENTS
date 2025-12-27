@@ -104,6 +104,7 @@ export default function EventDetailPage() {
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               {event.is_ended === 0 && (
                 <div className="absolute top-4 left-4 bg-neo-lime border-4 border-neo-black px-3 py-1 font-black text-sm rotate-[-2deg] shadow-neo">
@@ -130,6 +131,7 @@ export default function EventDetailPage() {
                       alt={`${event.title} gallery ${idx + 1}`}
                       fill
                       className="object-cover group-hover:scale-110 transition-all"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                 ))}

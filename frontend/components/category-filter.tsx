@@ -142,7 +142,7 @@ function CategoryFilterContent({
 
             {/* Month pills - sorted oldest to newest */}
             <div className="flex gap-3 justify-center flex-wrap">
-              {[...availableMonths].reverse().map((month) => {
+              {[...availableMonths].reverse().map((month, index) => {
                 const isActive = activeMonth === month;
                 // Format: "2025-12" → "Dec 2025"
                 const [year, monthNum] = month.split("-");
@@ -168,10 +168,12 @@ function CategoryFilterContent({
                   <button
                     key={month}
                     onClick={() => handleToggle("month", month)}
+                    style={{ animationDelay: `${index * 50}ms` }}
                     className={`
                       px-5 py-2.5 font-mono font-bold text-sm 
                       border-4 border-neo-black 
                       transition-all duration-150 cursor-pointer
+                      animate-in fade-in slide-in-from-bottom-2
                       ${
                         isActive
                           ? "bg-neo-purple text-white shadow-none translate-x-1 translate-y-1"
@@ -189,7 +191,7 @@ function CategoryFilterContent({
 
         {/* Categories - Secondary Filter */}
         <div
-          className="pt-6 border-t-4 border-neo-black"
+          className="pt-6 border-t-4 border-neo-black animate-in fade-in slide-in-from-top-4 duration-500"
           role="group"
           aria-label="Filter by category"
         >
@@ -202,30 +204,51 @@ function CategoryFilterContent({
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center py-4">
-              <span className="font-mono text-sm animate-pulse">
-                Loading categories...
-              </span>
+            <div className="flex gap-4 justify-center flex-wrap">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-32 h-11 bg-gray-200 animate-pulse border-4 border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                />
+              ))}
             </div>
           ) : (
             <div className="flex gap-4 justify-center flex-wrap">
-              {categories.map((cat) => {
+              {categories.map((cat, index) => {
                 const Icon = ICON_MAP[cat.id] || Tag;
                 const isActive = activeCategory === cat.id;
                 const style = CATEGORY_STYLES[cat.id] || DEFAULT_STYLE;
 
                 return (
-                  <ButtonNeo
+                  <div
                     key={cat.id}
-                    variant={isActive ? "primary" : "secondary"}
-                    onClick={() => handleToggle("category", cat.id)}
-                    className={`flex gap-2 transition-all ${
-                      isActive ? style.active : `bg-white ${style.hover}`
-                    }`}
+                    className="animate-in fade-in zoom-in-95"
+                    style={{
+                      animationDelay: `${
+                        (index + availableMonths.length) * 50
+                      }ms`,
+                      animationFillMode: "backwards",
+                    }}
                   >
-                    <Icon className="w-4 h-4" />
-                    {cat.label}
-                  </ButtonNeo>
+                    <ButtonNeo
+                      variant={isActive ? "primary" : "secondary"}
+                      onClick={() => handleToggle("category", cat.id)}
+                      className={`flex gap-2 transition-all duration-200 group ${
+                        isActive
+                          ? style.active
+                          : `bg-white ${style.hover} hover:rotate-2`
+                      }`}
+                    >
+                      <Icon
+                        className={`w-4 h-4 transition-transform duration-300 ${
+                          isActive
+                            ? "scale-110 rotate-12"
+                            : "group-hover:rotate-12"
+                        }`}
+                      />
+                      {cat.label}
+                    </ButtonNeo>
+                  </div>
                 );
               })}
             </div>
