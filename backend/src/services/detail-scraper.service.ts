@@ -2,7 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import "dotenv/config";
-import pool from "../config/database";
+import prisma from "../lib/prisma";
+import { scraperLogger } from "../utils/logger";
 
 // ============================================================================
 // Constants
@@ -47,10 +48,8 @@ async function rewriteDescriptionWithAI(
     const result = await model.generateContent(prompt);
     const markdown = result.response.text().trim();
     return markdown || rawHTML;
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    console.log(`   ⚠️ AI rewrite failed: ${errorMessage}`);
+  } catch (err: unknown) {
+    scraperLogger.warn({ err }, "AI rewrite failed");
     return rawHTML;
   }
 }
@@ -62,7 +61,10 @@ async function scrapeEventDetail(
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
   event: EventDetail
 ) {
-  console.log(`\n🔍 Scraping Detail [${event.id}]: ${event.source_url}`);
+  scraperLogger.debug(
+    { eventId: event.id, url: event.source_url },
+    "Scraping detail"
+  );
 
   try {
     const { data } = await axios.get(event.source_url, {
@@ -98,7 +100,7 @@ async function scrapeEventDetail(
     // 1. Banner image
     if (bannerSrc) imageUrls.add(bannerSrc);
 
-    // 2. Gallery images (common selectors)
+    // 2. Gallery images
     $(".gallery img, .event-gallery img, .activity-gallery img").each(
       (_, el) => {
         const src = $(el).attr("src") || $(el).attr("data-src");
@@ -120,67 +122,57 @@ async function scrapeEventDetail(
       if (href && href.startsWith("http")) imageUrls.add(href);
     });
 
-    console.log(`   📷 Found ${imageUrls.size} images`);
+    scraperLogger.debug(
+      { eventId: event.id, images: imageUrls.size },
+      "Found images"
+    );
 
     const enhancedDescription = await rewriteDescriptionWithAI(
       model,
       descriptionHtml
     );
 
-    const client = await pool.connect();
-    try {
-      // Update event details
-      await client.query(
-        `UPDATE events SET 
-          cover_image_url = COALESCE($1, cover_image_url),
-          description = $2,
-          description_markdown = $3,
-          time_text = $4,
-          latitude = $5,
-          longitude = $6,
-          google_maps_url = $7,
-          facebook_url = $8,
-          is_ended = $9,
-          is_fully_scraped = TRUE,
-          last_updated_at = CURRENT_TIMESTAMP
-        WHERE id = $10`,
-        [
-          bannerSrc,
-          descriptionHtml.replace(/<[^>]*>?/gm, "").trim(),
-          enhancedDescription,
-          timeText,
-          lat,
-          lng,
-          mapLink,
-          facebookLink,
-          isEnded,
-          event.id,
-        ]
-      );
+    // Update event details using Prisma
+    await prisma.events.update({
+      where: { id: event.id },
+      data: {
+        cover_image_url: bannerSrc || undefined,
+        description: descriptionHtml.replace(/<[^>]*>?/gm, "").trim(),
+        description_markdown: enhancedDescription,
+        time_text: timeText,
+        latitude: lat,
+        longitude: lng,
+        google_maps_url: mapLink,
+        facebook_url: facebookLink,
+        is_ended: isEnded,
+        is_fully_scraped: true,
+        last_updated_at: new Date(),
+      },
+    });
 
-      // Delete existing images for this event (to avoid duplicates on re-scrape)
-      await client.query(`DELETE FROM event_images WHERE event_id = $1`, [
-        event.id,
-      ]);
+    // Delete existing images for this event
+    await prisma.event_images.deleteMany({
+      where: { event_id: event.id },
+    });
 
-      // Insert new images
-      for (const imageUrl of imageUrls) {
-        await client.query(
-          `INSERT INTO event_images (event_id, image_url) VALUES ($1, $2)`,
-          [event.id, imageUrl]
-        );
-      }
-
-      console.log(`   ✅ Detail + ${imageUrls.size} images saved.`);
-    } finally {
-      client.release();
+    // Insert new images
+    if (imageUrls.size > 0) {
+      await prisma.event_images.createMany({
+        data: Array.from(imageUrls).map((url) => ({
+          event_id: event.id,
+          image_url: url,
+        })),
+      });
     }
 
+    scraperLogger.info(
+      { eventId: event.id, images: imageUrls.size },
+      "Detail saved"
+    );
+
     return true;
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    console.error(`   ❌ Failed to scrape detail: ${errorMessage}`);
+  } catch (err: unknown) {
+    scraperLogger.error({ err, eventId: event.id }, "Failed to scrape detail");
     return false;
   }
 }
@@ -190,54 +182,44 @@ async function scrapeEventDetail(
 // ============================================================================
 export async function runDetailScraper(limit: number = 10) {
   if (!process.env.GEMINI_API_KEY) {
-    console.error("❌ Missing GEMINI_API_KEY. Skipping detail scraper.");
+    scraperLogger.error("Missing GEMINI_API_KEY. Skipping detail scraper.");
     return { scraped: 0, remaining: 0 };
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  const client = await pool.connect();
+  const rows = await prisma.events.findMany({
+    where: { is_fully_scraped: false },
+    orderBy: { id: "desc" },
+    take: limit,
+    select: { id: true, source_url: true },
+  });
 
-  try {
-    const result = await client.query(
-      `SELECT id, source_url 
-       FROM events 
-       WHERE is_fully_scraped = FALSE 
-       ORDER BY id DESC 
-       LIMIT $1`,
-      [limit]
-    );
-
-    const rows = result.rows as EventDetail[];
-
-    if (rows.length === 0) {
-      console.log("🎉 All events have been fully scraped.");
-      return { scraped: 0, remaining: 0 };
-    }
-
-    console.log(`\n📚 Found ${rows.length} events needing detail scraping...`);
-
-    let totalScraped = 0;
-
-    for (const event of rows) {
-      const success = await scrapeEventDetail(model, event);
-      if (success) {
-        totalScraped++;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-
-    const remainingResult = await client.query(
-      "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = FALSE"
-    );
-    const remaining = parseInt(remainingResult.rows[0].count);
-
-    console.log(
-      `\n✨ Batch completed. Scraped: ${totalScraped}, Pending: ${remaining}`
-    );
-    return { scraped: totalScraped, remaining };
-  } finally {
-    client.release();
+  if (rows.length === 0) {
+    scraperLogger.info("All events have been fully scraped");
+    return { scraped: 0, remaining: 0 };
   }
+
+  scraperLogger.info({ count: rows.length }, "Events needing detail scraping");
+
+  let totalScraped = 0;
+
+  for (const event of rows) {
+    const success = await scrapeEventDetail(model, event as EventDetail);
+    if (success) {
+      totalScraped++;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+  const remaining = await prisma.events.count({
+    where: { is_fully_scraped: false },
+  });
+
+  scraperLogger.info(
+    { scraped: totalScraped, remaining },
+    "Detail scrape batch completed"
+  );
+  return { scraped: totalScraped, remaining };
 }

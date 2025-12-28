@@ -1,7 +1,8 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import pool from "../config/database";
-import { extractYearMonthsFromThaiDate } from "../utils/date.util";
+import prisma from "../lib/prisma";
+import { extractStartEndDates, generateMonthRange } from "../utils/date.util";
+import { scraperLogger } from "../utils/logger";
 
 interface EventData {
   title: string;
@@ -9,7 +10,9 @@ interface EventData {
   image: string;
   location: string;
   date: string;
-  monthWrapped: string; // JSON array of YYYY-MM strings
+  monthWrapped: string;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
 const BASE_URL = "https://www.cmhy.city/events";
@@ -26,7 +29,7 @@ function getRandomUserAgent(): string {
 
 async function scrapeEventList(page: number = 1): Promise<EventData[]> {
   const url = `${BASE_URL}?page=${page}`;
-  console.log(`\n📄 Scraping page ${page}...`);
+  scraperLogger.debug({ page }, "Scraping page");
 
   try {
     const { data } = await axios.get(url, {
@@ -62,10 +65,15 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
           : `https://www.cmhy.city${rawLink}`;
         fullLink = fullLink.replace(/\/$/, "");
 
-        // Extract all YYYY-MM from the date text (handles date ranges)
-        const months = extractYearMonthsFromThaiDate(dateRaw);
-        const monthWrapped =
-          months.length > 0 ? JSON.stringify(months) : '["UNKNOWN"]';
+        // Extract start and end dates
+        const { startDate, endDate } = extractStartEndDates(dateRaw);
+
+        // Generate full month range
+        let monthWrapped = '["UNKNOWN"]';
+        if (startDate && endDate) {
+          const months = generateMonthRange(startDate, endDate);
+          monthWrapped = JSON.stringify(months);
+        }
 
         if (!events.some((e) => e.link === fullLink)) {
           events.push({
@@ -75,6 +83,8 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
             location: locationRaw,
             date: dateRaw,
             monthWrapped,
+            startDate,
+            endDate,
           });
         }
       }
@@ -109,79 +119,72 @@ async function scrapeEventList(page: number = 1): Promise<EventData[]> {
       addEvent(title, rawLink, image, location, dateText);
     });
 
-    console.log(`   ✅ Found ${events.length} events on page ${page}`);
+    scraperLogger.info({ page, found: events.length }, "Scraped page");
     return events;
-  } catch (error) {
-    console.error(`❌ Error scraping page ${page}:`, error);
+  } catch (err) {
+    scraperLogger.error({ err, page }, "Error scraping page");
     return [];
   }
 }
 
 export async function runScraper() {
-  console.log("\n🚀 Starting scraper...");
-  console.log(`📅 Time: ${new Date().toLocaleString("th-TH")}`);
+  scraperLogger.info("Starting list scraper");
 
-  const client = await pool.connect();
+  let page = 1;
+  let totalSaved = 0;
+  let hasNext = true;
 
-  try {
-    let page = 1;
-    let totalSaved = 0;
-    let hasNext = true;
+  while (hasNext) {
+    const events = await scrapeEventList(page);
+    if (events.length === 0) {
+      scraperLogger.warn("No more events found or error occurred");
+      break;
+    }
 
-    while (hasNext) {
-      const events = await scrapeEventList(page);
-      if (events.length === 0) {
-        console.log("🛑 No more events found or error occurred.");
-        break;
-      }
-
-      for (const event of events) {
-        try {
-          await client.query(
-            `INSERT INTO events (title, source_url, cover_image_url, location, date_text, month_wrapped)
-             VALUES ($1, $2, $3, $4, $5, $6)
-             ON CONFLICT (source_url) DO UPDATE SET
-               title = EXCLUDED.title,
-               cover_image_url = EXCLUDED.cover_image_url,
-               location = EXCLUDED.location,
-               date_text = EXCLUDED.date_text,
-               month_wrapped = EXCLUDED.month_wrapped,
-               last_updated_at = CURRENT_TIMESTAMP`,
-            [
-              event.title,
-              event.link,
-              event.image,
-              event.location,
-              event.date,
-              event.monthWrapped,
-            ]
-          );
-          totalSaved++;
-        } catch (err: unknown) {
-          console.error(
-            `   ⚠️ Failed to insert: ${event.link}`,
-            err instanceof Error ? err.message : String(err)
-          );
-        }
-      }
-
-      console.log(
-        `   💾 Saved/Updated ${events.length} events from page ${page}`
-      );
-
-      if (page >= 10 || events.length < 10) {
-        hasNext = false;
-      } else {
-        page++;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+    for (const event of events) {
+      try {
+        await prisma.events.upsert({
+          where: { source_url: event.link },
+          update: {
+            title: event.title,
+            cover_image_url: event.image,
+            location: event.location,
+            date_text: event.date,
+            month_wrapped: event.monthWrapped,
+            start_date: event.startDate,
+            end_date: event.endDate,
+            last_updated_at: new Date(),
+          },
+          create: {
+            source_url: event.link,
+            title: event.title,
+            cover_image_url: event.image,
+            location: event.location,
+            date_text: event.date,
+            month_wrapped: event.monthWrapped,
+            start_date: event.startDate,
+            end_date: event.endDate,
+          },
+        });
+        totalSaved++;
+      } catch (err: unknown) {
+        scraperLogger.error({ err, url: event.link }, "Failed to insert event");
       }
     }
 
-    console.log(
-      `\n✨ Scraping completed. Total processed: ${totalSaved} events.`
+    scraperLogger.debug(
+      { page, saved: events.length },
+      "Saved events from page"
     );
-    return { total: totalSaved };
-  } finally {
-    client.release();
+
+    if (page >= 10 || events.length < 10) {
+      hasNext = false;
+    } else {
+      page++;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   }
+
+  scraperLogger.info({ total: totalSaved }, "Scraping completed");
+  return { total: totalSaved };
 }

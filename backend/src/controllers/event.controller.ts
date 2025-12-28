@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
-import pool from "../config/database";
+import { CATEGORIES } from "../config/categories";
+import { EventRepository } from "../repositories";
+import { httpLogger } from "../utils/logger";
 import { error, success } from "../utils/response.util";
 
-import { getEndDateTimestamp } from "../utils/date.util";
-
-import { CATEGORIES, getCategoryKeywords } from "../config/categories";
-
+/**
+ * Event Controller - Handles HTTP requests
+ * Business logic only, database queries delegated to EventRepository
+ */
 export class EventController {
   static async getCategories(req: Request, res: Response) {
     res.json(success(CATEGORIES));
@@ -13,228 +15,94 @@ export class EventController {
 
   static async getEvents(req: Request, res: Response) {
     try {
-      const { month, category, limit = "20", offset = "0" } = req.query;
-      const limitNum = Number(limit);
-      const offsetNum = Number(offset);
+      // Use validated query params if available, otherwise fallback to raw query
+      const validated = req.validated?.query as
+        | {
+            month?: string;
+            category?: string;
+            limit?: number;
+            offset?: number;
+          }
+        | undefined;
 
-      let query = `
-        SELECT * FROM events 
-        WHERE is_fully_scraped = TRUE AND description IS NOT NULL
-      `;
-      const params: (string | number)[] = [];
-      let paramIndex = 1;
+      const result = await EventRepository.findAll({
+        month: validated?.month || (req.query.month as string | undefined),
+        category:
+          validated?.category || (req.query.category as string | undefined),
+        limit: validated?.limit ?? 20,
+        offset: validated?.offset ?? 0,
+      });
 
-      if (month && typeof month === "string") {
-        query += ` AND month_wrapped LIKE $${paramIndex}`;
-        params.push(`%"${month}"%`);
-        paramIndex++;
-      }
+      const mappedEvents = result.data.map((e) => ({
+        ...e,
+        image: e.cover_image_url,
+      }));
 
-      if (category && typeof category === "string") {
-        const keywords = getCategoryKeywords(category);
-
-        const conditions = keywords
-          .map(
-            (_, i) =>
-              `(title ILIKE $${paramIndex + i} OR description ILIKE $${
-                paramIndex + i
-              } OR location ILIKE $${paramIndex + i})`
-          )
-          .join(" OR ");
-
-        query += ` AND (${conditions})`;
-        keywords.forEach((k) => params.push(`%${k}%`));
-        paramIndex += keywords.length;
-      }
-
-      // No ORDER BY or LIMIT in SQL - we sort in memory
-
-      const client = await pool.connect();
-      try {
-        const result = await client.query(query, params);
-        let events = result.rows;
-
-        // Sort by End Date DESC (Latest first)
-        events.sort((a, b) => {
-          const endA = getEndDateTimestamp(a.date_text);
-          const endB = getEndDateTimestamp(b.date_text);
-          return endB - endA;
-        });
-
-        const total = events.length;
-        const slicedEvents = events.slice(offsetNum, offsetNum + limitNum);
-
-        const mappedEvents = slicedEvents.map((e) => ({
-          ...e,
-          image: e.cover_image_url,
-        }));
-
-        res.json(
-          success({
-            events: mappedEvents,
-            pagination: {
-              total: total,
-              limit: limitNum,
-              offset: offsetNum,
-              hasMore: offsetNum + slicedEvents.length < total,
-            },
-          })
-        );
-      } finally {
-        client.release();
-      }
+      res.json(
+        success({
+          events: mappedEvents,
+          pagination: {
+            total: result.total,
+            limit: result.limit,
+            offset: result.offset,
+            hasMore: result.hasMore,
+          },
+        })
+      );
     } catch (err) {
-      console.error(err);
+      console.error("getEvents error:", err);
+      httpLogger.error({ err }, "Failed to fetch events");
       res.status(500).json(error("Failed to fetch events"));
     }
   }
 
   static async getEventById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      // Use validated params if available
+      const validated = req.validated?.params as { id?: number } | undefined;
+      const eventId = validated?.id ?? parseInt(req.params.id, 10);
 
-      const client = await pool.connect();
-      try {
-        const result = await client.query(
-          "SELECT * FROM events WHERE id = $1",
-          [id]
-        );
+      const event = await EventRepository.findById(eventId);
 
-        if (result.rows.length === 0) {
-          res.status(404).json(error("Event not found"));
-          return;
-        }
-
-        const event = result.rows[0];
-
-        // Fetch associated images
-        const imagesResult = await client.query(
-          "SELECT * FROM event_images WHERE event_id = $1",
-          [id]
-        );
-
-        res.json(
-          success({
-            ...event,
-            image: event.cover_image_url,
-            images: imagesResult.rows,
-          })
-        );
-      } finally {
-        client.release();
+      if (!event) {
+        res.status(404).json(error("Event not found"));
+        return;
       }
+
+      const images = await EventRepository.findImagesByEventId(eventId);
+
+      res.json(
+        success({
+          ...event,
+          image: event.cover_image_url,
+          images,
+        })
+      );
     } catch (err) {
-      console.error(err);
+      httpLogger.error({ err }, "Failed to fetch event");
       res.status(500).json(error("Failed to fetch event"));
     }
   }
 
   static async getMonths(req: Request, res: Response) {
     try {
-      const client = await pool.connect();
-      try {
-        const result = await client.query(`
-          SELECT month_wrapped FROM events 
-          WHERE month_wrapped IS NOT NULL
-        `);
-
-        // Thai month name to month index mapping for normalization
-        const THAI_MONTH_TO_INDEX: Record<string, number> = {
-          มกราคม: 1,
-          กุมภาพันธ์: 2,
-          มีนาคม: 3,
-          เมษายน: 4,
-          พฤษภาคม: 5,
-          มิถุนายน: 6,
-          กรกฎาคม: 7,
-          สิงหาคม: 8,
-          กันยายน: 9,
-          ตุลาคม: 10,
-          พฤศจิกายน: 11,
-          ธันวาคม: 12,
-        };
-
-        // Extract unique months from all JSON arrays
-        const monthSet = new Set<string>();
-        const currentYear = new Date().getFullYear();
-
-        for (const row of result.rows) {
-          try {
-            const months = JSON.parse(row.month_wrapped) as string[];
-            months.forEach((m) => {
-              // Check if it's already in YYYY-MM format
-              if (/^\d{4}-\d{2}$/.test(m)) {
-                monthSet.add(m);
-              } else if (THAI_MONTH_TO_INDEX[m]) {
-                // Convert Thai month name to YYYY-MM (assume current year)
-                const monthIndex = THAI_MONTH_TO_INDEX[m];
-                const yearMonth = `${currentYear}-${String(monthIndex).padStart(
-                  2,
-                  "0"
-                )}`;
-                monthSet.add(yearMonth);
-              }
-              // Skip UNKNOWN or other invalid values
-            });
-          } catch {
-            // Handle non-JSON values (legacy single strings)
-            const m = row.month_wrapped;
-            if (/^\d{4}-\d{2}$/.test(m)) {
-              monthSet.add(m);
-            } else if (THAI_MONTH_TO_INDEX[m]) {
-              const monthIndex = THAI_MONTH_TO_INDEX[m];
-              const yearMonth = `${currentYear}-${String(monthIndex).padStart(
-                2,
-                "0"
-              )}`;
-              monthSet.add(yearMonth);
-            }
-          }
-        }
-
-        // Sort descending (2026-01 comes before 2025-12)
-        const sortedMonths = Array.from(monthSet).sort((a, b) =>
-          b.localeCompare(a)
-        );
-
-        res.json(success(sortedMonths));
-      } finally {
-        client.release();
-      }
+      const months = await EventRepository.findAllMonths();
+      res.json(success(months));
     } catch (err) {
-      console.error(err);
+      httpLogger.error({ err }, "Failed to fetch months");
       res.status(500).json(error("Failed to fetch months"));
     }
   }
 
   static async getStats(req: Request, res: Response) {
     try {
-      console.log("Debug: Fetching stats...");
-      const client = await pool.connect();
-      console.log("Debug: Pool connected for stats");
-      try {
-        const totalResult = await client.query(
-          "SELECT COUNT(*) as count FROM events"
-        );
-        const scrapedResult = await client.query(
-          "SELECT COUNT(*) as count FROM events WHERE is_fully_scraped = TRUE"
-        );
-
-        const total = parseInt(totalResult.rows[0].count);
-        const fullyScraped = parseInt(scrapedResult.rows[0].count);
-
-        res.json(
-          success({
-            total,
-            fullyScraped,
-            pending: total - fullyScraped,
-          })
-        );
-      } finally {
-        client.release();
-      }
+      console.log("getStats: starting...");
+      const stats = await EventRepository.getStats();
+      console.log("getStats: success", stats);
+      res.json(success(stats));
     } catch (err) {
-      console.error(err);
+      console.error("getStats error:", err);
+      httpLogger.error({ err }, "Failed to fetch stats");
       res.status(500).json(error("Failed to fetch stats"));
     }
   }
@@ -242,80 +110,52 @@ export class EventController {
   static async searchEvents(req: Request, res: Response) {
     try {
       const { q } = req.query;
+
       if (!q || typeof q !== "string") {
         res.status(400).json(error("Query parameter 'q' is required"));
         return;
       }
 
-      const client = await pool.connect();
-      try {
-        const searchPattern = `%${q}%`;
-        const result = await client.query(
-          `SELECT * FROM events 
-           WHERE (title ILIKE $1 OR description ILIKE $1 OR location ILIKE $1)
-           AND is_fully_scraped = TRUE
-           ORDER BY id DESC LIMIT 50`,
-          [searchPattern]
-        );
+      const events = await EventRepository.search(q);
 
-        res.json(
-          success(
-            result.rows.map((e) => ({
-              ...e,
-              image: e.cover_image_url,
-            }))
-          )
-        );
-      } finally {
-        client.release();
-      }
+      res.json(
+        success(
+          events.map((e) => ({
+            ...e,
+            image: e.cover_image_url,
+          }))
+        )
+      );
     } catch (err) {
-      console.error(err);
+      httpLogger.error({ err }, "Search failed");
       res.status(500).json(error("Search failed"));
     }
   }
 
   static async getUpcomingEvents(req: Request, res: Response) {
     try {
-      const client = await pool.connect();
-      try {
-        const result = await client.query(`
-          SELECT * FROM events 
-          WHERE is_fully_scraped = TRUE
-          ORDER BY id DESC LIMIT 20
-        `);
+      const events = await EventRepository.findUpcoming();
 
-        res.json(
-          success(
-            result.rows.map((e) => ({
-              ...e,
-              image: e.cover_image_url,
-            }))
-          )
-        );
-      } finally {
-        client.release();
-      }
+      res.json(
+        success(
+          events.map((e) => ({
+            ...e,
+            image: e.cover_image_url,
+          }))
+        )
+      );
     } catch (err) {
-      console.error(err);
+      httpLogger.error({ err }, "Failed to fetch upcoming events");
       res.status(500).json(error("Failed to fetch upcoming events"));
     }
   }
 
   static async getMapEvents(req: Request, res: Response) {
     try {
-      const client = await pool.connect();
-      try {
-        const result = await client.query(`
-          SELECT id, title, latitude, longitude, location, cover_image_url 
-          FROM events
-          WHERE latitude IS NOT NULL AND longitude IS NOT NULL
-        `);
-        res.json(success(result.rows));
-      } finally {
-        client.release();
-      }
-    } catch {
+      const events = await EventRepository.findForMap();
+      res.json(success(events));
+    } catch (err) {
+      httpLogger.error({ err }, "Failed to fetch map events");
       res.json(success([]));
     }
   }

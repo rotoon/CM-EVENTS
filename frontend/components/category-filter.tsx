@@ -6,6 +6,7 @@ import {
   CATEGORY_STYLES,
   DEFAULT_CATEGORY_STYLE,
   ICON_MAP,
+  MONTH_NAMES,
 } from "@/lib/constants";
 import { Tag } from "lucide-react";
 
@@ -135,22 +136,9 @@ function CategoryFilterContent({
                 const isActive = activeMonth === month;
                 // Format: "2025-12" → "Dec 2025"
                 const [year, monthNum] = month.split("-");
-                const monthNames = [
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                  "Oct",
-                  "Nov",
-                  "Dec",
-                ];
+
                 const displayMonth = `${
-                  monthNames[parseInt(monthNum) - 1]
+                  MONTH_NAMES[parseInt(monthNum) - 1]
                 } ${year}`;
 
                 return (

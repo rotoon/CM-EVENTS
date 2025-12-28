@@ -9,7 +9,7 @@ import { ViewToggle } from "@/components/view-toggle";
 import { useEventsInfinite } from "@/hooks/use-events";
 import { useCallback, useState } from "react";
 
-const EVENTS_PER_PAGE = 24;
+const EVENTS_PER_PAGE = 60;
 
 interface EventsContentProps {
   category?: string;

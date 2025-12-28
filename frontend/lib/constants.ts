@@ -77,3 +77,18 @@ export const NEO_COLORS = [
 ];
 
 export const TAGS = ["ART", "MUSIC", "FOOD", "VIBE", "PARTY"];
+
+export const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];

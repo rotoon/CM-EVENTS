@@ -2,18 +2,38 @@
 
 ## Current Focus
 
-- **Goal**: Frontend Improvements completed.
-- **Task**: `/toh:p` - Code quality and accessibility review.
-- **Current Action**: Task Completed.
+- **Goal**: Backend Improvements
+- **Status**: Option A Complete, Option B Postponed
+- **Reason**: Prisma v7 compatibility issues with Express
 
-## Context
+## What's Working
 
-- **ESLint**: 9 errors → 0 errors (7 files fixed).
-- **Error Boundary**: New component added to catch runtime errors.
-- **Accessibility**: aria-labels and sizes props added.
-- **Build**: Passing ✅
+### Option A (Completed) ✅
+
+- Error Handler Middleware
+- Validation Middleware (Zod)
+- Rate Limiter (100 req/15min)
+- Health Check (`/health`)
+- Structured Logging (pino)
+
+### Backend
+
+- All API endpoints working
+- Database: pg pool + PostgreSQL
+- Server: Express 5
+
+## What Was Tried
+
+### Prisma v7 Migration
+
+- Installed: `prisma@7.2.0`, `@prisma/client@7.2.0`, `@prisma/adapter-pg`
+- Introspected database successfully
+- Generated client successfully
+- **Issue**: Controller methods not executing when using Prisma
+- **Rollback**: Reverted to pg pool
 
 ## Next Steps
 
-1. Deploy updated frontend to production.
-2. Consider adding tests in the future.
+1. Keep using pg pool (stable)
+2. Investigate Prisma v7 + Express issue later
+3. Consider Prisma v6 as alternative

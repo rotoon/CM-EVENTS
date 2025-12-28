@@ -68,3 +68,62 @@ export function extractYearMonthsFromThaiDate(dateText: string): string[] {
 
   return Array.from(results);
 }
+
+/**
+ * Extract start and end dates from Thai date text.
+ * Handles ranges like "25 ธันวาคม 2568 - 5 มกราคม 2569"
+ * Returns { startDate, endDate } as Date objects or null if parse fails.
+ */
+export function extractStartEndDates(dateText: string): {
+  startDate: Date | null;
+  endDate: Date | null;
+} {
+  if (!dateText) return { startDate: null, endDate: null };
+
+  const pattern =
+    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/g;
+
+  const dates: Date[] = [];
+  let match;
+
+  while ((match = pattern.exec(dateText)) !== null) {
+    const day = parseInt(match[1]);
+    const monthName = match[2];
+    const buddhistYear = parseInt(match[3]);
+    const monthIndex = THAI_MONTHS[monthName];
+    const gregorianYear = buddhistYear - 543;
+
+    dates.push(new Date(gregorianYear, monthIndex, day));
+  }
+
+  if (dates.length === 0) {
+    return { startDate: null, endDate: null };
+  }
+
+  // Sort dates and get first and last
+  dates.sort((a, b) => a.getTime() - b.getTime());
+
+  return {
+    startDate: dates[0],
+    endDate: dates[dates.length - 1],
+  };
+}
+
+/**
+ * Generate all YYYY-MM values between start and end date (inclusive).
+ */
+export function generateMonthRange(startDate: Date, endDate: Date): string[] {
+  const months: string[] = [];
+  const current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const end = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+  while (current <= end) {
+    const yearMonth = `${current.getFullYear()}-${String(
+      current.getMonth() + 1
+    ).padStart(2, "0")}`;
+    months.push(yearMonth);
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  return months;
+}

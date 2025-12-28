@@ -1,3 +1,4 @@
+import { cronLogger } from "../utils/logger";
 import { runDetailScraper } from "./detail-scraper.service";
 import { runScraper } from "./scraper.service";
 
@@ -9,7 +10,7 @@ let lastDetailScrapeTime: Date | null = null;
 export class CronService {
   static async scheduledScrape() {
     if (isScraperRunning) {
-      console.log("⏳ Scraper is already running, skipping...");
+      cronLogger.warn("Scraper is already running, skipping...");
       return;
     }
 
@@ -17,36 +18,37 @@ export class CronService {
       isScraperRunning = true;
 
       // Step 1: Scrape event list
-      console.log("\n⏰ Scheduled scrape starting...");
+      cronLogger.info("Scheduled scrape starting...");
       const listResult = await runScraper();
       lastScrapeTime = new Date();
-      console.log(
-        `✅ List scrape completed at ${lastScrapeTime.toLocaleString("th-TH")}`
+      cronLogger.info(
+        { completedAt: lastScrapeTime.toISOString(), ...listResult },
+        "List scrape completed"
       );
 
       // Step 2: Scrape event details (batch of 10)
-      console.log("📚 Starting detail scrape...");
+      cronLogger.info("Starting detail scrape...");
       const detailResult = await runDetailScraper(10);
       lastDetailScrapeTime = new Date();
-      console.log(
-        `✅ Detail scrape completed at ${lastDetailScrapeTime.toLocaleString(
-          "th-TH"
-        )}`
-      );
-      console.log(
-        `   Scraped: ${detailResult.scraped}, Remaining: ${detailResult.remaining}`
+      cronLogger.info(
+        {
+          completedAt: lastDetailScrapeTime.toISOString(),
+          scraped: detailResult.scraped,
+          remaining: detailResult.remaining,
+        },
+        "Detail scrape completed"
       );
 
       return { list: listResult, detail: detailResult };
-    } catch (error) {
-      console.error("❌ Scheduled scrape failed:", error);
+    } catch (err) {
+      cronLogger.error({ err }, "Scheduled scrape failed");
     } finally {
       isScraperRunning = false;
     }
   }
 
   static initCronJob() {
-    // Initial scheduled run (check every minute)
+    // Check every minute for scheduled runs
     setInterval(() => {
       const now = new Date();
       if (
@@ -57,10 +59,9 @@ export class CronService {
       }
     }, 60 * 1000);
 
-    console.log(`\n📅 Cron scheduled: Scraper will run every 12 hours`);
-    console.log(`   - List scraper: scrape event listings`);
-    console.log(
-      `   - Detail scraper: scrape event details with AI (10 per batch)`
+    cronLogger.info(
+      { intervalHours: 12 },
+      "Cron scheduled: Scraper will run every 12 hours"
     );
   }
 
