@@ -2,6 +2,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { FooterNeo } from "@/components/footer-neo";
 import { NavbarNeo } from "@/components/navbar-neo";
 import { TopMarquee } from "@/components/top-marquee";
+import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/lib/query-provider";
 import type { Metadata } from "next";
 import { JetBrains_Mono, Kanit, Outfit } from "next/font/google";
@@ -107,6 +108,7 @@ export default function RootLayout({
           <NavbarNeo />
           <ErrorBoundary>{children}</ErrorBoundary>
           <FooterNeo />
+          <Toaster />
         </QueryProvider>
       </body>
     </html>

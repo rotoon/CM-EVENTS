@@ -9,19 +9,16 @@ const nextConfig: NextConfig = {
   },
   reactCompiler: true,
   images: {
+    unoptimized: true, // Fix: Disable server-side optimization to avoid upstream 400 errors
     qualities: [100],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
+        hostname: "**",
       },
       {
-        protocol: "https",
-        hostname: "www.cmhy.city",
-      },
-      {
-        protocol: "https",
-        hostname: "plus.unsplash.com",
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },

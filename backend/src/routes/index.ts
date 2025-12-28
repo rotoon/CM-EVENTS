@@ -33,4 +33,7 @@ router.get("/map", EventController.getMapEvents);
 router.post("/scrape", scraperLimiter, ScraperController.triggerScrape);
 router.get("/scrape/status", ScraperController.getStatus);
 
+import tripRoutes from "./trip.routes";
+router.use("/trips", tripRoutes);
+
 export default router;
