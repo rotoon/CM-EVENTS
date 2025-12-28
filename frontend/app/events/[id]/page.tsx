@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = event.title;
   const description =
     event.description?.slice(0, 160) ||
-    `Join us for ${event.title} in Chiang Mai. Check out dates, location, and more detail on HYPE CNX.`;
+    `Join us for ${event.title} in Chiang Mai. Check out dates, location, and more detail on HYPE CNX. ดูรายละเอียดงาน ${event.title} ที่ Hype CNX...`;
   const image = event.cover_image_url || "/hype-sticker.png";
 
   return {

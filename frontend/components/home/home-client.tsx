@@ -6,7 +6,13 @@ import { HeroSection } from "@/components/hero-section";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-export function HomeClient() {
+import { Event } from "@/lib/types";
+
+interface HomeClientProps {
+  heroEvent?: Event;
+}
+
+export function HomeClient({ heroEvent }: HomeClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const category = searchParams.get("category") || undefined;
@@ -27,7 +33,7 @@ export function HomeClient() {
 
   return (
     <>
-      <HeroSection />
+      <HeroSection event={heroEvent} />
       <CategoryFilter activeCategory={category} activeMonth={effectiveMonth} />
       <EventsContent category={category} month={effectiveMonth} />
     </>

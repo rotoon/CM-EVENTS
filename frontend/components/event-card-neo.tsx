@@ -71,7 +71,10 @@ export function EventCardNeo({
   return (
     <Link
       href={`/events/${id}`}
-      className="group relative flex flex-col h-full bg-white border-4 border-neo-black shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200 cursor-pointer overflow-hidden"
+      className={cn(
+        "group relative flex flex-col h-full bg-white border-4 border-neo-black shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200 cursor-pointer overflow-hidden",
+        isEnded && "opacity-60 hover:opacity-100"
+      )}
     >
       {/* Image Section */}
       <div className="relative h-[20rem] w-full border-b-4 border-neo-black overflow-hidden bg-gray-100 shrink-0">
@@ -79,7 +82,10 @@ export function EventCardNeo({
           src={image}
           alt={title}
           fill
-          className="object-cover transition-transform duration-500 scale-100 group-hover:scale-110"
+          className={cn(
+            "object-cover transition-transform duration-500 scale-100 group-hover:scale-110",
+            isEnded && "grayscale"
+          )}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority
         />

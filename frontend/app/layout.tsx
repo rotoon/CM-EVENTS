@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Hype CNX",
   },
   description:
-    "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital.",
+    "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital. รวมอีเว้นท์ งานดนตรี และนิทรรศการศิลปะล่าสุดในเชียงใหม่ คอมมูนิตี้สำหรับคนรักความสนุกและศิลปะ",
   keywords: [
     "Chiang Mai",
     "Events",
@@ -39,6 +39,11 @@ export const metadata: Metadata = {
     "Thailand",
     "Gigs",
     "Exhibitions",
+    "เชียงใหม่",
+    "อีเว้นท์",
+    "ดนตรีสด",
+    "นิทรรศการ",
+    "ที่เที่ยวเชียงใหม่",
   ],
   authors: [{ name: "Hype CNX Team" }],
   creator: "Hype CNX",
