@@ -12,7 +12,7 @@
 
 ## 🌐 Live Demo
 
-**[https://hivecnx.up.railway.app](https://hivecnx.up.railway.app)**
+**[https:///hivecnx.com/](https:///hivecnx.com/)**
 
 ---
 

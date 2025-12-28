@@ -15,6 +15,9 @@ RUN pnpm install --frozen-lockfile
 # Copy source files
 COPY . .
 
+# Generate Prisma Client
+RUN pnpm exec prisma generate
+
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3001

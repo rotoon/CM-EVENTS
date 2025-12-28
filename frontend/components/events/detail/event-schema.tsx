@@ -31,7 +31,7 @@ export function EventSchema({ event }: { event: EventWithImages }) {
     organizer: {
       "@type": "Organization",
       name: "Hype CNX",
-      url: "https://hivecnx.up.railway.app",
+      url: "https:///hivecnx.com/",
     },
   };
 

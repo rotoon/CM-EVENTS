@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://hivecnx.up.railway.app"),
+  metadataBase: new URL("https:///hivecnx.com/"),
   alternates: {
     canonical: "/",
   },
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "Hype CNX - Chiang Mai Lifestyle & Events",
     description:
       "The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.",
-    url: "https://hivecnx.up.railway.app",
+    url: "https:///hivecnx.com/",
     siteName: "Hype CNX",
     images: [
       {

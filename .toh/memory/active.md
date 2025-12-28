@@ -3,10 +3,15 @@
 ## Current Focus
 
 - **Goal**: Backend Improvements
-- **Status**: Option A Complete, Option B Postponed
-- **Reason**: Prisma v7 compatibility issues with Express
+- **Status**: Prisma Restored & Verified ✅
+- **Reason**: Deployment failure fixed by correcting adapter configuration
 
 ## What's Working
+
+### Backend (Active)
+
+- **Database Driver**: Prisma + `@prisma/adapter-pg` (Fixed)
+- **Repository**: Prisma Implementation
 
 ### Option A (Completed) ✅
 

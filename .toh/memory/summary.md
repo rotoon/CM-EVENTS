@@ -16,7 +16,7 @@ The transformation from "Chiang Mai Events" to **Hype CNX** is complete and bein
 
 ## Production Link
 
-- [Hype CNX Live](https://hivecnx.up.railway.app)
+- [Hype CNX Live](https:///hivecnx.com/)
 
 ## Next Phase
 

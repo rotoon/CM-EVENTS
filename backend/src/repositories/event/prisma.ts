@@ -72,24 +72,27 @@ export class EventRepository {
       ]);
     }
 
-    // Fetch all matching events (for sorting)
-    let eventsList = await prisma.events.findMany({
+    // Count total matching events
+    const total = await prisma.events.count({
       where: whereConditions,
     });
 
-    // Sort by End Date DESC (Latest first)
+    // Fetch paginated events sorted by end_date DESC (latest end date first)
+    const eventsList = await prisma.events.findMany({
+      where: whereConditions,
+      orderBy: { end_date: "desc" },
+      skip: offset,
+      take: limit,
+    });
 
-    const total = eventsList.length;
-    const slicedEvents = eventsList.slice(offset, offset + limit);
-
-    dbLogger.info({ total, returned: slicedEvents.length }, "Events fetched");
+    dbLogger.info({ total, returned: eventsList.length }, "Events fetched");
 
     return {
-      data: slicedEvents,
+      data: eventsList,
       total,
       limit,
       offset,
-      hasMore: offset + slicedEvents.length < total,
+      hasMore: offset + eventsList.length < total,
     };
   }
 

@@ -2,7 +2,7 @@ import { fetchEvents } from "@/lib/api";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://hivecnx.up.railway.app";
+  const baseUrl = "https:///hivecnx.com/";
 
   // Fetch all events to include in sitemap
   // We'll fetch a reasonably large number (the API currently has ~200)
