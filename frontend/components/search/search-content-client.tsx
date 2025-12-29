@@ -49,7 +49,7 @@ function SearchResults({ query }: { query: string }) {
           <div className='inline-block bg-neo-lime px-4 py-1 font-bold border-2 border-neo-black shadow-neo mb-6 rotate-1 animate-pulse-fast'>
             {t('newDrops')}
           </div>
-          <h2 className='font-display font-black text-6xl md:text-8xl lg:text-9xl uppercase mb-4 leading-none tracking-tighter italic'>
+          <h2 className='font-black text-6xl md:text-8xl lg:text-9xl uppercase mb-4 leading-none tracking-tighter italic'>
             {t('justAddedTitle')} <br />
             <span className='text-neo-pink bg-neo-black px-4 inline-block -rotate-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]'>
               {t('justAddedHighlight')}

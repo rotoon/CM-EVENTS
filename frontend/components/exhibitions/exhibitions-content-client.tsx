@@ -23,7 +23,7 @@ export function ExhibitionsContentClient() {
             <div className='inline-block bg-neo-purple text-white px-4 py-2 font-display font-black text-sm border-2 border-neo-black shadow-neo mb-6 -rotate-1'>
               {t('hashtag')}
             </div>
-            <h1 className='font-display font-black text-6xl md:text-8xl lg:text-9xl leading-tight mb-8 uppercase'>
+            <h1 className='font-black text-6xl md:text-8xl lg:text-9xl leading-tight mb-8 uppercase'>
               {t('titleLine1')} <br />
               <span
                 className='text-white bg-neo-black px-4 inline-block'
