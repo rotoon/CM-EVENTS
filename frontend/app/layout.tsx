@@ -1,105 +1,108 @@
-import { ErrorBoundary } from "@/components/error-boundary";
-import { FooterNeo } from "@/components/footer-neo";
-import { NavbarNeo } from "@/components/navbar-neo";
-import { TopMarquee } from "@/components/top-marquee";
-import QueryProvider from "@/lib/query-provider";
-import type { Metadata } from "next";
-import { JetBrains_Mono, Kanit, Outfit } from "next/font/google";
-import "./globals.css";
+import { ErrorBoundary } from '@/components/error-boundary'
+import { FooterNeo } from '@/components/footer-neo'
+import { NavbarNeo } from '@/components/navbar-neo'
+import { TopMarquee } from '@/components/top-marquee'
+import QueryProvider from '@/lib/query-provider'
+import type { Metadata } from 'next'
+import { JetBrains_Mono, Kanit, Outfit } from 'next/font/google'
+import './globals.css'
 
 const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
+  variable: '--font-outfit',
+  subsets: ['latin'],
+})
 
 const kanit = Kanit({
-  variable: "--font-kanit",
-  weight: ["300", "400", "500", "600"],
-  subsets: ["latin", "thai"],
-});
+  variable: '--font-kanit',
+  weight: ['300', '400', '500', '600'],
+  subsets: ['latin', 'thai'],
+})
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+  variable: '--font-mono',
+  subsets: ['latin'],
+})
 
 export const metadata: Metadata = {
   title: {
-    default: "Hype CNX - Chiang Mai Lifestyle & Events",
-    template: "%s | Hype CNX",
+    default: 'Hype CNX - Chiang Mai Lifestyle & Events',
+    template: '%s | Hype CNX',
   },
   description:
     "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital. รวมอีเว้นท์ งานดนตรี และนิทรรศการศิลปะล่าสุดในเชียงใหม่ คอมมูนิตี้สำหรับคนรักความสนุกและศิลปะ",
   keywords: [
-    "Chiang Mai",
-    "Events",
-    "Lifestyle",
-    "Hype CNX",
-    "Chiang Mai Events",
-    "Thailand",
-    "Gigs",
-    "Exhibitions",
-    "เชียงใหม่",
-    "อีเว้นท์",
-    "ดนตรีสด",
-    "นิทรรศการ",
-    "ที่เที่ยวเชียงใหม่",
+    'Chiang Mai',
+    'Events',
+    'Lifestyle',
+    'Hype CNX',
+    'Chiang Mai Events',
+    'Thailand',
+    'Gigs',
+    'Exhibitions',
+    'เชียงใหม่',
+    'อีเว้นท์',
+    'ดนตรีสด',
+    'นิทรรศการ',
+    'ที่เที่ยวเชียงใหม่',
   ],
-  authors: [{ name: "Hype CNX Team" }],
-  creator: "Hype CNX",
-  publisher: "Hype CNX",
+  authors: [{ name: 'Hype CNX Team' }],
+  creator: 'Hype CNX',
+  publisher: 'Hype CNX',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https:///hivecnx.com/"),
+  metadataBase: new URL('https:///hypecnx.com/'),
   alternates: {
-    canonical: "/",
+    canonical: '/',
   },
   openGraph: {
-    title: "Hype CNX - Chiang Mai Lifestyle & Events",
+    title: 'Hype CNX - Chiang Mai Lifestyle & Events',
     description:
-      "The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.",
-    url: "https:///hivecnx.com/",
-    siteName: "Hype CNX",
+      'The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.',
+    url: 'https:///hypecnx.com/',
+    siteName: 'Hype CNX',
     images: [
       {
-        url: "/logo-v2.png",
+        url: '/logo-v2.png',
         width: 800,
         height: 600,
-        alt: "Hype CNX Logo",
+        alt: 'Hype CNX Logo',
       },
     ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Hype CNX - Chiang Mai Lifestyle & Events",
+    card: 'summary_large_image',
+    title: 'Hype CNX - Chiang Mai Lifestyle & Events',
     description:
-      "The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.",
-    images: ["/logo-v2.png"],
+      'The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.',
+    images: ['/logo-v2.png'],
   },
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang='en'
+      suppressHydrationWarning
+    >
       <body
         className={`${outfit.variable} ${kanit.variable} ${jetbrainsMono.variable} antialiased font-sans min-h-screen text-neo-black selection:bg-neo-pink selection:text-white bg-[#f0f0f0]`}
         style={{
-          backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
-          backgroundSize: "20px 20px",
+          backgroundImage: 'radial-gradient(#000 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
         }}
       >
         <QueryProvider>
@@ -110,5 +113,5 @@ export default function RootLayout({
         </QueryProvider>
       </body>
     </html>
-  );
+  )
 }

@@ -12,7 +12,7 @@
 
 ## 🌐 Live Demo
 
-**[https:///hivecnx.com/](https:///hivecnx.com/)**
+**[https:///hypecnx.com/](https:///hypecnx.com/)**
 
 ---
 

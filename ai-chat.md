@@ -1,7 +1,7 @@
 ```markdown
-# Chiang Mai Trip Itinerary Design for hivecnx + Perplexity API
+# Chiang Mai Trip Itinerary Design for hypecnx + Perplexity API
 
-แนวคิด: ใช้ Perplexity เป็น **trip planner engine** ที่สร้าง itinerary แบบ JSON โดยอิงข้อมูลอีเวนต์จาก DB `events` ของ hivecnx เป็น truth source หลัก จากนั้น backend ของ hivecnx ทำ post-processing/override อีกที [web:21][web:27]
+แนวคิด: ใช้ Perplexity เป็น **trip planner engine** ที่สร้าง itinerary แบบ JSON โดยอิงข้อมูลอีเวนต์จาก DB `events` ของ hypecnx เป็น truth source หลัก จากนั้น backend ของ hypecnx ทำ post-processing/override อีกที [web:21][web:27]
 
 ---
 
@@ -77,7 +77,7 @@
   - `"event"` → ผูกกับ row ใน table `events`
   - `"poi"` → สถานที่ทั่วไป (ยังไม่อยู่ใน DB)
 - `isFromHiveDatabase`:
-  - `true` → เชื่อมกับ DB hivecnx (ใช้สำหรับ override ทีหลัง)
+  - `true` → เชื่อมกับ DB hypecnx (ใช้สำหรับ override ทีหลัง)
   - `false` → ข้อมูลที่ model propose เอง
 
 ---
@@ -140,16 +140,16 @@ You are a Chiang Mai local trip planner and itinerary optimizer.
 GOALS:
 
 - Create an N-day trip itinerary in Chiang Mai.
-- Prioritize using events and places from the given "hivecnx_events" list when possible.
+- Prioritize using events and places from the given "hypecnx_events" list when possible.
 - Respect opening hours, approximate travel times, and group nearby places in the same day.
 - Output MUST be valid JSON following the provided JSON schema.
 
 RULES:
 
-- If a suitable place exists in "hivecnx_events", use it first, and set `place.type = "event"` and `place.isFromHiveDatabase = true`.
-- If something is not in "hivecnx_events", you MAY suggest a general POI and set `place.type = "poi"` and `place.isFromHiveDatabase = false`.
+- If a suitable place exists in "hypecnx_events", use it first, and set `place.type = "event"` and `place.isFromHiveDatabase = true`.
+- If something is not in "hypecnx_events", you MAY suggest a general POI and set `place.type = "poi"` and `place.isFromHiveDatabase = false`.
 - Use realistic but approximate `durationMinutes`, `estimatedCost`, and `travelFromPrevious`.
-- Only include latitude, longitude, and googleMapsUrl if they are provided in "hivecnx_events" or can be reasonably inferred.
+- Only include latitude, longitude, and googleMapsUrl if they are provided in "hypecnx_events" or can be reasonably inferred.
 - DO NOT invent very specific prices; use rough ranges and `priceLevel` of "low" | "medium" | "high".
 - Group places that are geographically close on the same day when possible.
 - Avoid planning long-distance car rides at night for safety.
@@ -180,9 +180,9 @@ Return ONLY JSON with no explanation text.
 - มีรถเช่า: {{has_car}}
 - หมายเหตุ: {{notes}}
 
-นี่คือรายการ events จากฐานข้อมูล hivecnx (JSON array):
+นี่คือรายการ events จากฐานข้อมูล hypecnx (JSON array):
 
-{{hivecnx_events_json}}
+{{hypecnx_events_json}}
 
 แต่ละ event มีฟิลด์:
 
@@ -202,13 +202,13 @@ Return ONLY JSON with no explanation text.
 
 ```
 
-> หมายเหตุ: `{{hivecnx_events_json}}` คือ JSON array ที่ serialize จาก rows ใน table `events` หลัง query filter มาแล้ว [web:27][web:30]
+> หมายเหตุ: `{{hypecnx_events_json}}` คือ JSON array ที่ serialize จาก rows ใน table `events` หลัง query filter มาแล้ว [web:27][web:30]
 
 ---
 
-## 4) Flow การ Override ด้วย Data จาก DB hivecnx
+## 4) Flow การ Override ด้วย Data จาก DB hypecnx
 
-การออกแบบ flow ให้ Perplexity เป็น “planner + selector” แต่ DB hivecnx เป็น source of truth:
+การออกแบบ flow ให้ Perplexity เป็น “planner + selector” แต่ DB hypecnx เป็น source of truth:
 
 ### Step 1: Query DB ก่อนเรียก Perplexity
 
@@ -266,8 +266,8 @@ Return ONLY JSON with no explanation text.
 
 - ใช้ itinerary JSON เวอร์ชัน override แล้ว
 - UI แยกความต่าง:
-  - Event จาก hivecnx:
-    - แสดง badge/label เช่น “จาก hivecnx”
+  - Event จาก hypecnx:
+    - แสดง badge/label เช่น “จาก hypecnx”
     - ใช้ภาพ/ลิงก์ Google Maps ที่แน่นอนจาก DB
   - POI ทั่วไป:
     - ใช้ข้อมูลแบบ generic
@@ -394,7 +394,7 @@ Perplexity รองรับ structured outputs ซึ่งช่วยให�
 - FE: form เลือกวัน/สไตล์ → call backend `/api/plan-trip`
 - Backend `/api/plan-trip`:
   1. Query `events` ตามช่วงวัน, filter `is_ended = false`
-  2. Serialize เป็น `hivecnx_events_json`
+  2. Serialize เป็น `hypecnx_events_json`
   3. เรียก Perplexity ด้วย system + user prompt + (optionally) structured output schema
   4. รับ JSON itinerary
   5. Post-process:
