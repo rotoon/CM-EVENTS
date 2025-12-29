@@ -1,5 +1,5 @@
 import { SearchContentClient } from '@/components/search/search-content-client'
-import { setRequestLocale } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 
@@ -9,21 +9,23 @@ interface Props {
 }
 
 export async function generateMetadata({
+  params,
   searchParams,
 }: Props): Promise<Metadata> {
+  const { locale } = await params
   const { q } = await searchParams
+  const t = await getTranslations({ locale, namespace: 'meta' })
 
   if (q) {
     return {
-      title: `Search: ${q}`,
-      description: `Find events related to "${q}" in Chiang Mai on HYPE CNX.`,
+      title: t('searchResultTitle', { query: q }),
+      description: t('searchResultDescription', { query: q }),
     }
   }
 
   return {
-    title: 'Search Events',
-    description:
-      'Search for the latest events, gigs, and exhibitions in Chiang Mai.',
+    title: t('searchTitle'),
+    description: t('searchDescription'),
   }
 }
 

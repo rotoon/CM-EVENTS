@@ -1,46 +1,54 @@
 import { fetchEvents } from '@/lib/api'
+import { routing } from '@/i18n/routing'
 import { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https:///hypecnx.com/'
+  const baseUrl = 'https://hypecnx.com'
+  const locales = routing.locales
+  const defaultLocale = routing.defaultLocale
 
   // Fetch all events to include in sitemap
-  // We'll fetch a reasonably large number (the API currently has ~200)
   const events = await fetchEvents()
 
-  const eventEntries: MetadataRoute.Sitemap = events.map((event) => ({
-    url: `${baseUrl}/events/${event.id}`,
-    lastModified: event.last_updated_at || new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }))
+  // Helper function to generate URL with locale
+  const getUrl = (path: string, locale: string) => {
+    if (locale === defaultLocale) {
+      return `${baseUrl}${path}`
+    }
+    return `${baseUrl}/${locale}${path}`
+  }
 
-  const staticEntries: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
+  // Generate entries for each locale
+  const staticPages = ['', '/gigs', '/exhibitions', '/search']
+
+  const staticEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+    staticPages.map((page) => ({
+      url: getUrl(page || '/', locale),
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/gigs`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/exhibitions`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/search`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.5,
-    },
-  ]
+      changeFrequency: page === '' ? 'daily' : ('weekly' as const),
+      priority: page === '' ? 1.0 : page === '/search' ? 0.5 : 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, getUrl(page || '/', l)])
+        ),
+      },
+    }))
+  )
+
+  // Generate event entries for each locale
+  const eventEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+    events.map((event) => ({
+      url: getUrl(`/events/${event.id}`, locale),
+      lastModified: event.last_updated_at || new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, getUrl(`/events/${event.id}`, l)])
+        ),
+      },
+    }))
+  )
 
   return [...staticEntries, ...eventEntries]
 }

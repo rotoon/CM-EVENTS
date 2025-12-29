@@ -5,7 +5,11 @@ import { TopMarquee } from '@/components/top-marquee'
 import QueryProvider from '@/lib/query-provider'
 import { routing } from '@/i18n/routing'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { JetBrains_Mono, Kanit, Outfit } from 'next/font/google'
@@ -31,69 +35,92 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Hype CNX - Chiang Mai Lifestyle & Events',
-    template: '%s | Hype CNX',
-  },
-  description:
-    "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital. รวมอีเว้นท์ งานดนตรี และนิทรรศการศิลปะล่าสุดในเชียงใหม่ คอมมูนิตี้สำหรับคนรักความสนุกและศิลปะ",
-  keywords: [
-    'Chiang Mai',
-    'Events',
-    'Lifestyle',
-    'Hype CNX',
-    'Chiang Mai Events',
-    'Thailand',
-    'Gigs',
-    'Exhibitions',
-    'เชียงใหม่',
-    'อีเว้นท์',
-    'ดนตรีสด',
-    'นิทรรศการ',
-    'ที่เที่ยวเชียงใหม่',
-  ],
-  authors: [{ name: 'Hype CNX Team' }],
-  creator: 'Hype CNX',
-  publisher: 'Hype CNX',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL('https:///hypecnx.com/'),
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: 'Hype CNX - Chiang Mai Lifestyle & Events',
-    description:
-      'The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.',
-    url: 'https:///hypecnx.com/',
-    siteName: 'Hype CNX',
-    images: [
-      {
-        url: '/logo-v2.png',
-        width: 800,
-        height: 600,
-        alt: 'Hype CNX Logo',
+// Dynamic metadata based on locale
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'meta' })
+
+  const isThaiLocale = locale === 'th'
+  const baseUrl = 'https://hypecnx.com'
+
+  return {
+    title: {
+      default: t('title'),
+      template: '%s | Hype CNX',
+    },
+    description: t('description'),
+    keywords: isThaiLocale
+      ? [
+          'เชียงใหม่',
+          'อีเว้นท์',
+          'ดนตรีสด',
+          'นิทรรศการ',
+          'ที่เที่ยวเชียงใหม่',
+          'งานเทศกาล',
+          'คาเฟ่เชียงใหม่',
+          'Chiang Mai',
+          'Events',
+          'Hype CNX',
+        ]
+      : [
+          'Chiang Mai',
+          'Events',
+          'Lifestyle',
+          'Hype CNX',
+          'Chiang Mai Events',
+          'Thailand',
+          'Gigs',
+          'Exhibitions',
+          'Northern Thailand',
+        ],
+    authors: [{ name: 'Hype CNX Team' }],
+    creator: 'Hype CNX',
+    publisher: 'Hype CNX',
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: locale === 'th' ? '/' : `/${locale}`,
+      languages: {
+        th: '/',
+        en: '/en',
       },
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Hype CNX - Chiang Mai Lifestyle & Events',
-    description:
-      'The heartbeat of Chiang Mai. Discover events, lifestyle, and experiences in the city.',
-    images: ['/logo-v2.png'],
-  },
-  icons: {
-    icon: '/icon.png',
-    shortcut: '/icon.png',
-    apple: '/icon.png',
-  },
+    },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      url: locale === 'th' ? baseUrl : `${baseUrl}/${locale}`,
+      siteName: 'Hype CNX',
+      images: [
+        {
+          url: '/logo-v2.png',
+          width: 800,
+          height: 600,
+          alt: 'Hype CNX Logo',
+        },
+      ],
+      locale: isThaiLocale ? 'th_TH' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: ['/logo-v2.png'],
+    },
+    icons: {
+      icon: '/icon.png',
+      shortcut: '/icon.png',
+      apple: '/icon.png',
+    },
+  }
 }
 
 export default async function LocaleLayout({
@@ -121,6 +148,12 @@ export default async function LocaleLayout({
       lang={locale}
       suppressHydrationWarning
     >
+      <head>
+        <meta
+          name='viewport'
+          content='width=device-width, initial-scale=1, maximum-scale=1'
+        />
+      </head>
       <body
         suppressHydrationWarning
         className={`${outfit.variable} ${kanit.variable} ${jetbrainsMono.variable} antialiased font-sans min-h-screen text-neo-black selection:bg-neo-pink selection:text-white bg-[#f0f0f0]`}

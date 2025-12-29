@@ -132,7 +132,17 @@
   "meta": {
     "title": "Hype CNX - Chiang Mai Lifestyle & Events",
     "description": "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital.",
-    "homeTitle": "Discover Local Vibes | Chiang Mai Events"
+    "homeTitle": "Discover Local Vibes | Chiang Mai Events",
+    "gigsTitle": "Gigs & Live Music",
+    "gigsDescription": "Discover live music, gigs, and concerts in Chiang Mai tonight. Turn up the volume with HYPE CNX.",
+    "exhibitionsTitle": "Art & Exhibitions",
+    "exhibitionsDescription": "Explore the thriving art scene in Chiang Mai. Find the latest exhibitions and creative workshops with HYPE CNX.",
+    "searchTitle": "Search Events",
+    "searchDescription": "Search for the latest events, gigs, and exhibitions in Chiang Mai.",
+    "searchResultTitle": "Search: {query}",
+    "searchResultDescription": "Find events related to \"{query}\" in Chiang Mai on HYPE CNX.",
+    "eventNotFound": "Event Not Found",
+    "eventDescriptionTemplate": "Join us for {title} in Chiang Mai. Check out dates, location, and more detail on HYPE CNX."
   },
   "tags": {
     "art": "ART",

@@ -43,7 +43,7 @@ export function LanguageSwitcher() {
       aria-label={`Switch to ${localeNames[nextLocale]}`}
       className='flex justify-center items-center gap-2 px-3 py-2 border-2 border-neo-black bg-white font-mono font-bold text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 hover:bg-neo-purple hover:text-white transition-all duration-150 cursor-pointer'
     >
-      <span className='w-6 h-6'>{localeFlags[nextLocale]}</span>
+      <span className='w-6'>{localeFlags[nextLocale]}</span>
       <span>{localeNames[nextLocale]}</span>
     </button>
   )
