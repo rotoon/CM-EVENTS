@@ -2,12 +2,12 @@
 
 import { ButtonNeo } from '@/components/ui/button-neo'
 import { useCategories, useMonths } from '@/hooks/use-events'
-import { Link, useRouter, usePathname } from '@/i18n/navigation'
+import { useRouter, usePathname } from '@/i18n/navigation'
 import {
   CATEGORY_STYLES,
   DEFAULT_CATEGORY_STYLE,
   ICON_MAP,
-  MONTH_NAMES,
+  MONTH_KEYS,
 } from '@/lib/constants'
 import { Tag } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -81,6 +81,7 @@ function CategoryFilterContent({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const t = useTranslations('filter')
+  const tMonths = useTranslations('months')
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useCategories()
   const { data: availableMonths = [], isLoading: isMonthsLoading } = useMonths()
@@ -160,12 +161,11 @@ function CategoryFilterContent({
             <div className='flex gap-3 justify-center flex-wrap'>
               {[...availableMonths].reverse().map((month, index) => {
                 const isActive = activeMonth === month
-                // Format: "2025-12" → "Dec 2025"
+                // Format: "2025-12" → "ธ.ค. 2025" or "Dec 2025"
                 const [year, monthNum] = month.split('-')
+                const monthKey = MONTH_KEYS[parseInt(monthNum) - 1]
 
-                const displayMonth = `${
-                  MONTH_NAMES[parseInt(monthNum) - 1]
-                } ${year}`
+                const displayMonth = `${tMonths(monthKey)} ${year}`
 
                 return (
                   <button
@@ -245,7 +245,7 @@ function CategoryFilterContent({
                             : 'group-hover:rotate-12'
                         }`}
                       />
-                      {cat.label}
+                      {t(`categories.${cat.id}`)}
                     </ButtonNeo>
                   </div>
                 )

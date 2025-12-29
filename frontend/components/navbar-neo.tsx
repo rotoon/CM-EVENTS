@@ -78,13 +78,6 @@ export function NavbarNeo() {
             )
           })}
 
-          <Link
-            href='/search'
-            className='ml-2 w-11 h-11 border-2 border-neo-black flex items-center justify-center bg-white hover:bg-neo-pink transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1'
-          >
-            <Search className='w-5 h-5' />
-          </Link>
-
           {/* Language Switcher */}
           <div className='ml-2'>
             <LanguageSwitcher />
@@ -94,12 +87,6 @@ export function NavbarNeo() {
         {/* Mobile Actions */}
         <div className='flex md:hidden items-center gap-2'>
           <LanguageSwitcher />
-          <Link
-            href='/search'
-            className='w-10 h-10 border-2 border-neo-black flex items-center justify-center bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
-          >
-            <Search className='w-5 h-5' />
-          </Link>
           <button
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}

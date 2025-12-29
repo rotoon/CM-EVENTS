@@ -3,7 +3,7 @@
 import { CategoryFilter } from '@/components/category-filter'
 import { EventsContent } from '@/components/events/events-content'
 import { HeroSection } from '@/components/hero-section'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 import { Event } from '@/lib/types'
 
@@ -12,7 +12,6 @@ interface HomeClientProps {
 }
 
 export function HomeClient({ heroEvent }: HomeClientProps) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const category = searchParams.get('category') || undefined
   const month = searchParams.get('month') || undefined

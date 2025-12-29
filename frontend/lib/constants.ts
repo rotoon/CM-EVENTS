@@ -7,7 +7,7 @@ import {
   ShoppingBag,
   Sparkles,
   Utensils,
-} from "lucide-react";
+} from 'lucide-react'
 
 // Icon mapping default
 export const ICON_MAP: Record<string, LucideIcon> = {
@@ -18,7 +18,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   market: ShoppingBag,
   workshop: BookOpen,
   food: Utensils,
-};
+}
 
 export const CATEGORY_STYLES: Record<
   string,
@@ -26,69 +26,88 @@ export const CATEGORY_STYLES: Record<
 > = {
   festival: {
     active:
-      "bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white",
-    hover: "hover:bg-neo-black hover:text-white",
+      'bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white',
+    hover: 'hover:bg-neo-black hover:text-white',
   },
   music: {
     active:
-      "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
-    hover: "hover:bg-neo-lime",
+      'bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black',
+    hover: 'hover:bg-neo-lime',
   },
   art: {
     active:
-      "bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black",
-    hover: "hover:bg-neo-pink hover:text-black",
+      'bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black',
+    hover: 'hover:bg-neo-pink hover:text-black',
   },
   cafe: {
     active:
-      "bg-neo-purple text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-purple hover:text-white",
-    hover: "hover:bg-neo-purple hover:text-white ",
+      'bg-neo-purple text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-purple hover:text-white',
+    hover: 'hover:bg-neo-purple hover:text-white ',
   },
   market: {
     active:
-      "bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white",
-    hover: "hover:bg-neo-black hover:text-white",
+      'bg-neo-black text-white shadow-none translate-x-1 translate-y-1 hover:bg-neo-black hover:text-white',
+    hover: 'hover:bg-neo-black hover:text-white',
   },
   workshop: {
     active:
-      "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
-    hover: "hover:bg-neo-lime",
+      'bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black',
+    hover: 'hover:bg-neo-lime',
   },
   food: {
     active:
-      "bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black",
-    hover: "hover:bg-neo-pink ",
+      'bg-neo-pink text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-pink hover:text-black',
+    hover: 'hover:bg-neo-pink ',
   },
-};
+}
 
 export const DEFAULT_CATEGORY_STYLE = {
   active:
-    "bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black",
-  hover: "hover:bg-neo-lime",
-};
+    'bg-neo-lime text-black shadow-none translate-x-1 translate-y-1 hover:bg-neo-lime hover:text-black',
+  hover: 'hover:bg-neo-lime',
+}
 
 // Neo-Pop Colors Cycle
 export const NEO_COLORS = [
-  "bg-neo-pink",
-  "bg-neo-lime",
-  "bg-neo-purple text-white",
-  "bg-neo-black text-white",
-  "bg-white border-2 border-black",
-];
+  'bg-neo-pink',
+  'bg-neo-lime',
+  'bg-neo-purple text-white',
+  'bg-neo-black text-white',
+  'bg-white border-2 border-black',
+]
 
-export const TAGS = ["ART", "MUSIC", "FOOD", "VIBE", "PARTY"];
+// Tag keys for translation (use with useTranslations('tags'))
+export const TAG_KEYS = ['art', 'music', 'food', 'vibe', 'party'] as const
 
+// Month keys for translation (use with useTranslations('months'))
+export const MONTH_KEYS = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec',
+] as const
+
+// Legacy: Keep for backward compatibility (English only)
+export const TAGS = ['ART', 'MUSIC', 'FOOD', 'VIBE', 'PARTY']
 export const MONTH_NAMES = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]

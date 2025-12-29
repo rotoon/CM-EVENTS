@@ -122,6 +122,7 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body
+        suppressHydrationWarning
         className={`${outfit.variable} ${kanit.variable} ${jetbrainsMono.variable} antialiased font-sans min-h-screen text-neo-black selection:bg-neo-pink selection:text-white bg-[#f0f0f0]`}
         style={{
           backgroundImage: 'radial-gradient(#000 1px, transparent 1px)',

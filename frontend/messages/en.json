@@ -21,7 +21,16 @@
   },
   "filter": {
     "selectMonth": "Select Month",
-    "filterByCategory": "Filter by Category"
+    "filterByCategory": "Filter by Category",
+    "categories": {
+      "festival": "Festival",
+      "music": "Music",
+      "art": "Art",
+      "cafe": "Cafe",
+      "market": "Market",
+      "workshop": "Workshop",
+      "food": "Food"
+    }
   },
   "footer": {
     "tagline": "What's the hype? Events, Lifestyle, and Culture in Chiang Mai."
@@ -31,22 +40,119 @@
     "loading": "Loading...",
     "viewMore": "View More",
     "noEvents": "No events found",
-    "tryAdjusting": "Try adjusting your filters"
+    "tryAdjusting": "Try adjusting your filters",
+    "refresh": "Refresh"
   },
   "events": {
     "title": "Upcoming Events",
     "past": "Past",
     "upcoming": "Upcoming",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "allDisplayed": "🎉 All Events displayed!",
+    "label": "EVENTS",
+    "totalCount": "{count} events",
+    "noEventsTitle": "No Events Found!",
+    "noEventsDescription": "We couldn't find any events matching your selection in this month. Try exploring other months or categories!",
+    "viewCurrentMonth": "View Current Month",
+    "ended": "ENDED",
+    "joinNow": "JOIN NOW"
   },
   "search": {
     "placeholder": "Search events, venues...",
     "results": "Search Results",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "error": "⚠️ ERROR FETCHING THE RESULTS.",
+    "newDrops": "NEW DROPS IN CNX",
+    "justAddedTitle": "JUST",
+    "justAddedHighlight": "ADDED.",
+    "freshestDescription": "The freshest events recently scouted and verified by the HYPE team.",
+    "resultsLabel": "SEARCH RESULTS",
+    "finding": "FINDING: \"{query}\"",
+    "latestDrops": "LATEST DROPS",
+    "scoutedToday": "SCOUTED TODAY",
+    "freshVibes": "FRESH VIBES",
+    "clearSearch": "← CLEAR SEARCH"
+  },
+  "gigs": {
+    "hashtag": "#LIVE_LOUD_CNX",
+    "titleLine1": "TURN UP THE",
+    "titleLine2": "VOLUME.",
+    "description": "The only feed you need for Gigs, Concerts, and pure Chiang Mai nightlife energy.",
+    "sectionTitle": "GIGS & CONCERTS",
+    "label": "GIG FEED"
+  },
+  "exhibitions": {
+    "hashtag": "#CHIANGMAI_ART_SCENE",
+    "titleLine1": "RAW",
+    "titleLine2": "CREATIVITY.",
+    "description": "Curated art, exhibitions, and creative energy.",
+    "descriptionLine2": "From local galleries to experimental workshops.",
+    "galleryInfo": "Gallery Information",
+    "admission": "Admission",
+    "admissionValue": "FREE / TICKET",
+    "hours": "Hours",
+    "hoursValue": "10AM - 8PM",
+    "curatedBy": "Curated by",
+    "curatedByValue": "HYPE Scouts",
+    "sectionTitle": "ART & EXHIBITIONS",
+    "label": "GALLERY HUB"
+  },
+  "eventDetail": {
+    "notFoundTitle": "404",
+    "notFound": "Event Not Found",
+    "backToEvents": "Back to Events",
+    "backToAll": "BACK TO ALL EVENTS",
+    "headerText": "CHIANG MAI EVENTS • {year}",
+    "ended": "Event Ended",
+    "upcoming": "Upcoming Event",
+    "dateTBA": "Date To Be Announced",
+    "defaultLocation": "Chiang Mai, Thailand",
+    "loadingMap": "LOADING MAP...",
+    "noDescription": "No description available. Please check the official source for more details.",
+    "localVibe": "LOCAL VIBE",
+    "aboutEvent": "• ABOUT THIS EVENT",
+    "location": "• LOCATION",
+    "shareText": "Check out {title} in Chiang Mai!",
+    "linkCopied": "Link copied to clipboard!",
+    "share": "Share",
+    "visitWebsite": "Visit Website",
+    "openInMaps": "Open in Google Maps ↗"
+  },
+  "viewToggle": {
+    "grid": "GRID",
+    "map": "MAP"
+  },
+  "error": {
+    "title": "Oops!",
+    "message": "Something went wrong.",
+    "default": "An unexpected error occurred",
+    "tryAgain": "Try Again",
+    "goHome": "Go Home"
   },
   "meta": {
     "title": "Hype CNX - Chiang Mai Lifestyle & Events",
     "description": "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital.",
     "homeTitle": "Discover Local Vibes | Chiang Mai Events"
+  },
+  "tags": {
+    "art": "ART",
+    "music": "MUSIC",
+    "food": "FOOD",
+    "vibe": "VIBE",
+    "party": "PARTY"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
   }
 }
