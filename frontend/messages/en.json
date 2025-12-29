@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "home": "Home",
+    "gigs": "Gigs",
+    "exhibitions": "Exhibitions",
+    "feed": "Feed"
+  },
+  "hero": {
+    "tagline": "#HYPE_CNX_REALNESS",
+    "title1": "UNLEASH",
+    "title2": "THE",
+    "title3": "HYPE.",
+    "description": "The loudest event feed in the North.",
+    "subdesc": "No filler, just pure Chiang Mai energy.",
+    "hot": "HOT!",
+    "go": "GO!",
+    "new": "NEW",
+    "drop": "DROP",
+    "next": "NEXT",
+    "up": "UP"
+  },
+  "filter": {
+    "selectMonth": "Select Month",
+    "filterByCategory": "Filter by Category"
+  },
+  "footer": {
+    "tagline": "What's the hype? Events, Lifestyle, and Culture in Chiang Mai."
+  },
+  "common": {
+    "search": "Search",
+    "loading": "Loading...",
+    "viewMore": "View More",
+    "noEvents": "No events found",
+    "tryAdjusting": "Try adjusting your filters"
+  },
+  "events": {
+    "title": "Upcoming Events",
+    "past": "Past",
+    "upcoming": "Upcoming",
+    "viewDetails": "View Details"
+  },
+  "search": {
+    "placeholder": "Search events, venues...",
+    "results": "Search Results",
+    "noResults": "No results found"
+  },
+  "meta": {
+    "title": "Hype CNX - Chiang Mai Lifestyle & Events",
+    "description": "The heartbeat of Chiang Mai. Discover events, lifestyle, and unique experiences in Thailand's northern capital.",
+    "homeTitle": "Discover Local Vibes | Chiang Mai Events"
+  }
+}

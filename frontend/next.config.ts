@@ -1,9 +1,12 @@
-import type { NextConfig } from "next";
-import path from "path";
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
+import path from 'path'
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: "standalone", // For Docker deployment
+  output: 'standalone', // For Docker deployment
   turbopack: {
     root: path.resolve(__dirname),
   },
@@ -12,19 +15,19 @@ const nextConfig: NextConfig = {
     qualities: [100],
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "images.unsplash.com",
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
       {
-        protocol: "https",
-        hostname: "www.cmhy.city",
+        protocol: 'https',
+        hostname: 'www.cmhy.city',
       },
       {
-        protocol: "https",
-        hostname: "plus.unsplash.com",
+        protocol: 'https',
+        hostname: 'plus.unsplash.com',
       },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default withNextIntl(nextConfig)

@@ -1,11 +1,12 @@
 import { EventDetailClient } from '@/components/events/detail/event-detail-client'
 import { EventSchema } from '@/components/events/detail/event-schema'
 import { fetchEventById } from '@/lib/api'
+import { setRequestLocale } from 'next-intl/server'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 interface Props {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string; locale: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -43,7 +44,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const { id } = await params
+  const { id, locale } = await params
+  setRequestLocale(locale)
+
   const eventId = parseInt(id)
   const event = await fetchEventById(eventId)
 

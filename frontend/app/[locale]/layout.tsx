@@ -3,9 +3,13 @@ import { FooterNeo } from '@/components/footer-neo'
 import { NavbarNeo } from '@/components/navbar-neo'
 import { TopMarquee } from '@/components/top-marquee'
 import QueryProvider from '@/lib/query-provider'
+import { routing } from '@/i18n/routing'
+import { hasLocale, NextIntlClientProvider } from 'next-intl'
+import { getMessages, setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { JetBrains_Mono, Kanit, Outfit } from 'next/font/google'
-import './globals.css'
+import '../globals.css'
 
 const outfit = Outfit({
   variable: '--font-outfit',
@@ -22,6 +26,10 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
 })
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
 
 export const metadata: Metadata = {
   title: {
@@ -88,14 +96,29 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode
+  params: Promise<{ locale: string }>
 }>) {
+  const { locale } = await params
+
+  // ตรวจสอบว่า locale ถูกต้อง
+  if (!hasLocale(routing.locales, locale)) {
+    notFound()
+  }
+
+  // Enable static rendering
+  setRequestLocale(locale)
+
+  // โหลด messages สำหรับ locale นี้
+  const messages = await getMessages()
+
   return (
     <html
-      lang='en'
+      lang={locale}
       suppressHydrationWarning
     >
       <body
@@ -105,12 +128,14 @@ export default function RootLayout({
           backgroundSize: '20px 20px',
         }}
       >
-        <QueryProvider>
-          <TopMarquee />
-          <NavbarNeo />
-          <ErrorBoundary>{children}</ErrorBoundary>
-          <FooterNeo />
-        </QueryProvider>
+        <NextIntlClientProvider messages={messages}>
+          <QueryProvider>
+            <TopMarquee />
+            <NavbarNeo />
+            <ErrorBoundary>{children}</ErrorBoundary>
+            <FooterNeo />
+          </QueryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )
