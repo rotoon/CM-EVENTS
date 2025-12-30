@@ -10,3 +10,5 @@
 | 2025-12-27 | Refactor to Server Components         | Enable dynamic metadata and better SEO while maintaining client logic.     |
 | 2025-12-27 | Add Railway Deploy Script             | Simplify deployment via Railway CLI.                                       |
 | 2025-12-29 | Use next-intl for i18n                | Full routing support, SEO-friendly URLs, scalable for future.              |
+| 2025-12-30 | Standard Admin + Simple Password      | User chose standard complexity with env-based password auth.               |
+| 2025-12-30 | Clean Admin design for dashboard      | Separate from Neo-Brutalist public site for clarity.                       |

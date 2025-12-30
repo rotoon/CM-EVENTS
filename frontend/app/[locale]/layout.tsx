@@ -1,7 +1,4 @@
 import { ErrorBoundary } from '@/components/error-boundary'
-import { FooterNeo } from '@/components/footer-neo'
-import { NavbarNeo } from '@/components/navbar-neo'
-import { TopMarquee } from '@/components/top-marquee'
 import QueryProvider from '@/lib/query-provider'
 import { routing } from '@/i18n/routing'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
@@ -164,10 +161,7 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
-            <TopMarquee />
-            <NavbarNeo />
             <ErrorBoundary>{children}</ErrorBoundary>
-            <FooterNeo />
           </QueryProvider>
         </NextIntlClientProvider>
       </body>
