@@ -332,24 +332,78 @@ export default function AdminEventsPage() {
               className='text-sm'
               style={{ color: colors.textMuted }}
             >
-              หน้า {currentPage} จาก {totalPages}
+              แสดง {offset + 1}-{Math.min(offset + limit, pagination.total)} จาก{' '}
+              {pagination.total} รายการ
             </p>
-            <div className='flex gap-2'>
+            <div className='flex items-center gap-1'>
+              {/* Previous */}
               <Button
                 variant='outline'
                 size='sm'
-                className='rounded-lg cursor-pointer'
-                disabled={offset === 0}
-                onClick={() => setOffset(offset - limit)}
+                className='rounded-lg cursor-pointer h-9 w-9 p-0'
+                disabled={currentPage === 1}
+                onClick={() => setOffset((currentPage - 2) * limit)}
               >
                 <ChevronLeft size={16} />
               </Button>
+
+              {/* Page Numbers */}
+              {(() => {
+                const pages: (number | string)[] = []
+                const showPages = 5
+                let start = Math.max(1, currentPage - Math.floor(showPages / 2))
+                const end = Math.min(totalPages, start + showPages - 1)
+                start = Math.max(1, end - showPages + 1)
+
+                if (start > 1) {
+                  pages.push(1)
+                  if (start > 2) pages.push('...')
+                }
+
+                for (let i = start; i <= end; i++) {
+                  pages.push(i)
+                }
+
+                if (end < totalPages) {
+                  if (end < totalPages - 1) pages.push('...')
+                  pages.push(totalPages)
+                }
+
+                return pages.map((page, idx) =>
+                  typeof page === 'number' ? (
+                    <Button
+                      key={idx}
+                      variant={page === currentPage ? 'default' : 'outline'}
+                      size='sm'
+                      className='rounded-lg cursor-pointer h-9 w-9 p-0 text-sm font-medium'
+                      style={
+                        page === currentPage
+                          ? { backgroundColor: colors.primary }
+                          : {}
+                      }
+                      onClick={() => setOffset((page - 1) * limit)}
+                    >
+                      {page}
+                    </Button>
+                  ) : (
+                    <span
+                      key={idx}
+                      className='px-1'
+                      style={{ color: colors.textMuted }}
+                    >
+                      {page}
+                    </span>
+                  )
+                )
+              })()}
+
+              {/* Next */}
               <Button
                 variant='outline'
                 size='sm'
-                className='rounded-lg cursor-pointer'
-                disabled={!pagination.hasMore}
-                onClick={() => setOffset(offset + limit)}
+                className='rounded-lg cursor-pointer h-9 w-9 p-0'
+                disabled={currentPage === totalPages}
+                onClick={() => setOffset(currentPage * limit)}
               >
                 <ChevronRight size={16} />
               </Button>
