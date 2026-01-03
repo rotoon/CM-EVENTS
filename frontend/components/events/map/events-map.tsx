@@ -1,6 +1,7 @@
 "use client";
 
 import { TAGS } from "@/lib/constants";
+import { isEventEnded } from "@/lib/date-utils";
 import { Event } from "@/lib/types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -65,7 +66,9 @@ export default function EventsMap({ events }: EventsMapProps) {
           <Marker
             key={event.id}
             position={[event.latitude!, event.longitude!]}
-            icon={createCustomIcon(!!event.is_ended)}
+            icon={createCustomIcon(
+              isEventEnded(event.date_text, event.is_ended)
+            )}
           >
             <Popup className="neo-popup" closeButton={false}>
               <div className="w-full p-0 font-sans">
@@ -86,7 +89,7 @@ export default function EventsMap({ events }: EventsMapProps) {
                     </div>
                   )}
                   <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-                    {event.is_ended ? (
+                    {isEventEnded(event.date_text, event.is_ended) ? (
                       <div className="bg-neo-pink text-white px-2 py-0.5 border-2 border-neo-black text-[10px] font-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase">
                         ENDED
                       </div>

@@ -99,3 +99,87 @@ export function parseThaiDateToISO(dateText: string | null): string {
     return "";
   }
 }
+/**
+ * Safely parse Thai date text to Date objects.
+ * Handles ranges by capturing all dates.
+ */
+export function parseThaiDates(dateText: string | null): Date[] {
+  if (!dateText || dateText === "TBD") return [];
+
+  const pattern =
+    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/g;
+
+  const dates: Date[] = [];
+  const matches = [...dateText.matchAll(pattern)];
+
+  for (const match of matches) {
+    const day = parseInt(match[1]);
+    const month = THAI_MONTHS[match[2]];
+    const gregorianYear = parseInt(match[3]) - 543;
+    dates.push(new Date(gregorianYear, month, day, 23, 59, 59));
+  }
+
+  return dates;
+}
+
+/**
+ * Check if the event has ended based on its date text.
+ * Logic: Today is greater than the last date in the range.
+ */
+export function isEventEnded(
+  dateText: string | null,
+  manualIsEnded?: number | boolean | null
+): boolean {
+  if (manualIsEnded === true || manualIsEnded === 1) return true;
+  if (!dateText) return false;
+
+  const dates = parseThaiDates(dateText);
+  if (dates.length === 0) return false;
+
+  const lastDate = dates[dates.length - 1];
+  const today = new Date();
+
+  return today > lastDate;
+}
+
+// Parse Thai date to readable format
+export function formatReadableDate(dateText: string): string {
+  const THAI_MONTHS: Record<string, string> = {
+    มกราคม: "JAN",
+    กุมภาพันธ์: "FEB",
+    มีนาคม: "MAR",
+    เมษายน: "APR",
+    พฤษภาคม: "MAY",
+    มิถุนายน: "JUN",
+    กรกฎาคม: "JUL",
+    สิงหาคม: "AUG",
+    กันยายน: "SEP",
+    ตุลาคม: "OCT",
+    พฤศจิกายน: "NOV",
+    ธันวาคม: "DEC",
+  };
+
+  // Pattern: "19 ธันวาคม 2568" - capture day, month, and year
+  const pattern =
+    /(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(\d{4})/g;
+
+  // Replace Thai months with English abbreviations and convert Buddhist year to Gregorian
+  let result = dateText;
+
+  // Find all matches and replace
+  const matches = dateText.matchAll(pattern);
+  for (const match of matches) {
+    const day = match[1];
+    const thaiMonth = match[2];
+    const buddhistYear = parseInt(match[3]);
+    const engMonth = THAI_MONTHS[thaiMonth] || thaiMonth;
+    const gregorianYear = buddhistYear - 543; // Convert to Gregorian
+    // Format: "19 DEC 2025"
+    result = result.replace(match[0], `${day} ${engMonth} ${gregorianYear}`);
+  }
+
+  // Clean up the separator: replace " - " or " – " with " → "
+  result = result.replace(/\s*[-–]\s*/g, " → ");
+
+  return result || "TBD";
+}

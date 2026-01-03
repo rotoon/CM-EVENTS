@@ -3,7 +3,8 @@
     "home": "Home",
     "gigs": "Gigs",
     "exhibitions": "Exhibitions",
-    "feed": "Feed"
+    "feed": "Feed",
+    "plan": "Trip Planner"
   },
   "hero": {
     "tagline": "#HYPE_CNX_REALNESS",
@@ -164,5 +165,70 @@
     "oct": "Oct",
     "nov": "Nov",
     "dec": "Dec"
+  },
+  "tripPlanner": {
+    "hero": {
+      "tagline": "AI TRIP PLANNER",
+      "title": "Design Your Perfect CM Experience",
+      "p1": "\"Tell us your vibe, we'll build the ultimate plan.\"",
+      "p2": "Powered by AI + Real-time Local Events.",
+      "button": "Start Planning"
+    },
+    "form": {
+      "demo": "Load Demo",
+      "coreDetails": "Core Details",
+      "startDate": "Start Date",
+      "pickDate": "Pick a date",
+      "howManyDays": "How many days?",
+      "selectDuration": "Select duration",
+      "day": "Day",
+      "days": "Days",
+      "budgetVibe": "Budget Vibe",
+      "styleTitle": "What's your style?",
+      "styleDesc": "Select multiple interests",
+      "baseOperations": "Base of Operations",
+      "areaDesc": "Preferred neighborhoods",
+      "transport": "Transport",
+      "hasCar": "I have a car / rental car",
+      "notesTitle": "Top Secret Notes",
+      "notesPlaceholder": "Special requests? Allergies? Secret obsession?",
+      "submit": "Generate Plan",
+      "submitting": "Building...",
+      "styles": {
+        "cafe": "Cafe Hopping",
+        "nature": "Nature & Adventure",
+        "culture": "Culture & Temples",
+        "nightlife": "Nightlife & Party",
+        "food": "Local Food",
+        "art": "Art & Craft",
+        "shopping": "Shopping"
+      },
+      "areas": {
+        "old_city": "Old City (Tha Phae)",
+        "nimman": "Nimman & Maya",
+        "riverside": "Ping Riverside",
+        "mountains": "Doi Suthep / Mountains",
+        "chang_moi": "Chang Moi / Tha Phae",
+        "santitham": "Santitham (Local Vibe)"
+      },
+      "toasts": {
+        "success": "Trip Generated! 🚀",
+        "successDesc": "Your personalized itinerary is ready.",
+        "demoLoaded": "Mock Data Loaded! ✨",
+        "demoLoadedDesc": "Showing premium Chiang Mai experience.",
+        "error": "Error"
+      }
+    }
+  },
+  "itinerary": {
+    "title": "TRIP COLLECTION",
+    "rePlan": "RE-PLAN",
+    "vibeStack": "Vibe Stack:",
+    "level": "LEVEL:",
+    "day": "DAY",
+    "verified": "VERIFIED",
+    "slay": "SLAY",
+    "social": "SOCIAL",
+    "reachIt": "REACH IT"
   }
 }
