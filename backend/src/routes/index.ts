@@ -9,12 +9,16 @@ import {
   validate,
 } from "../middlewares/validation.middleware";
 import adminRoutes from "./admin.routes";
+import placeRoutes from "./place.routes";
 import tripRoutes from "./trip.routes";
 
 const router = Router();
 
 // Admin Routes
 router.use("/admin", adminRoutes);
+
+// Place Routes (ร้านอาหาร/คาเฟ่)
+router.use("/places", placeRoutes);
 
 // Event Routes
 router.get("/events", validate(eventsQuerySchema), EventController.getEvents);

@@ -25,6 +25,11 @@ export function NavbarNeo() {
       color: "hover:bg-neo-purple hover:text-white",
     },
     {
+      name: "Places",
+      href: "/places",
+      color: "hover:bg-neo-cyan",
+    },
+    {
       name: t("feed"),
       href: "/search",
       color: "hover:bg-neo-black hover:text-white",
