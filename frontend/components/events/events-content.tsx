@@ -40,7 +40,12 @@ export function EventsContent({
 
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
 
-  const allEvents = data?.pages.flatMap((page) => page.data) ?? []
+  // Transform DB events to display format
+  // Deduplicate events by ID to prevent key errors
+  const allEventsRaw = data?.pages.flatMap((page) => page.data) ?? []
+  const allEvents = Array.from(
+    new Map(allEventsRaw.map((event) => [event.id, event])).values()
+  )
 
   // Infinite scroll callback
   const loadMore = useCallback(() => {

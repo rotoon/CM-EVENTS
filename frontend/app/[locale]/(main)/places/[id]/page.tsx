@@ -1,5 +1,5 @@
-import { fetchPlaceById } from "@/lib/api-places";
-import { cn } from "@/lib/utils";
+import { fetchPlaceById } from '@/lib/api-places'
+import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
   Calendar,
@@ -8,55 +8,35 @@ import {
   Instagram,
   MapPin,
   MessageCircle,
-} from "lucide-react";
-import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+} from 'lucide-react'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
-// Place Type → Color scheme
-const TYPE_STYLES: Record<
-  string,
-  { bg: string; text: string; accent: string }
-> = {
-  Cafe: {
-    bg: "from-amber-50 to-orange-50",
-    text: "text-amber-800",
-    accent: "bg-amber-500",
+// Place Type → Neo-Brutalist color scheme
+const TYPE_STYLES: Record<string, { bg: string; text: string }> = {
+  Cafe: { bg: 'bg-neo-purple', text: 'text-white' },
+  Food: { bg: 'bg-neo-pink', text: 'text-white' },
+  Restaurant: { bg: 'bg-neo-lime', text: 'text-black' },
+  Travel: { bg: 'bg-neo-cyan', text: 'text-black' },
+  'Bar/Nightlife': {
+    bg: 'bg-neo-black',
+    text: 'text-white',
   },
-  Food: {
-    bg: "from-orange-50 to-red-50",
-    text: "text-orange-800",
-    accent: "bg-orange-500",
-  },
-  Restaurant: {
-    bg: "from-red-50 to-rose-50",
-    text: "text-red-800",
-    accent: "bg-red-500",
-  },
-  Travel: {
-    bg: "from-emerald-50 to-teal-50",
-    text: "text-emerald-800",
-    accent: "bg-emerald-500",
-  },
-  "Bar/Nightlife": {
-    bg: "from-purple-50 to-indigo-50",
-    text: "text-purple-800",
-    accent: "bg-purple-500",
-  },
-};
+}
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const place = await fetchPlaceById(parseInt(id));
+  const { id } = await params
+  const place = await fetchPlaceById(parseInt(id))
 
   if (!place) {
-    return { title: "ไม่พบร้าน | Hype CNX" };
+    return { title: 'ไม่พบร้าน | Hype CNX' }
   }
 
   return {
@@ -69,116 +49,176 @@ export async function generateMetadata({
       description:
         place.description?.slice(0, 160) ||
         `${place.name} - ${place.place_type} ในเชียงใหม่`,
-      type: "article",
+      type: 'article',
     },
-  };
+  }
 }
 
 export default async function PlaceDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const place = await fetchPlaceById(parseInt(id));
+  const { id } = await params
+  const place = await fetchPlaceById(parseInt(id))
 
   if (!place) {
-    notFound();
+    notFound()
   }
 
   const typeStyle = TYPE_STYLES[place.place_type] || {
-    bg: "from-stone-50 to-slate-50",
-    text: "text-stone-800",
-    accent: "bg-stone-500",
-  };
+    bg: 'bg-white',
+    text: 'text-black',
+  }
 
   // Format date
   const postDate = place.post_date
-    ? new Date(place.post_date).toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+    ? new Date(place.post_date).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       })
-    : null;
+    : null
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className='min-h-screen bg-neo-black text-white relative overflow-hidden'>
+      {/* Noise Texture Overlay */}
+      <div
+        className='fixed inset-0 z-0 pointer-events-none opacity-20'
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      ></div>
+
       {/* Back Navigation */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-stone-100">
-        <div className="container mx-auto px-4 py-4">
+      <div className='sticky top-0 z-50 bg-neo-black/80 backdrop-blur-md border-b-4 border-neo-black'>
+        <div className='max-w-7xl mx-auto px-4 py-4'>
           <Link
-            href="/places"
-            className="inline-flex items-center gap-2 text-sm text-stone-500 hover:text-orange-500 transition-colors"
+            href='/places'
+            className='inline-flex items-center gap-2 text-sm font-bold uppercase text-white hover:text-neo-lime transition-colors'
           >
-            <ArrowLeft className="w-4 h-4" />
-            กลับไปหน้ารายการ
+            <ArrowLeft className='w-5 h-5' />
+            BACK TO PLACES
           </Link>
         </div>
       </div>
 
       {/* Hero Section */}
-      <section className={cn("bg-gradient-to-br", typeStyle.bg)}>
-        <div className="container mx-auto px-4 py-12 md:py-20">
-          {/* Type Badge */}
-          <span
-            className={cn(
-              "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6",
-              "bg-white/80 backdrop-blur-sm border border-stone-200/50",
-              typeStyle.text
-            )}
-          >
-            {place.place_type}
-          </span>
+      <section className='relative z-10 pt-8 pb-12'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='grid lg:grid-cols-2 gap-12 items-start'>
+            {/* Left: Info */}
+            <div className='space-y-6'>
+              {/* Type Badge */}
+              <span
+                className={cn(
+                  'inline-flex items-center gap-2 px-4 py-1.5 text-base font-black uppercase tracking-wide',
+                  'border-2 border-neo-lime shadow-[4px_4px_0px_0px_#ccff00]',
+                  typeStyle.bg,
+                  typeStyle.text
+                )}
+              >
+                {place.place_type}
+              </span>
 
-          {/* Place Name */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-stone-900 mb-6 tracking-tight leading-tight">
-            {place.name}
-          </h1>
+              {/* Place Name */}
+              <h1 className='text-5xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase italic tracking-tighter leading-none [text-shadow:_4px_4px_0_rgb(0_0_0)]'>
+                {place.name}
+              </h1>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-4">
-            {place.likes !== null && place.likes > 0 && (
-              <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm">
-                <Heart className="w-4 h-4 text-pink-500" />
-                <span className="text-sm font-medium text-stone-700">
-                  {place.likes >= 1000
-                    ? `${(place.likes / 1000).toFixed(1)}k`
-                    : place.likes}{" "}
-                  likes
-                </span>
+              {/* Stats */}
+              <div className='flex flex-wrap gap-4'>
+                {place.likes !== null && place.likes > 0 && (
+                  <div className='inline-flex items-center gap-2 px-4 py-3 bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_#ccff00] text-black'>
+                    <Heart className='w-5 h-5 fill-neo-pink text-black' />
+                    <span className='font-mono font-bold'>
+                      {place.likes >= 1000
+                        ? `${(place.likes / 1000).toFixed(1)}k`
+                        : place.likes}{' '}
+                      LIKES
+                    </span>
+                  </div>
+                )}
+                {place.comments !== null && place.comments > 0 && (
+                  <div className='inline-flex items-center gap-2 px-4 py-3 bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_#00ffff] text-black'>
+                    <MessageCircle className='w-5 h-5 fill-neo-cyan text-black' />
+                    <span className='font-mono font-bold'>
+                      {place.comments} COMMENTS
+                    </span>
+                  </div>
+                )}
+                {postDate && (
+                  <div className='inline-flex items-center gap-2 px-4 py-3 bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_#d946ef] text-black'>
+                    <Calendar className='w-5 h-5 text-black' />
+                    <span className='font-mono font-bold'>{postDate}</span>
+                  </div>
+                )}
               </div>
-            )}
-            {place.comments !== null && place.comments > 0 && (
-              <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm">
-                <MessageCircle className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-stone-700">
-                  {place.comments} comments
-                </span>
+            </div>
+
+            {/* Right: Actions / Quick Links */}
+            <div className='flex flex-col gap-4 lg:items-end'>
+              <div className='bg-white border-4 border-neo-black shadow-[8px_8px_0px_0px_#ccff00] p-6 max-w-sm w-full rotate-2 hover:rotate-0 transition-transform duration-300'>
+                <h3 className='font-display font-black text-2xl text-black uppercase mb-4 italic'>
+                  QUICK LINKS
+                </h3>
+                <div className='space-y-3'>
+                  {/* Instagram */}
+                  {place.instagram_url && (
+                    <a
+                      href={place.instagram_url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='flex items-center gap-3 w-full px-5 py-4 bg-neo-pink border-2 border-neo-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-white font-bold uppercase'
+                    >
+                      <Instagram className='w-5 h-5' />
+                      VIEW ON INSTAGRAM
+                      <ExternalLink className='w-4 h-4 ml-auto' />
+                    </a>
+                  )}
+
+                  {/* Google Maps */}
+                  {place.google_maps_url ? (
+                    <a
+                      href={place.google_maps_url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='flex items-center gap-3 w-full px-5 py-4 bg-neo-lime border-2 border-neo-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-black font-bold uppercase'
+                    >
+                      <MapPin className='w-5 h-5' />
+                      OPEN MAPS
+                      <ExternalLink className='w-4 h-4 ml-auto' />
+                    </a>
+                  ) : (
+                    <a
+                      href={`https://www.google.com/maps/search/${encodeURIComponent(
+                        place.name + ' เชียงใหม่'
+                      )}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='flex items-center gap-3 w-full px-5 py-4 bg-neo-cyan border-2 border-neo-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-black font-bold uppercase'
+                    >
+                      <MapPin className='w-5 h-5' />
+                      SEARCH MAPS
+                      <ExternalLink className='w-4 h-4 ml-auto' />
+                    </a>
+                  )}
+                </div>
               </div>
-            )}
-            {postDate && (
-              <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm">
-                <Calendar className="w-4 h-4 text-purple-500" />
-                <span className="text-sm font-medium text-stone-700">
-                  {postDate}
-                </span>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Content */}
-      <section className="container mx-auto px-4 py-8 md:py-12">
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+      {/* Content Section */}
+      <section className='relative z-10 pb-20'>
+        <div className='max-w-7xl mx-auto px-4'>
+          <div className='bg-white border-4 border-neo-black shadow-[12px_12px_0px_0px_#ffffff] p-6 md:p-10 max-w-4xl mx-auto'>
             {/* Description */}
             {place.description && (
-              <div>
-                <h2 className="text-lg font-semibold text-stone-900 mb-4">
-                  รายละเอียด
+              <div className='mb-10'>
+                <h2 className='font-display font-black text-3xl text-black uppercase mb-6 flex items-center gap-3'>
+                  <span className='w-4 h-4 bg-neo-lime border-2 border-neo-black'></span>
+                  DETAILS
                 </h2>
-                <div className="prose prose-stone prose-sm max-w-none">
-                  <p className="text-stone-600 leading-relaxed whitespace-pre-wrap">
-                    {place.description}
-                  </p>
+                <div className='font-mono text-lg text-gray-800 leading-relaxed whitespace-pre-wrap border-l-4 border-neo-lime pl-6'>
+                  {place.description}
                 </div>
               </div>
             )}
@@ -186,15 +226,16 @@ export default async function PlaceDetailPage({ params }: PageProps) {
             {/* Categories */}
             {place.category_names && place.category_names.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-stone-900 mb-4">
-                  หมวดหมู่
+                <h2 className='font-display font-black text-3xl text-black uppercase mb-6 flex items-center gap-3'>
+                  <span className='w-4 h-4 bg-neo-pink border-2 border-neo-black'></span>
+                  TAGS
                 </h2>
-                <div className="flex flex-wrap gap-2">
+                <div className='flex flex-wrap gap-3'>
                   {place.category_names.map((cat) => (
                     <Link
                       key={cat}
                       href={`/places?category=${cat}`}
-                      className="px-4 py-2 rounded-full text-sm font-medium bg-stone-100 text-stone-600 hover:bg-orange-100 hover:text-orange-600 transition-colors"
+                      className='px-4 py-2 text-sm font-bold uppercase tracking-wider bg-neo-black text-white border-2 border-transparent hover:bg-neo-lime hover:text-black hover:border-neo-black hover:-translate-y-1 transition-all'
                     >
                       #{cat}
                     </Link>
@@ -202,88 +243,29 @@ export default async function PlaceDetailPage({ params }: PageProps) {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Action Buttons */}
-            <div className="bg-stone-50 rounded-2xl p-6 space-y-4">
-              <h3 className="font-semibold text-stone-900">ลิงก์</h3>
-
-              {/* Instagram */}
-              {place.instagram_url && (
-                <a
-                  href={place.instagram_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "flex items-center gap-3 w-full px-5 py-4 rounded-xl",
-                    "bg-gradient-to-r from-purple-500 to-pink-500",
-                    "text-white font-medium text-sm",
-                    "hover:opacity-90 transition-opacity"
-                  )}
-                >
-                  <Instagram className="w-5 h-5" />
-                  ดูโพสต์ต้นฉบับบน Instagram
-                  <ExternalLink className="w-4 h-4 ml-auto" />
-                </a>
-              )}
-
-              {/* Google Maps */}
-              {place.google_maps_url ? (
-                <a
-                  href={place.google_maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "flex items-center gap-3 w-full px-5 py-4 rounded-xl",
-                    "bg-white border border-stone-200",
-                    "text-stone-700 font-medium text-sm",
-                    "hover:bg-stone-50 transition-colors"
-                  )}
-                >
-                  <MapPin className="w-5 h-5 text-green-600" />
-                  เปิดใน Google Maps
-                  <ExternalLink className="w-4 h-4 ml-auto text-stone-400" />
-                </a>
-              ) : (
-                <a
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(
-                    place.name + " เชียงใหม่"
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "flex items-center gap-3 w-full px-5 py-4 rounded-xl",
-                    "bg-white border border-stone-200",
-                    "text-stone-700 font-medium text-sm",
-                    "hover:bg-stone-50 transition-colors"
-                  )}
-                >
-                  <MapPin className="w-5 h-5 text-stone-400" />
-                  ค้นหาใน Google Maps
-                  <ExternalLink className="w-4 h-4 ml-auto text-stone-400" />
-                </a>
-              )}
-            </div>
 
             {/* Credit */}
-            <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100">
-              <p className="text-sm text-amber-800">
-                📸 ข้อมูลนี้คัดสรรโดย{" "}
+            <div className='mt-12 pt-6 border-t-4 border-gray-100 flex items-center justify-between flex-wrap gap-4'>
+              <p className='font-mono text-sm text-gray-500'>
+                DATA CURATED BY{' '}
                 <a
-                  href="https://www.instagram.com/newbie.cnx/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium underline hover:text-orange-600"
+                  href='https://www.instagram.com/newbie.cnx/'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='font-bold text-black hover:text-neo-pink hover:underline'
                 >
-                  @newbie.cnx
+                  @NEWBIE.CNX
                 </a>
               </p>
+              <div className='flex gap-2'>
+                <div className='w-3 h-3 bg-neo-lime border border-neo-black'></div>
+                <div className='w-3 h-3 bg-neo-pink border border-neo-black'></div>
+                <div className='w-3 h-3 bg-neo-cyan border border-neo-black'></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
     </main>
-  );
+  )
 }

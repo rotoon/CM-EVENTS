@@ -1,68 +1,86 @@
-import { PlacesGrid } from "@/components/places/places-grid";
+import { PlacesGrid } from '@/components/places/places-grid'
 import {
   fetchPlaceCategories,
   fetchPlaces,
   fetchPlaceTypes,
-} from "@/lib/api-places";
-import type { Metadata } from "next";
+} from '@/lib/api-places'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "ร้านอาหาร & คาเฟ่เชียงใหม่ | Hype CNX",
+  title: 'ร้านอาหาร & คาเฟ่เชียงใหม่ | Hype CNX',
   description:
-    "รวมร้านอาหาร คาเฟ่ ที่เที่ยว บาร์ และสถานที่น่าไปในเชียงใหม่ กว่า 700 ร้าน คัดสรรโดย Newbie.CNX",
+    'รวมร้านอาหาร คาเฟ่ ที่เที่ยว บาร์ และสถานที่น่าไปในเชียงใหม่ กว่า 700 ร้าน คัดสรรโดย Newbie.CNX',
   keywords: [
-    "ร้านอาหารเชียงใหม่",
-    "คาเฟ่เชียงใหม่",
-    "ที่เที่ยวเชียงใหม่",
-    "Chiang Mai cafe",
-    "Chiang Mai restaurant",
+    'ร้านอาหารเชียงใหม่',
+    'คาเฟ่เชียงใหม่',
+    'ที่เที่ยวเชียงใหม่',
+    'Chiang Mai cafe',
+    'Chiang Mai restaurant',
   ],
   openGraph: {
-    title: "ร้านอาหาร & คาเฟ่เชียงใหม่ | Hype CNX",
+    title: 'ร้านอาหาร & คาเฟ่เชียงใหม่ | Hype CNX',
     description:
-      "รวมร้านอาหาร คาเฟ่ ที่เที่ยว บาร์ และสถานที่น่าไปในเชียงใหม่ กว่า 700 ร้าน",
-    type: "website",
+      'รวมร้านอาหาร คาเฟ่ ที่เที่ยว บาร์ และสถานที่น่าไปในเชียงใหม่ กว่า 700 ร้าน',
+    type: 'website',
   },
-};
+}
 
 export default async function PlacesPage() {
   const [placesResponse, categories, placeTypes] = await Promise.all([
     fetchPlaces({ limit: 20 }),
     fetchPlaceCategories(),
     fetchPlaceTypes(),
-  ]);
+  ])
 
-  const totalPlaces = placeTypes.reduce((sum, t) => sum + t.count, 0);
+  const totalPlaces = (placeTypes || []).reduce((sum, t) => sum + t.count, 0)
 
   return (
-    <main className="min-h-screen bg-stone-50">
-      {/* Compact Hero */}
-      <section className="bg-white border-b border-stone-200">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-stone-900">
-                Places
-              </h1>
-              <p className="text-sm text-stone-500 mt-1">
-                {totalPlaces.toLocaleString()} ร้านอาหาร คาเฟ่
-                และสถานที่น่าไปในเชียงใหม่
-              </p>
-            </div>
-            <a
-              href="https://www.instagram.com/newbie.cnx/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-full hover:opacity-90 transition-opacity"
-            >
-              📸 @newbie.cnx
-            </a>
-          </div>
+    <main className='min-h-screen bg-neo-black text-white relative overflow-hidden'>
+      {/* Noise Texture Overlay */}
+      <div
+        className='fixed inset-0 pointer-events-none z-[100] opacity-[0.03]'
+        style={{ filter: 'url(#noiseFilter)' }}
+      >
+        <svg
+          viewBox='0 0 200 200'
+          xmlns='http://www.w3.org/2000/svg'
+        >
+          <filter id='noiseFilter'>
+            <feTurbulence
+              type='fractalNoise'
+              baseFrequency='0.65'
+              numOctaves='3'
+              stitchTiles='stitch'
+            />
+          </filter>
+          <rect
+            width='100%'
+            height='100%'
+            filter='url(#noiseFilter)'
+          />
+        </svg>
+      </div>
+
+      <div className='max-w-7xl mx-auto px-4 pt-16 md:pt-24 pb-8 relative z-10'>
+        {/* Hashtag Badge */}
+        <div className='inline-block bg-neo-pink text-white px-4 py-2 font-display font-black text-sm border-2 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] mb-6 animate-bounce-slow -rotate-2'>
+          #CHIANGMAI_EATS
         </div>
-      </section>
+
+        {/* Hero Title */}
+        <h1 className='font-black text-6xl md:text-8xl lg:text-9xl leading-[0.8] mb-8 text-neo-lime uppercase italic'>
+          PLACES <br />
+          <span
+            className='text-white animate-pulse'
+            style={{ WebkitTextStroke: '2px #a3e635' }}
+          >
+            TO&nbsp;VIBE
+          </span>
+        </h1>
+      </div>
 
       {/* Places Content */}
-      <section className="container mx-auto px-4 py-6">
+      <section className='container mx-auto px-4 py-8 relative z-10'>
         <PlacesGrid
           initialPlaces={placesResponse.data}
           categories={categories}
@@ -71,5 +89,5 @@ export default async function PlacesPage() {
         />
       </section>
     </main>
-  );
+  )
 }

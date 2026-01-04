@@ -1,133 +1,292 @@
-"use client";
+'use client'
 
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { Link, usePathname } from "@/i18n/navigation";
-import { Menu, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
-import { useState } from "react";
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { Link } from '@/i18n/navigation'
+import { Menu, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import Image from 'next/image'
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu'
+import { useState } from 'react'
 
 export function NavbarNeo() {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
-  const t = useTranslations("nav");
-
-  const navLinks = [
-    { name: t("home"), href: "/", color: "hover:bg-neo-lime" },
-    {
-      name: t("gigs"),
-      href: "/gigs",
-      color: "hover:bg-neo-pink hover:text-white",
-    },
-    {
-      name: t("exhibitions"),
-      href: "/exhibitions",
-      color: "hover:bg-neo-purple hover:text-white",
-    },
-    {
-      name: "Places",
-      href: "/places",
-      color: "hover:bg-neo-cyan",
-    },
-    {
-      name: t("feed"),
-      href: "/search",
-      color: "hover:bg-neo-black hover:text-white",
-    },
-    {
-      name: t("plan"),
-      href: "/plan",
-      color: "hover:bg-neo-lime",
-    },
-  ];
+  const [isOpen, setIsOpen] = useState(false)
+  const t = useTranslations('nav')
 
   return (
-    <nav className="sticky top-0 z-50 px-4 py-4 md:py-6 backdrop-blur-sm">
-      <div className="bg-white border-4 border-neo-black shadow-neo flex justify-between items-center p-3 md:p-4 max-w-7xl mx-auto relative z-50 transform transition-transform hover:-translate-y-1">
+    <nav className='sticky top-0 z-50 px-4 py-4 md:py-6 backdrop-blur-sm'>
+      <div className='bg-white border-4 border-neo-black shadow-neo flex justify-between items-center p-3 md:p-4 max-w-7xl mx-auto relative z-50 transform transition-transform hover:-translate-y-1'>
         {/* Logo Section */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-12 h-12 md:w-14 md:h-14 transform group-hover:rotate-12 transition-transform duration-300">
-            <Image
-              src="/logo.png"
-              alt="HYPE CNX Logo"
-              fill
-              className="object-contain"
-              sizes="56px"
-            />
-          </div>
-          <h1 className="font-display font-black text-xl md:text-2xl tracking-tighter italic uppercase">
-            HYPE CNX
-          </h1>
+        <Link
+          href='/'
+          legacyBehavior
+          passHref
+        >
+          <a className='flex items-center gap-3 group'>
+            <div className='relative w-12 h-12 md:w-14 md:h-14 transform group-hover:rotate-12 transition-transform duration-300'>
+              <Image
+                src='/logo.png'
+                alt='HYPE CNX Logo'
+                fill
+                className='object-contain'
+                sizes='56px'
+              />
+            </div>
+            <h1 className='font-display font-black text-xl md:text-2xl tracking-tighter italic uppercase'>
+              HYPE CNX
+            </h1>
+          </a>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-1 group/nav">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`
-                  px-4 py-2 font-black uppercase tracking-tight text-sm transition-all border-2 border-transparent
-                  ${
-                    link.color
-                  } hover:border-neo-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-                  ${
-                    isActive
-                      ? "bg-neo-lime border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                      : ""
-                  }
-                `}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
+        {/* Desktop Links - NavigationMenu */}
+        <div className='hidden md:flex items-center gap-1'>
+          <NavigationMenu>
+            <NavigationMenuList className='gap-2'>
+              <NavigationMenuItem>
+                <Link
+                  href='/'
+                  legacyBehavior
+                  passHref
+                >
+                  <NavigationMenuLink
+                    className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black tracking-tight text-neo-black`}
+                  >
+                    {t('home')}
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className='bg-transparent hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black tracking-tight text-neo-black data-[state=open]:bg-neo-lime data-[state=open]:text-black data-[state=open]:border-neo-black data-[state=open]:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'>
+                  Events
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className='grid gap-3 p-4 w-[200px] bg-white border-4 border-neo-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]'>
+                    <li>
+                      <Link
+                        href='/gigs'
+                        legacyBehavior
+                        passHref
+                      >
+                        <NavigationMenuLink className='block select-none space-y-1 p-3 leading-none no-underline outline-none transition-colors hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black'>
+                          <div className='text-sm font-black uppercase leading-none'>
+                            {t('gigs')}
+                          </div>
+                        </NavigationMenuLink>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href='/exhibitions'
+                        legacyBehavior
+                        passHref
+                      >
+                        <NavigationMenuLink className='block select-none space-y-1 p-3 leading-none no-underline outline-none transition-colors hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black'>
+                          <div className='text-sm font-black uppercase leading-none'>
+                            {t('exhibitions')}
+                          </div>
+                        </NavigationMenuLink>
+                      </Link>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className='bg-transparent hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black tracking-tight text-neo-black data-[state=open]:bg-neo-lime data-[state=open]:text-black data-[state=open]:border-neo-black data-[state=open]:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'>
+                  Places
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className='grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white border-4 border-neo-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]'>
+                    {[
+                      {
+                        title: 'Cafe',
+                        href: '/places?category=cafe',
+                      },
+                      {
+                        title: 'Market',
+                        href: '/places?category=market',
+                      },
+                      {
+                        title: 'Food',
+                        href: '/places?category=food',
+                      },
+                      {
+                        title: 'Workshop',
+                        href: '/places?category=workshop',
+                      },
+                      {
+                        title: 'See All',
+                        href: '/places',
+                        isFullWidth: true,
+                      },
+                    ].map((item) => (
+                      <li
+                        key={item.title}
+                        className={item.isFullWidth ? 'col-span-2' : ''}
+                      >
+                        <Link
+                          href={item.href}
+                          legacyBehavior
+                          passHref
+                        >
+                          <NavigationMenuLink
+                            className={`block select-none space-y-1 p-3 leading-none no-underline outline-none transition-colors border-2 border-transparent hover:border-neo-black hover:bg-neo-lime hover:text-black`}
+                          >
+                            <div className='text-sm font-black uppercase leading-none'>
+                              {item.title}
+                            </div>
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link
+                  href='/plan'
+                  legacyBehavior
+                  passHref
+                >
+                  <NavigationMenuLink
+                    className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black tracking-tight text-neo-black`}
+                  >
+                    {t('plan')}
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Language Switcher */}
-          <div className="ml-2">
+          <div className='ml-2'>
             <LanguageSwitcher />
           </div>
         </div>
 
         {/* Mobile Actions */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className='flex md:hidden items-center gap-2'>
           <LanguageSwitcher />
           <button
             onClick={() => setIsOpen(!isOpen)}
-            aria-label={isOpen ? "Close menu" : "Open menu"}
-            className="w-10 h-10 border-2 border-neo-black flex items-center justify-center bg-neo-lime shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            className='w-10 h-10 border-2 border-neo-black flex items-center justify-center bg-neo-lime shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 z-50'
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 top-0 left-0 w-full h-screen bg-neo-purple/95 flex flex-col items-center justify-center z-40 md:hidden animate-fadeIn">
-          <div className="flex flex-col gap-4 w-full px-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
+        <div className='fixed inset-0 top-0 left-0 w-full min-h-screen bg-neo-purple/95 flex flex-col items-center justify-start pt-24 pb-8 overflow-y-auto z-40 md:hidden animate-fadeIn'>
+          <div className='flex flex-col gap-4 w-full px-8 max-w-sm'>
+            <Link
+              href='/'
+              legacyBehavior
+              passHref
+            >
+              <a
                 onClick={() => setIsOpen(false)}
-                className="bg-white border-4 border-neo-black p-6 text-center font-display font-black text-3xl uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2"
+                className='block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-2xl uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black'
               >
-                {link.name}
-              </Link>
-            ))}
-          </div>
+                {t('home')}
+              </a>
+            </Link>
 
-          <button
-            onClick={() => setIsOpen(false)}
-            className="mt-12 bg-neo-pink text-white border-4 border-neo-black p-4 rounded-full shadow-neo"
-          >
-            <X className="w-8 h-8" />
-          </button>
+            <div className='grid grid-cols-2 gap-2'>
+              <Link
+                href='/gigs'
+                legacyBehavior
+                passHref
+              >
+                <a
+                  onClick={() => setIsOpen(false)}
+                  className='block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-xl uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black'
+                >
+                  {t('gigs')}
+                </a>
+              </Link>
+              <Link
+                href='/exhibitions'
+                legacyBehavior
+                passHref
+              >
+                <a
+                  onClick={() => setIsOpen(false)}
+                  className='block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-xl uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black'
+                >
+                  {t('exhibitions')}
+                </a>
+              </Link>
+            </div>
+
+            <Link
+              href='/places'
+              legacyBehavior
+              passHref
+            >
+              <a
+                onClick={() => setIsOpen(false)}
+                className='block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-2xl uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black'
+              >
+                Places
+              </a>
+            </Link>
+            <div className='grid grid-cols-2 gap-2 -mt-2'>
+              {['cafe', 'market', 'food', 'workshop'].map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/places?category=${cat}`}
+                  legacyBehavior
+                  passHref
+                >
+                  <a
+                    onClick={() => setIsOpen(false)}
+                    className='block bg-white border-2 border-neo-black p-2 text-center font-bold text-sm uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 hover:bg-neo-lime hover:text-black'
+                  >
+                    {cat}
+                  </a>
+                </Link>
+              ))}
+            </div>
+
+            <Link
+              href='/search'
+              legacyBehavior
+              passHref
+            >
+              <a
+                onClick={() => setIsOpen(false)}
+                className='block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-2xl uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black'
+              >
+                {t('feed')}
+              </a>
+            </Link>
+            <Link
+              href='/plan'
+              legacyBehavior
+              passHref
+            >
+              <a
+                onClick={() => setIsOpen(false)}
+                className='block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-2xl uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black'
+              >
+                {t('plan')}
+              </a>
+            </Link>
+          </div>
         </div>
       )}
     </nav>
-  );
+  )
 }
