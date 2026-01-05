@@ -180,32 +180,11 @@ export function PlacesGrid({
           <div
             className={cn(
               "px-8 py-4 animate-bounce border-4",
-              variant === "cafe"
-                ? "bg-white border-[#6F4E37] shadow-[8px_8px_0px_0px_#6F4E37]"
-                : variant === "food"
-                ? "bg-white border-black shadow-[8px_8px_0px_0px_#EA580C]"
-                : variant === "restaurant"
-                ? "bg-[#2A2A2A] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]"
-                : variant === "travel"
-                ? "bg-[#0E1C36] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]"
-                : variant === "nightlife"
-                ? "bg-black border-[#FF0080] shadow-[0_0_20px_#FF0080]"
-                : "bg-white border-black shadow-[8px_8px_0px_0px_#000]"
+              theme.loadingContainer
             )}
           >
             <span
-              className={cn(
-                "font-black text-xl uppercase",
-                variant === "restaurant" || variant === "travel"
-                  ? "text-[#FFD700]"
-                  : variant === "nightlife"
-                  ? "text-[#00FFFF]"
-                  : variant === "cafe"
-                  ? "text-[#6F4E37]"
-                  : variant === "food"
-                  ? "text-[#EA580C]"
-                  : "text-black"
-              )}
+              className={cn("font-black text-xl uppercase", theme.loadingText)}
             >
               {t("loading")}
             </span>

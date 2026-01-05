@@ -71,6 +71,9 @@ export interface VariantTheme {
   paginationButtonDisabled: string;
   paginationActive: string;
   paginationInactive: string;
+  // Loading
+  loadingContainer: string;
+  loadingText: string;
 }
 
 export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
@@ -102,6 +105,8 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationActive: "bg-neo-lime text-black border-white",
     paginationInactive:
       "bg-neo-black text-white border-white hover:bg-white hover:text-black",
+    loadingContainer: "bg-white border-black shadow-[8px_8px_0px_0px_#000]",
+    loadingText: "text-black",
   },
   featured: {
     searchGlow: "bg-gradient-to-r from-neo-lime via-neo-pink to-neo-cyan",
@@ -131,6 +136,8 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationActive: "bg-neo-lime text-black border-white",
     paginationInactive:
       "bg-neo-black text-white border-white hover:bg-white hover:text-black",
+    loadingContainer: "bg-white border-black shadow-[8px_8px_0px_0px_#000]",
+    loadingText: "text-black",
   },
   cafe: {
     searchGlow: "bg-[#A58D71]",
@@ -159,6 +166,9 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationActive: "bg-[#6F4E37] text-white border-[#6F4E37] rounded-full",
     paginationInactive:
       "bg-white text-[#6F4E37] border-[#E5E5E5] rounded-full hover:bg-[#FDFBF7]",
+    loadingContainer:
+      "bg-white border-[#6F4E37] shadow-[8px_8px_0px_0px_#6F4E37]",
+    loadingText: "text-[#6F4E37]",
   },
   food: {
     searchGlow: "bg-[#EA580C]",
@@ -187,6 +197,8 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationButtonDisabled: "opacity-50 cursor-not-allowed",
     paginationActive: "bg-[#EA580C] text-white border-black",
     paginationInactive: "bg-white text-black border-black hover:bg-orange-50",
+    loadingContainer: "bg-white border-black shadow-[8px_8px_0px_0px_#EA580C]",
+    loadingText: "text-[#EA580C]",
   },
   restaurant: {
     searchGlow: "bg-[#FFD700]",
@@ -217,6 +229,9 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationActive: "bg-[#FFD700] text-black border-[#FFD700]",
     paginationInactive:
       "bg-[#2A2A2A] text-[#FFD700] border-[#FFD700]/50 hover:bg-[#FFD700]/10",
+    loadingContainer:
+      "bg-[#2A2A2A] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]",
+    loadingText: "text-[#FFD700]",
   },
   travel: {
     searchGlow: "bg-[#FFD700]/20",
@@ -250,6 +265,9 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationActive: "bg-[#FFD700] text-[#0E1C36] border-[#FFD700]",
     paginationInactive:
       "bg-[#0E1C36]/50 text-[#FFD700] border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0E1C36]",
+    loadingContainer:
+      "bg-[#0E1C36] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]",
+    loadingText: "text-[#FFD700]",
   },
   nightlife: {
     searchGlow: "bg-gradient-to-r from-[#FF0080] to-[#00FFFF]",
@@ -283,6 +301,8 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
       "bg-[#FF0080] text-black border-[#FF0080] shadow-[0_0_10px_#FF0080]",
     paginationInactive:
       "bg-black text-[#00FFFF] border-[#FF0080] hover:bg-[#FF0080] hover:text-black",
+    loadingContainer: "bg-black border-[#FF0080] shadow-[0_0_20px_#FF0080]",
+    loadingText: "text-[#00FFFF]",
   },
 };
 
