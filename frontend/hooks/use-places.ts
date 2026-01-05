@@ -44,6 +44,8 @@ async function fetchPlacesApi(
   params.set("offset", String(offset));
   if (filters.place_type) params.set("place_type", filters.place_type);
   if (filters.category) params.set("category", filters.category);
+  if (filters.categories?.length)
+    params.set("category", filters.categories.join(","));
   if (filters.search) params.set("search", filters.search);
 
   const res = await fetch(`${API_BASE}/places?${params.toString()}`);

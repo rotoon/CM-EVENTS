@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function TravelPage() {
   const [placesResponse, categories, placeTypes] = await Promise.all([
     fetchPlaces({ limit: 20, place_type: "Travel" }),
-    fetchPlaceCategories(),
+    fetchPlaceCategories("Travel"),
     fetchPlaceTypes(),
   ]);
 

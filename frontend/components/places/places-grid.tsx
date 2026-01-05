@@ -51,12 +51,16 @@ export function PlacesGrid({
   // Theme
   const theme = getVariantTheme(variant);
 
+  // Check if current filter matches initial filter (to decide if we can use initialData)
+  const isInitialFilter =
+    JSON.stringify(filter) === JSON.stringify(initialFilter);
+
   // React Query - Page-based pagination
   const { data, isLoading, isFetching } = usePlaces(
     filter,
     currentPage,
     ITEMS_PER_PAGE,
-    currentPage === 1
+    currentPage === 1 && isInitialFilter
       ? { data: initialPlaces, pagination: initialPagination }
       : undefined
   );
@@ -83,6 +87,27 @@ export function PlacesGrid({
     setSearchQuery("");
     applyFilter({ ...filter, search: undefined });
   }, [filter, applyFilter]);
+
+  // Handle category click from card tags or filter bar (multi-select)
+  const handleCategoryClick = useCallback(
+    (category: string) => {
+      const currentCategories = filter.categories || [];
+      let newCategories: string[];
+
+      if (currentCategories.includes(category)) {
+        newCategories = currentCategories.filter((c) => c !== category);
+      } else {
+        newCategories = [...currentCategories, category];
+      }
+
+      applyFilter({
+        ...filter,
+        categories: newCategories.length > 0 ? newCategories : undefined,
+        category: undefined,
+      });
+    },
+    [filter, applyFilter]
+  );
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -132,11 +157,15 @@ export function PlacesGrid({
             </span>
           )}
         </p>
-        {(filter.place_type || filter.category || filter.search) && (
+        {/* Clear Filters - show only when filter differs from initial */}
+        {(filter.category ||
+          filter.categories?.length ||
+          filter.search ||
+          filter.place_type !== initialFilter.place_type) && (
           <button
             onClick={() => {
               setSearchQuery("");
-              applyFilter({});
+              applyFilter({ ...initialFilter, categories: undefined });
             }}
             className="text-sm font-bold text-white hover:text-neo-pink underline decoration-2 underline-offset-4 cursor-pointer uppercase"
           >
@@ -148,8 +177,38 @@ export function PlacesGrid({
       {/* Loading overlay */}
       {isFetching && !isLoading && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white border-4 border-black px-8 py-4 shadow-[8px_8px_0px_0px_#000] animate-bounce">
-            <span className="font-black text-xl uppercase">{t("loading")}</span>
+          <div
+            className={cn(
+              "px-8 py-4 animate-bounce border-4",
+              variant === "cafe"
+                ? "bg-white border-[#6F4E37] shadow-[8px_8px_0px_0px_#6F4E37]"
+                : variant === "food"
+                ? "bg-white border-black shadow-[8px_8px_0px_0px_#EA580C]"
+                : variant === "restaurant"
+                ? "bg-[#2A2A2A] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]"
+                : variant === "travel"
+                ? "bg-[#0E1C36] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]"
+                : variant === "nightlife"
+                ? "bg-black border-[#FF0080] shadow-[0_0_20px_#FF0080]"
+                : "bg-white border-black shadow-[8px_8px_0px_0px_#000]"
+            )}
+          >
+            <span
+              className={cn(
+                "font-black text-xl uppercase",
+                variant === "restaurant" || variant === "travel"
+                  ? "text-[#FFD700]"
+                  : variant === "nightlife"
+                  ? "text-[#00FFFF]"
+                  : variant === "cafe"
+                  ? "text-[#6F4E37]"
+                  : variant === "food"
+                  ? "text-[#EA580C]"
+                  : "text-black"
+              )}
+            >
+              {t("loading")}
+            </span>
           </div>
         </div>
       )}
@@ -166,6 +225,7 @@ export function PlacesGrid({
                   ? "featured"
                   : variant
               }
+              onCategoryClick={handleCategoryClick}
             />
           ))}
         </div>
@@ -193,6 +253,7 @@ export function PlacesGrid({
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
+        variant={variant}
       />
     </div>
   );

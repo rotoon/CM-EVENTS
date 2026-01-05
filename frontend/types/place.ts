@@ -41,6 +41,7 @@ export interface PlacesResponse {
 export interface PlaceFilter {
   place_type?: string;
   category?: string;
+  categories?: string[]; // Multi-select categories
   search?: string;
   limit?: number;
   offset?: number;

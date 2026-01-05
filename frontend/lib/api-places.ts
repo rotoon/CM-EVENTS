@@ -18,6 +18,8 @@ export async function fetchPlaces(
 
   if (filters.place_type) params.set("place_type", filters.place_type);
   if (filters.category) params.set("category", filters.category);
+  if (filters.categories?.length)
+    params.set("category", filters.categories.join(","));
   if (filters.search) params.set("search", filters.search);
   if (filters.limit) params.set("limit", filters.limit.toString());
   if (filters.offset) params.set("offset", filters.offset.toString());
@@ -48,8 +50,13 @@ export async function fetchPlaceById(id: number): Promise<Place | null> {
   return json.data as Place;
 }
 
-export async function fetchPlaceCategories(): Promise<CategoryCount[]> {
-  const response = await fetch(`${API_BASE}/places/categories`, {
+export async function fetchPlaceCategories(
+  place_type?: string
+): Promise<CategoryCount[]> {
+  const params = place_type
+    ? `?place_type=${encodeURIComponent(place_type)}`
+    : "";
+  const response = await fetch(`${API_BASE}/places/categories${params}`, {
     next: { revalidate: 3600 },
   });
   const json = await response.json();

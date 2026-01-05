@@ -1,24 +1,29 @@
 "use client";
 
 /**
- * PlacePagination - Page navigation controls
+ * PlacePagination - Page navigation controls with variant theming
  */
 
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getVariantTheme, type PlaceVariant } from "./theme";
 
 interface PlacePaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  variant?: PlaceVariant;
 }
 
 export function PlacePagination({
   currentPage,
   totalPages,
   onPageChange,
+  variant = "default",
 }: PlacePaginationProps) {
   if (totalPages <= 1) return null;
+
+  const theme = getVariantTheme(variant);
 
   // Generate page numbers to show
   const getPageNumbers = (): (number | "...")[] => {
@@ -61,22 +66,18 @@ export function PlacePagination({
     }
   };
 
-  const buttonBase = cn(
-    "px-4 py-3 font-bold uppercase border-4 border-white transition-all duration-200",
-    "bg-neo-black text-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]",
-    "hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-  );
-
-  const disabledStyles =
-    "opacity-50 cursor-not-allowed hover:bg-neo-black hover:text-white hover:translate-x-0 hover:translate-y-0 hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]";
-
   return (
     <div className="flex justify-center items-center gap-2 pt-12 pb-20">
       {/* Previous Button */}
       <button
         onClick={() => goToPage(currentPage - 1)}
         disabled={currentPage === 1}
-        className={cn(buttonBase, currentPage === 1 && disabledStyles)}
+        className={cn(
+          "px-4 py-3 font-bold uppercase transition-all duration-200",
+          "hover:translate-x-[2px] hover:translate-y-[2px]",
+          theme.paginationButton,
+          currentPage === 1 && theme.paginationButtonDisabled
+        )}
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
@@ -87,7 +88,7 @@ export function PlacePagination({
           page === "..." ? (
             <span
               key={`ellipsis-${idx}`}
-              className="px-4 py-3 text-white/50 font-mono"
+              className="px-4 py-3 opacity-50 font-mono"
             >
               ...
             </span>
@@ -96,12 +97,11 @@ export function PlacePagination({
               key={page}
               onClick={() => goToPage(page)}
               className={cn(
-                "px-5 py-3 font-bold uppercase border-4 transition-all duration-200",
-                "shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]",
-                "hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]",
+                "px-5 py-3 font-bold uppercase transition-all duration-200",
+                "hover:translate-x-[2px] hover:translate-y-[2px]",
                 currentPage === page
-                  ? "bg-neo-lime text-black border-white"
-                  : "bg-neo-black text-white border-white hover:bg-white hover:text-black"
+                  ? theme.paginationActive
+                  : theme.paginationInactive
               )}
             >
               {page}
@@ -114,7 +114,12 @@ export function PlacePagination({
       <button
         onClick={() => goToPage(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={cn(buttonBase, currentPage === totalPages && disabledStyles)}
+        className={cn(
+          "px-4 py-3 font-bold uppercase transition-all duration-200",
+          "hover:translate-x-[2px] hover:translate-y-[2px]",
+          theme.paginationButton,
+          currentPage === totalPages && theme.paginationButtonDisabled
+        )}
       >
         <ChevronRight className="w-6 h-6" />
       </button>

@@ -64,6 +64,13 @@ export interface VariantTheme {
   cardBase: string[];
   cardText: string;
   cardHoverText: string;
+  cardTag: string;
+  cardTagHover: string;
+  // Pagination
+  paginationButton: string;
+  paginationButtonDisabled: string;
+  paginationActive: string;
+  paginationInactive: string;
 }
 
 export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
@@ -87,6 +94,14 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     ],
     cardText: "text-neo-black",
     cardHoverText: "group-hover:text-neo-pink",
+    cardTag: "bg-gray-100 text-black border-neo-black",
+    cardTagHover: "hover:bg-neo-lime hover:border-black",
+    paginationButton:
+      "bg-neo-black text-white border-4 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-white hover:text-black",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-neo-lime text-black border-white",
+    paginationInactive:
+      "bg-neo-black text-white border-white hover:bg-white hover:text-black",
   },
   featured: {
     searchGlow: "bg-gradient-to-r from-neo-lime via-neo-pink to-neo-cyan",
@@ -108,6 +123,14 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     ],
     cardText: "text-neo-black",
     cardHoverText: "group-hover:text-neo-pink",
+    cardTag: "bg-gray-100 text-black border-neo-black",
+    cardTagHover: "hover:bg-neo-lime hover:border-black",
+    paginationButton:
+      "bg-neo-black text-white border-4 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-white hover:text-black",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-neo-lime text-black border-white",
+    paginationInactive:
+      "bg-neo-black text-white border-white hover:bg-white hover:text-black",
   },
   cafe: {
     searchGlow: "bg-[#A58D71]",
@@ -126,8 +149,16 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
       "shadow-[0_4px_20px_-4px_rgba(111,78,55,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(111,78,55,0.12)]",
       "hover:-translate-y-1",
     ],
-    cardText: "text-neo-black",
-    cardHoverText: "group-hover:text-neo-pink",
+    cardText: "text-[#2C1810]",
+    cardHoverText: "group-hover:text-[#6F4E37]",
+    cardTag: "bg-[#FDFBF7] text-[#6F4E37] border-[#E5E5E5] rounded-full",
+    cardTagHover: "hover:bg-[#6F4E37] hover:text-white hover:border-[#6F4E37]",
+    paginationButton:
+      "bg-[#6F4E37] text-white border-2 border-[#6F4E37] rounded-full shadow-md hover:bg-white hover:text-[#6F4E37]",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-[#6F4E37] text-white border-[#6F4E37] rounded-full",
+    paginationInactive:
+      "bg-white text-[#6F4E37] border-[#E5E5E5] rounded-full hover:bg-[#FDFBF7]",
   },
   food: {
     searchGlow: "bg-[#EA580C]",
@@ -147,8 +178,15 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
       "shadow-[4px_4px_0px_0px_#EA580C] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]",
       "hover:bg-orange-50",
     ],
-    cardText: "text-neo-black",
-    cardHoverText: "group-hover:text-neo-pink",
+    cardText: "text-black",
+    cardHoverText: "group-hover:text-[#EA580C]",
+    cardTag: "bg-orange-50 text-[#EA580C] border-black",
+    cardTagHover: "hover:bg-[#EA580C] hover:text-white",
+    paginationButton:
+      "bg-[#EA580C] text-white border-2 border-black shadow-[3px_3px_0px_0px_black] hover:bg-white hover:text-[#EA580C]",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-[#EA580C] text-white border-black",
+    paginationInactive: "bg-white text-black border-black hover:bg-orange-50",
   },
   restaurant: {
     searchGlow: "bg-[#FFD700]",
@@ -171,6 +209,14 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     ],
     cardText: "text-white",
     cardHoverText: "group-hover:text-[#FFD700]",
+    cardTag: "bg-[#1A1A1A] text-[#FFD700] border-[#FFD700]/50",
+    cardTagHover: "hover:bg-[#FFD700] hover:text-black hover:border-[#FFD700]",
+    paginationButton:
+      "bg-[#2A2A2A] text-[#FFD700] border-2 border-[#FFD700] hover:bg-[#FFD700] hover:text-black",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-[#FFD700] text-black border-[#FFD700]",
+    paginationInactive:
+      "bg-[#2A2A2A] text-[#FFD700] border-[#FFD700]/50 hover:bg-[#FFD700]/10",
   },
   travel: {
     searchGlow: "bg-[#FFD700]/20",
@@ -194,6 +240,16 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     ],
     cardText: "text-white",
     cardHoverText: "group-hover:text-[#FFD700]",
+    cardTag:
+      "bg-[#0E1C36]/80 text-[#FFD700] border-[#FFD700]/30 backdrop-blur-sm",
+    cardTagHover:
+      "hover:bg-[#FFD700] hover:text-[#0E1C36] hover:border-[#FFD700]",
+    paginationButton:
+      "bg-[#0E1C36]/80 text-[#FFD700] border-2 border-[#FFD700] backdrop-blur-md hover:bg-[#FFD700] hover:text-[#0E1C36]",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-[#FFD700] text-[#0E1C36] border-[#FFD700]",
+    paginationInactive:
+      "bg-[#0E1C36]/50 text-[#FFD700] border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0E1C36]",
   },
   nightlife: {
     searchGlow: "bg-gradient-to-r from-[#FF0080] to-[#00FFFF]",
@@ -217,6 +273,16 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     ],
     cardText: "text-white",
     cardHoverText: "group-hover:text-[#00FFFF]",
+    cardTag: "bg-black text-[#00FFFF] border-[#FF0080]",
+    cardTagHover:
+      "hover:bg-[#FF0080] hover:text-black hover:shadow-[0_0_8px_#FF0080]",
+    paginationButton:
+      "bg-black text-[#00FFFF] border-2 border-[#FF0080] shadow-[3px_3px_0px_#00FFFF] hover:bg-[#FF0080] hover:text-black hover:shadow-[0_0_15px_#FF0080]",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive:
+      "bg-[#FF0080] text-black border-[#FF0080] shadow-[0_0_10px_#FF0080]",
+    paginationInactive:
+      "bg-black text-[#00FFFF] border-[#FF0080] hover:bg-[#FF0080] hover:text-black",
   },
 };
 

@@ -60,10 +60,12 @@ export const placeController = {
   /**
    * GET /places/categories
    * ดึง categories ทั้งหมดพร้อมจำนวน
+   * @query place_type - (optional) filter categories เฉพาะ place_type นี้
    */
-  async getCategories(_req: Request, res: Response) {
+  async getCategories(req: Request, res: Response) {
     try {
-      const categories = await placeRepository.getCategories();
+      const place_type = req.query.place_type as string | undefined;
+      const categories = await placeRepository.getCategories(place_type);
       return successResponse(
         res,
         categories,

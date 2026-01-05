@@ -41,7 +41,7 @@ export function NavbarNeo() {
 
         {/* Desktop Links - NavigationMenu */}
         <div className="hidden md:flex items-center gap-1">
-          <NavigationMenu>
+          <NavigationMenu viewport={false}>
             <NavigationMenuList className="gap-2">
               <NavigationMenuItem>
                 <NavigationMenuLink
@@ -60,6 +60,7 @@ export function NavbarNeo() {
                   <ul className="grid gap-3 p-4 w-[200px] bg-white border-4 border-neo-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                     <li>
                       <NavigationMenuLink
+                        asChild
                         href="/gigs"
                         className="block select-none space-y-1 p-3 leading-none no-underline outline-none transition-colors hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black"
                       >
@@ -70,6 +71,7 @@ export function NavbarNeo() {
                     </li>
                     <li>
                       <NavigationMenuLink
+                        asChild
                         href="/exhibitions"
                         className="block select-none space-y-1 p-3 leading-none no-underline outline-none transition-colors hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black"
                       >

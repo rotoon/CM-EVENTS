@@ -12,9 +12,14 @@ import Link from "next/link";
 interface PlaceCardProps {
   place: Place;
   variant?: PlaceVariant;
+  onCategoryClick?: (category: string) => void;
 }
 
-export function PlaceCard({ place, variant = "default" }: PlaceCardProps) {
+export function PlaceCard({
+  place,
+  variant = "default",
+  onCategoryClick,
+}: PlaceCardProps) {
   const theme = getVariantTheme(variant);
 
   // Determine Image Source
@@ -23,6 +28,12 @@ export function PlaceCard({ place, variant = "default" }: PlaceCardProps) {
   const displayImage = place.cover_image_url || stickerImage;
 
   const isFeatured = variant === "featured";
+
+  const handleTagClick = (e: React.MouseEvent, category: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCategoryClick?.(category);
+  };
 
   return (
     <Link
@@ -74,16 +85,22 @@ export function PlaceCard({ place, variant = "default" }: PlaceCardProps) {
           {place.name}
         </h3>
 
-        {/* Categories */}
+        {/* Categories - Clickable Tags */}
         {place.category_names && place.category_names.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-auto">
             {place.category_names.map((cat) => (
-              <span
+              <button
                 key={cat}
-                className="text-[10px] font-bold text-black uppercase tracking-wider bg-gray-100 border border-neo-black px-2 py-0.5 hover:bg-neo-lime hover:border-black transition-colors"
+                onClick={(e) => handleTagClick(e, cat)}
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-wider border px-2 py-0.5 transition-all cursor-pointer",
+                  theme.cardTag,
+                  theme.cardTagHover,
+                  onCategoryClick && "hover:scale-105"
+                )}
               >
                 #{cat}
-              </span>
+              </button>
             ))}
           </div>
         )}
