@@ -111,4 +111,21 @@ export const placeController = {
       return errorResponse(res, "Failed to search places", 500);
     }
   },
+
+  /**
+   * GET /places/photo
+   * Proxy for Google Photos
+   */
+  async getPhotoProxy(req: Request, res: Response) {
+    const ref = req.query.ref as string;
+    const GOOGLE_MAPS_KEY = process.env.GOOGLE_MAPS_API_KEY;
+
+    if (!ref || !GOOGLE_MAPS_KEY) {
+      return res.status(400).send("Bad Request or configuration missing");
+    }
+
+    // Redirect to Google API (Browser will fetch image)
+    const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_MAPS_KEY}`;
+    return res.redirect(url);
+  },
 };

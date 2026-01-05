@@ -40,17 +40,16 @@ export function PlaceCard({
       href={`/places/${place.id}`}
       className={cn(
         // Base Styles
-        "group relative block overflow-hidden cursor-pointer h-full",
-        "transition-all duration-300 ease-out",
-        // Variant Styles from theme
-        theme.cardBase,
+        "group relative block cursor-pointer h-full",
         isFeatured && "md:col-span-2 md:row-span-2"
       )}
     >
       {/* Image Section */}
       <div
         className={cn(
-          "relative w-full border-b-4 border-neo-black overflow-hidden",
+          "relative w-full overflow-hidden transition-all duration-300 ease-out",
+          // Apply card styles to the image container instead of the whole card
+          theme.cardBase,
           variant === "travel"
             ? "aspect-[3/4] border-none rounded-sm shadow-xl"
             : "aspect-[4/3]",
@@ -71,15 +70,15 @@ export function PlaceCard({
         />
       </div>
 
-      {/* Card Content */}
-      <div className={cn("p-5 flex flex-col", isFeatured && "p-8")}>
+      {/* Card Content - Clean, no borders */}
+      <div className={cn("pt-4 flex flex-col", isFeatured && "pt-6")}>
         {/* Place Name */}
         <h3
           className={cn(
-            "font-black leading-[0.9] mb-3 uppercase transition-colors",
+            "font-black leading-[0.9] mb-2 uppercase transition-colors line-clamp-2",
             theme.cardText,
             theme.cardHoverText,
-            isFeatured ? "text-4xl md:text-5xl" : "text-2xl"
+            isFeatured ? "text-4xl md:text-5xl" : "text-xl md:text-2xl"
           )}
         >
           {place.name}
@@ -87,8 +86,8 @@ export function PlaceCard({
 
         {/* Categories - Clickable Tags */}
         {place.category_names && place.category_names.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-auto">
-            {place.category_names.map((cat) => (
+          <div className="flex flex-wrap gap-2 mt-1">
+            {place.category_names.slice(0, 3).map((cat) => (
               <button
                 key={cat}
                 onClick={(e) => handleTagClick(e, cat)}

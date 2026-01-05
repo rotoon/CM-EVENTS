@@ -17,6 +17,9 @@ router.get("/types", placeController.getPlaceTypes);
 // GET /places/search - ค้นหา places
 router.get("/search", placeController.searchPlaces);
 
+// GET /places/photo - Proxy for Google Photos
+router.get("/photo", placeController.getPhotoProxy);
+
 // GET /places - ดึงรายการ places
 router.get("/", placeController.getPlaces);
 
