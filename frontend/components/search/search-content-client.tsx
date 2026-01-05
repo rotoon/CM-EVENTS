@@ -2,7 +2,7 @@
 
 import { EventsGrid } from '@/components/events-grid'
 import { useEventsPaginated, useSearchEvents } from '@/hooks/use-events'
-import { EventsResponse } from '@/lib/types'
+import { EventsResponse } from '@/types'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'

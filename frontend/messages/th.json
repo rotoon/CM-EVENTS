@@ -230,5 +230,28 @@
     "slay": "ชิลล์ยาว",
     "social": "โซเชียล",
     "reachIt": "ไปที่นี่"
+  },
+  "places": {
+    "searchPlaceholder": "ค้นหาสถานที่...",
+    "found": "พบ",
+    "places": "สถานที่",
+    "in": "ใน",
+    "page": "หน้า",
+    "of": "จาก",
+    "clearFilters": "ล้างตัวกรอง",
+    "noPlacesFound": "ไม่พบสถานที่",
+    "tryDifferent": "ลองใช้คำอื่นหรือตัวกรองอื่น",
+    "allPlaces": "สถานที่ทั้งหมด",
+    "loading": "กำลังโหลด...",
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "types": {
+      "all": "ทั้งหมด",
+      "cafe": "คาเฟ่",
+      "food": "อาหาร",
+      "restaurant": "ร้านอาหาร",
+      "travel": "ท่องเที่ยว",
+      "nightlife": "ไนท์ไลฟ์"
+    }
   }
 }

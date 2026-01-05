@@ -1,4 +1,4 @@
-import { EventWithImages } from "@/lib/types";
+import { EventWithImages } from "@/types";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";

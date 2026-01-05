@@ -1,7 +1,7 @@
 'use client'
 
 import { ButtonNeo } from '@/components/ui/button-neo'
-import { Event } from '@/lib/types'
+import { Event } from '@/types'
 import { ExternalLink, Share2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 

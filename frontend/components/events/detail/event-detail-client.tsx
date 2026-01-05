@@ -5,7 +5,7 @@ import { EventGallery } from "@/components/events/detail/event-gallery";
 import { EventHeader } from "@/components/events/detail/event-header";
 import { EventInfo } from "@/components/events/detail/event-info";
 import { useEventById } from "@/hooks/use-events";
-import { EventWithImages } from "@/lib/types";
+import { EventWithImages } from "@/types";
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";

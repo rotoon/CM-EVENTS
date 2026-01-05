@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-- **Goal**: Trip Planner UI/UX Refinement - Complete
+- **Goal**: Refactor Places to React Query
 - **Status**: Completed ✅
-- **Reason**: User requested premium UI/UX for Trip Planner
+- **Reason**: User requested refactor places code to use React Query with page-based pagination
 
 ## What's Working
 
@@ -60,14 +60,16 @@
 2. ✅ Implemented `FloatingStickers` for hero section.
 3. ✅ Refactored `TripPlannerForm` for card-based interactive selection.
 4. ✅ Refined `ItineraryView` with premium Neo-Brutalist design.
-   5.- ✅ Fixed 404 errors on Event Detail pages by refactoring routes to `/[locale]/events/[id]`.
-
-- ✅ Implemented automatic "Ended" status for events based on client-side date parsing (Shared utility).
-- ✅ Applied auto-ended logic to both `EventCardNeo` and `EventsMap` views.
-
-6. ✅ Fixed i18n context and QueryProvider restoration.
-7. ✅ Refined mobile responsiveness for all Trip Planner components.
-8. ✅ Upgraded `ItineraryView` to 10/10 Premium with Aurora UI and Lucide icons.
+5. ✅ Fixed 404 errors on Event Detail pages by refactoring routes to `/[locale]/events/[id]`.
+6. ✅ Implemented automatic "Ended" status for events based on client-side date parsing.
+7. ✅ Fixed i18n context and QueryProvider restoration.
+8. ✅ Refined mobile responsiveness for all Trip Planner components.
+9. ✅ Upgraded `ItineraryView` to 10/10 Premium with Aurora UI and Lucide icons.
+10. ✅ **Refactored Places to React Query** - Created `hooks/use-places.ts` with `usePlaces`, `usePlaceCategories`, `usePlaceTypes` hooks.
+11. ✅ Updated `places-grid.tsx` to use page-based pagination instead of infinite scroll.
+12. ✅ **Deep Refactored Places Components** - Split into sub-components: `theme.ts`, `place-search-bar.tsx`, `place-pagination.tsx`, `place-category-chips.tsx`, `place-type-tabs.tsx`, `index.ts`. Reduced code from 500+ to ~180 lines.
+13. ✅ Added i18n translations for Places (`places` namespace in th.json/en.json).
+14. ✅ **Refactored frontend/lib** - Created `api-config.ts` for shared API_BASE, moved types to `frontend/types/` folder with separate files (event.ts, place.ts, trip.ts, admin.ts, common.ts).
 
 ## Next Steps
 

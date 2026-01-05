@@ -230,5 +230,28 @@
     "slay": "SLAY",
     "social": "SOCIAL",
     "reachIt": "REACH IT"
+  },
+  "places": {
+    "searchPlaceholder": "FIND YOUR PLACE...",
+    "found": "FOUND",
+    "places": "PLACES",
+    "in": "IN",
+    "page": "Page",
+    "of": "/",
+    "clearFilters": "Clear Filters",
+    "noPlacesFound": "NO PLACES FOUND",
+    "tryDifferent": "Try different keywords or filters.",
+    "allPlaces": "ALL PLACES",
+    "loading": "LOADING...",
+    "previous": "PREV",
+    "next": "NEXT",
+    "types": {
+      "all": "ALL",
+      "cafe": "CAFE",
+      "food": "FOOD",
+      "restaurant": "RESTAURANT",
+      "travel": "TRAVEL",
+      "nightlife": "NIGHTLIFE"
+    }
   }
 }

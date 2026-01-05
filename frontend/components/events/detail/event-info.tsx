@@ -1,6 +1,6 @@
 "use client";
 
-import { Event } from "@/lib/types";
+import { Event } from "@/types";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";

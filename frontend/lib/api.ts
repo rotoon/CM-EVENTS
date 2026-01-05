@@ -1,16 +1,12 @@
+import { API_BASE } from "@/lib/api-config";
 import { sortByEndDate } from "@/lib/date-utils";
-import {
+import type {
   Category,
   Event,
   EventsResponse,
   EventStats,
   EventWithImages,
-} from "@/lib/types";
-
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://backend-production-14fd.up.railway.app"
-).replace(/\/$/, "");
+} from "@/types";
 
 export async function fetchEvents(month?: string): Promise<Event[]> {
   const params = new URLSearchParams();

@@ -1,3 +1,7 @@
+/**
+ * Event Types
+ */
+
 export interface Event {
   id: number;
   source_url: string;
@@ -39,22 +43,14 @@ export interface EventStats {
   topLocations: { location: string; count: number }[];
 }
 
-export interface Category {
-  id: string;
-  label: string;
-  keywords?: string[];
-}
-
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
 export interface EventsResponse {
   data: Event[];
-  pagination: Pagination;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }

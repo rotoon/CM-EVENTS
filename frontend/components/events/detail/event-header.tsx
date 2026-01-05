@@ -1,6 +1,6 @@
 'use client'
 
-import { Event } from '@/lib/types'
+import { Event } from '@/types'
 import { Calendar, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 

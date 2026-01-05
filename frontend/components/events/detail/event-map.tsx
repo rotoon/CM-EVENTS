@@ -1,6 +1,6 @@
 'use client'
 
-import { Event } from '@/lib/types'
+import { Event } from '@/types'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useTranslations } from 'next-intl'

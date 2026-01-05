@@ -1,7 +1,7 @@
 'use client'
 
 import { NEO_COLORS, TAG_KEYS } from '@/lib/constants'
-import { Event } from '@/lib/types'
+import { Event } from '@/types'
 import { CalendarDays, RefreshCw, SearchX } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { EventCardNeo } from './event-card-neo'

@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { SearchBar } from './search-bar'
 
-import { Event } from '@/lib/types'
+import { Event } from '@/types'
 
 interface HeroSectionProps {
   event?: Event

@@ -12,3 +12,6 @@
 | 2025-12-29 | Use next-intl for i18n                | Full routing support, SEO-friendly URLs, scalable for future.              |
 | 2025-12-30 | Standard Admin + Simple Password      | User chose standard complexity with env-based password auth.               |
 | 2025-12-30 | Clean Admin design for dashboard      | Separate from Neo-Brutalist public site for clarity.                       |
+| 2026-01-04 | React Query for Places                | Better caching, background updates, and page-based pagination UX.          |
+| 2026-01-04 | i18n for all UI text                  | All user-facing text in messages/\*.json, use useTranslations hook.        |
+| 2026-01-04 | Theme config for variants             | Centralize variant styles in theme.ts to avoid duplication.                |

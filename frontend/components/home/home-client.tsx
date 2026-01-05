@@ -5,7 +5,7 @@ import { EventsContent } from '@/components/events/events-content'
 import { HeroSection } from '@/components/hero-section'
 import { useSearchParams } from 'next/navigation'
 
-import { Event } from '@/lib/types'
+import { Event } from '@/types'
 
 interface HomeClientProps {
   heroEvent?: Event

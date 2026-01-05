@@ -1,5 +1,5 @@
 import { parseThaiDateToISO } from '@/lib/date-utils'
-import { EventWithImages } from '@/lib/types'
+import { EventWithImages } from '@/types'
 
 export function EventSchema({ event }: { event: EventWithImages }) {
   const schema = {

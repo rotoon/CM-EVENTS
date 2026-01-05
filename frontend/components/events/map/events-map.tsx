@@ -2,7 +2,7 @@
 
 import { TAGS } from "@/lib/constants";
 import { isEventEnded } from "@/lib/date-utils";
-import { Event } from "@/lib/types";
+import { Event } from "@/types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
