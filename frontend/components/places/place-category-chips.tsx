@@ -36,11 +36,19 @@ export function PlaceCategoryChips({
   const selectedCategories = filter.categories || [];
 
   // Group categories by tag type
-  const tagNames = categories.slice(0, 24).map((c) => c.category);
+  const tagNames = categories.map((c) => c.category);
   const grouped = groupTagsByCategory(tagNames);
 
-  // Order of groups to display
-  const groupOrder: TagCategory[] = ["location", "food", "feature", "other"];
+  // Order of groups to display (ไม่รวม excluded)
+  const groupOrder: TagCategory[] = [
+    "location",
+    "food",
+    "cuisine",
+    "feature",
+    "recommend",
+    "accommodation",
+    "other",
+  ];
 
   // Toggle category selection (multi-select)
   const handleClick = (category: string) => {

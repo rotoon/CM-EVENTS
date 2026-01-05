@@ -44,11 +44,6 @@ export function PlaceCard({
       ? place.cover_image_url
       : stickerImage;
 
-  const hasImage = !!(
-    place.cover_image_url ||
-    (place.images && place.images.length > 0)
-  );
-
   const isSticker = displayImage === stickerImage;
 
   const isFeatured = variant === "featured";
@@ -75,9 +70,7 @@ export function PlaceCard({
       <div
         className={cn(
           "relative w-full border-b-4 border-neo-black overflow-hidden",
-          variant === "travel"
-            ? "aspect-[3/4] border-none rounded-sm shadow-xl"
-            : "aspect-[4/3]",
+          "aspect-[4/3] border-none rounded-sm shadow-xl",
           isSticker
             ? "bg-neo-black/5 p-8 flex items-center justify-center"
             : "bg-gray-100"

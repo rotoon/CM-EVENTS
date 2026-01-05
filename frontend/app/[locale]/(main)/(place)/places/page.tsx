@@ -42,8 +42,6 @@ export default async function PlacesPage(props: {
     fetchPlaceTypes(),
   ]);
 
-  const totalPlaces = (placeTypes || []).reduce((sum, t) => sum + t.count, 0);
-
   return (
     <main className="min-h-screen bg-white relative overflow-hidden">
       {/* Grid Pattern Background */}

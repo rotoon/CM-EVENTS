@@ -37,6 +37,10 @@ const EXCLUDED_CATEGORIES = [
   "suratcafe",
   "surattravel",
   "suratrecommend",
+  "khanom",
+  "khanomcafe",
+  "khanomfood",
+  "khanomwheretostay",
 ];
 
 export const placeRepository = {
@@ -82,10 +86,13 @@ export const placeRepository = {
           some: { category: categoryList[0] },
         };
       } else if (categoryList.length > 1) {
-        // OR logic: match places that have ANY of the selected categories
-        where.categories = {
-          some: { category: { in: categoryList } },
-        };
+        // AND logic: match places that have ALL of the selected categories
+        // ต้องมีทุก tags ที่เลือก
+        where.AND = categoryList.map((cat) => ({
+          categories: {
+            some: { category: cat },
+          },
+        }));
       }
     }
 
