@@ -80,21 +80,24 @@ export function EventGallery({ event }: EventGalleryProps) {
       {/* Grid Images */}
       {images.length > 0 && (
         <div className="grid grid-cols-2 gap-4">
-          {images.map((img, idx) => (
-            <div
-              key={img.id}
-              className="relative aspect-square border-4 border-neo-black bg-white shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-zoom-in overflow-hidden group"
-              onClick={() => setSelectedImage(img.image_url)}
-            >
-              <Image
-                src={img.image_url}
-                alt={`${event.title} - view ${idx + 1}`}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                sizes="(max-width: 768px) 50vw, 33vw"
-              />
-            </div>
-          ))}
+          {images.map(
+            (img, idx) =>
+              idx !== 0 && (
+                <div
+                  key={img.id}
+                  className="relative aspect-square border-4 border-neo-black bg-white shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-zoom-in overflow-hidden group"
+                  onClick={() => setSelectedImage(img.image_url)}
+                >
+                  <Image
+                    src={img.image_url}
+                    alt={`${event.title} - view ${idx + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                  />
+                </div>
+              )
+          )}
         </div>
       )}
     </div>

@@ -97,6 +97,7 @@ export const placeRepository = {
       where,
       include: {
         categories: true,
+        images: true,
       },
       orderBy: [{ post_date: "desc" }, { likes: "desc" }],
       take: limit,
@@ -128,6 +129,7 @@ export const placeRepository = {
       where: { id },
       include: {
         categories: true,
+        images: true,
       },
     });
 
@@ -216,6 +218,7 @@ export const placeRepository = {
       },
       include: {
         categories: true,
+        images: true,
       },
       orderBy: { likes: "desc" },
       take: limit,

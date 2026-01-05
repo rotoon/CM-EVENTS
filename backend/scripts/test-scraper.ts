@@ -2,22 +2,19 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import "dotenv/config";
-import prisma from "../lib/prisma";
-import { scraperLogger } from "../utils/logger";
+
+const url =
+  "https://www.cmhy.city/event/1695-Chiang-Mai-International-Food-Festival-2026-CMFF";
 
 // ============================================================================
-// Constants
+// Logic copied from detail-scraper.service.ts
 // ============================================================================
+
 const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 ];
-
-interface EventDetail {
-  id: number;
-  source_url: string;
-}
 
 function getRandomUserAgent(): string {
   return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
@@ -46,9 +43,6 @@ function getBrowserHeaders(url: string) {
   };
 }
 
-// ============================================================================
-// AI Enhancement (Gemini)
-// ============================================================================
 async function rewriteDescriptionWithAI(
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
   rawHTML: string
@@ -72,26 +66,31 @@ async function rewriteDescriptionWithAI(
     const markdown = result.response.text().trim();
     return markdown || rawHTML;
   } catch (err: unknown) {
-    scraperLogger.warn({ err }, "AI rewrite failed");
+    console.error("⚠️ AI rewrite failed:", err);
     return rawHTML;
   }
 }
 
 // ============================================================================
-// Scrape Event Detail
+// Test Runner
 // ============================================================================
-async function scrapeEventDetail(
-  model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
-  event: EventDetail
-) {
-  scraperLogger.debug(
-    { eventId: event.id, url: event.source_url },
-    "Scraping detail"
-  );
+
+async function scrapeReal() {
+  console.log("🚀 Starting Full Scraper Test (with AI) for:", url);
+  console.log("----------------------------------------");
+
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("❌ Missing GEMINI_API_KEY in .env");
+    return;
+  }
+
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
   try {
-    const { data } = await axios.get(event.source_url, {
-      headers: getBrowserHeaders(event.source_url),
+    const { data } = await axios.get(url, {
+      headers: getBrowserHeaders(url),
+      timeout: 10000,
     });
 
     const $ = cheerio.load(data);
@@ -119,7 +118,7 @@ async function scrapeEventDetail(
           }
         }
       } catch (e) {
-        scraperLogger.warn({ err: e }, "Failed to parse JSON-LD");
+        console.error("⚠️ Failed to parse JSON-LD:", e);
       }
     }
 
@@ -161,7 +160,10 @@ async function scrapeEventDetail(
     contentSection.find("style").remove(); // Styles
 
     // What remains should be the description paragraphs
-    const descriptionHtml = contentSection.html() || "";
+    let descriptionHtml = contentSection.html() || "";
+
+    // Clean description for logging
+    const cleanDesc = contentSection.text().trim().substring(0, 100) + "...";
 
     const bannerSrc = $("img.activity-image").attr("src") || "";
     const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
@@ -190,164 +192,40 @@ async function scrapeEventDetail(
       });
     }
 
-    scraperLogger.debug(
-      { eventId: event.id, images: imageUrls.size },
-      "Found images"
-    );
-
+    // 3. AI Processing
+    console.log("🤖 Generating AI Description...");
     const enhancedDescription = await rewriteDescriptionWithAI(
       model,
       descriptionHtml
     );
 
-    // Update event details using Prisma
-    await prisma.events.update({
-      where: { id: event.id },
-      data: {
-        cover_image_url: bannerSrc || undefined,
-        description: descriptionHtml.replace(/<[^>]*>?/gm, "").trim(),
-        description_markdown: enhancedDescription,
-        time_text: timeText,
-        latitude: lat,
-        longitude: lng,
-        google_maps_url: mapLink,
-        facebook_url: facebookLink,
-        is_ended: isEnded,
-        is_fully_scraped: true,
-        last_updated_at: new Date(),
-      },
-    });
-
-    // Delete existing images for this event
-    await prisma.event_images.deleteMany({
-      where: { event_id: event.id },
-    });
-
-    // Insert new images
-    if (imageUrls.size > 0) {
-      await prisma.event_images.createMany({
-        data: Array.from(imageUrls).map((url) => ({
-          event_id: event.id,
-          image_url: url,
-        })),
-      });
-    }
-
-    scraperLogger.info(
-      { eventId: event.id, images: imageUrls.size },
-      "Detail saved"
+    // 4. Output Results
+    console.log("\n📌 Basic Info:");
+    console.log("   - Time:", timeText);
+    console.log("   - Map:", mapLink);
+    console.log("   - FB:", facebookLink);
+    console.log(`   - Lat/Lng: ${lat}, ${lng}`);
+    console.log(`   - Ended: ${isEnded}`);
+    console.log(`   - Desc (First 100 chars): ${cleanDesc}`);
+    console.log("\n🖼️  Images:");
+    console.log("   - Banner:", bannerSrc);
+    console.log(`   - Total Unique Images: ${imageUrls.size}`);
+    console.log("   - List:");
+    Array.from(imageUrls).forEach((img, i) =>
+      console.log(`     [${i}] ${img}`)
     );
 
-    return true;
+    console.log("\n🧠 AI Enhanced Description:");
+    console.log("----------------------------------------");
+    console.log(enhancedDescription);
+    console.log("----------------------------------------");
   } catch (err: unknown) {
-    scraperLogger.error({ err, eventId: event.id }, "Failed to scrape detail");
-    return false;
-  }
-}
-
-// ============================================================================
-// Main Runner
-// ============================================================================
-export async function runDetailScraper(limit: number = 10) {
-  if (!process.env.GEMINI_API_KEY) {
-    scraperLogger.error("Missing GEMINI_API_KEY. Skipping detail scraper.");
-    return { scraped: 0, remaining: 0 };
-  }
-
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
-
-  const rows = await prisma.events.findMany({
-    where: { is_fully_scraped: false },
-    orderBy: { id: "desc" },
-    take: limit,
-    select: { id: true, source_url: true },
-  });
-
-  if (rows.length === 0) {
-    scraperLogger.info("All events have been fully scraped");
-    return { scraped: 0, remaining: 0 };
-  }
-
-  scraperLogger.info({ count: rows.length }, "Events needing detail scraping");
-
-  let totalScraped = 0;
-
-  for (const event of rows) {
-    const success = await scrapeEventDetail(model, event as EventDetail);
-    if (success) {
-      totalScraped++;
+    if (axios.isAxiosError(err)) {
+      console.error("❌ Axios Error:", err.message, err.response?.status);
+    } else {
+      console.error("❌ Error:", err);
     }
-    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-
-  const remaining = await prisma.events.count({
-    where: { is_fully_scraped: false },
-  });
-
-  scraperLogger.info(
-    { scraped: totalScraped, remaining },
-    "Detail scrape batch completed"
-  );
-  return { scraped: totalScraped, remaining };
 }
 
-// ============================================================================
-// Scraper for specific month
-// ============================================================================
-export async function runDetailScraperForMonth(
-  year: number,
-  month: number, // 1-12
-  limit: number = 50
-) {
-  if (!process.env.GEMINI_API_KEY) {
-    scraperLogger.error("Missing GEMINI_API_KEY. Skipping detail scraper.");
-    return { scraped: 0, remaining: 0 };
-  }
-
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
-
-  const startDate = new Date(year, month - 1, 1);
-  const endDate = new Date(year, month, 0, 23, 59, 59);
-
-  scraperLogger.info(
-    { startDate, endDate },
-    "Running detail scraper for specific month"
-  );
-
-  const rows = await prisma.events.findMany({
-    where: {
-      start_date: {
-        gte: startDate,
-        lte: endDate,
-      },
-    },
-    orderBy: { id: "desc" },
-    take: limit,
-    select: { id: true, source_url: true },
-  });
-
-  if (rows.length === 0) {
-    scraperLogger.info("No events found for this month");
-    return { scraped: 0, count: 0 };
-  }
-
-  scraperLogger.info(
-    { count: rows.length },
-    "Events found for month needing scrape"
-  );
-
-  let totalScraped = 0;
-
-  for (const event of rows) {
-    // Re-scrape all events in this month (since logic updated)
-    const success = await scrapeEventDetail(model, event as EventDetail);
-    if (success) {
-      totalScraped++;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
-
-  return { scraped: totalScraped, totalFound: rows.length };
-}
+scrapeReal();

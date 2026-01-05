@@ -14,8 +14,19 @@ import type {
   PlaceTypeCount,
 } from "@/lib/api-places";
 import { cn } from "@/lib/utils";
+import { Grid, Map as MapIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
+
+const PlacesMap = dynamic(() => import("./places-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[600px] bg-gray-100 flex items-center justify-center border-4 border-neo-black shadow-neo animate-pulse">
+      <span className="font-black text-xl text-neo-black">LOADING MAP...</span>
+    </div>
+  ),
+});
 
 const ITEMS_PER_PAGE = 20;
 
@@ -47,6 +58,7 @@ export function PlacesGrid({
   const [filter, setFilter] = useState<PlaceFilter>(initialFilter);
   const [searchQuery, setSearchQuery] = useState(initialFilter.search || "");
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   // Theme
   const theme = getVariantTheme(variant);
@@ -138,8 +150,8 @@ export function PlacesGrid({
         variant={variant}
       />
 
-      {/* Results Count */}
-      <div className="flex items-center justify-between border-b-2 border-white/20 pb-4">
+      {/* Results Count & Map Toggle */}
+      <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-white/20 pb-4 gap-4">
         <p className={cn("text-lg font-mono", theme.resultsText)}>
           {t("found")}{" "}
           <span className={cn("font-bold text-2xl", theme.resultsCount)}>
@@ -157,21 +169,50 @@ export function PlacesGrid({
             </span>
           )}
         </p>
-        {/* Clear Filters - show only when filter differs from initial */}
-        {(filter.category ||
-          filter.categories?.length ||
-          filter.search ||
-          filter.place_type !== initialFilter.place_type) && (
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              applyFilter({ ...initialFilter, categories: undefined });
-            }}
-            className="text-sm font-bold text-white hover:text-neo-pink underline decoration-2 underline-offset-4 cursor-pointer uppercase"
-          >
-            {t("clearFilters")}
-          </button>
-        )}
+
+        <div className="flex items-center gap-4">
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "p-2 transition-colors border-r-2 border-neo-black",
+                viewMode === "grid"
+                  ? "bg-neo-black text-white"
+                  : "bg-white text-neo-black hover:bg-gray-100"
+              )}
+            >
+              <Grid className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setViewMode("map")}
+              className={cn(
+                "p-2 transition-colors",
+                viewMode === "map"
+                  ? "bg-neo-black text-white"
+                  : "bg-white text-neo-black hover:bg-gray-100"
+              )}
+            >
+              <MapIcon className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Clear Filters - show only when filter differs from initial */}
+          {(filter.category ||
+            filter.categories?.length ||
+            filter.search ||
+            filter.place_type !== initialFilter.place_type) && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                applyFilter({ ...initialFilter, categories: undefined });
+              }}
+              className="text-sm font-bold text-white hover:text-neo-pink underline decoration-2 underline-offset-4 cursor-pointer uppercase"
+            >
+              {t("clearFilters")}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Loading overlay */}
@@ -192,8 +233,10 @@ export function PlacesGrid({
         </div>
       )}
 
-      {/* Places Grid */}
-      {places.length > 0 ? (
+      {/* Places Content (Grid or Map) */}
+      {viewMode === "map" ? (
+        <PlacesMap places={places} variant={variant} />
+      ) : places.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {places.map((place, index) => (
             <PlaceCard
@@ -227,13 +270,15 @@ export function PlacesGrid({
         </div>
       )}
 
-      {/* Pagination */}
-      <PlacePagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        variant={variant}
-      />
+      {/* Pagination (Hide in Map Mode?) - Maybe keep it */}
+      {viewMode === "grid" && (
+        <PlacePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          variant={variant}
+        />
+      )}
     </div>
   );
 }

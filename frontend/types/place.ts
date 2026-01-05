@@ -20,12 +20,20 @@ export interface Place {
   updated_at: string | null;
   categories: PlaceCategory[];
   category_names: string[];
+  images: PlaceImage[];
 }
 
 export interface PlaceCategory {
   id: number;
   place_id: number;
   category: string;
+}
+
+export interface PlaceImage {
+  id: number;
+  place_id: number;
+  image_url: string;
+  caption: string | null;
 }
 
 export interface PlacesResponse {

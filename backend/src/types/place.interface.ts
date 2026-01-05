@@ -28,8 +28,16 @@ export interface PlaceCategory {
   category: string;
 }
 
+export interface PlaceImage {
+  id: number;
+  place_id: number;
+  image_url: string;
+  caption: string | null;
+}
+
 export interface PlaceWithCategories extends Place {
   category_names: string[];
+  images?: PlaceImage[];
 }
 
 export interface PlaceFilters {
