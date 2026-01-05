@@ -7,6 +7,7 @@
 import type { PlaceFilter, PlaceTypeCount } from "@/lib/api-places";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { TYPE_EMOJI } from "./theme";
 
 interface PlaceTypeTabsProps {
@@ -23,7 +24,7 @@ export function PlaceTypeTabs({
   totalPlaces,
 }: PlaceTypeTabsProps) {
   const t = useTranslations("places");
-
+  const router = useRouter();
   const tabBase = cn(
     "flex items-center gap-2 px-6 py-3 font-bold whitespace-nowrap cursor-pointer transition-all duration-200 border-2",
     "uppercase tracking-tight shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]"
@@ -34,11 +35,11 @@ export function PlaceTypeTabs({
   const inactiveStyles = "bg-white text-black border-black hover:bg-gray-100";
 
   return (
-    <div className="sticky top-[80px] z-30 -mx-4 px-4 py-4 bg-neo-black/95 backdrop-blur-md border-b-4 border-neo-black/50">
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="sticky top-0 md:top-[150px] z-30 -mx-4 px-4 py-4 bg-neo-black/80 backdrop-blur-md border-b-4 border-neo-black/50 transition-all">
+      <div className="flex flex-wrap gap-3 pb-2 justify-center">
         {/* All Tab */}
         <button
-          onClick={() => onFilterChange({ ...filter, place_type: undefined })}
+          onClick={() => router.push("/places")}
           className={cn(
             tabBase,
             !filter.place_type ? activeStyles : inactiveStyles
@@ -56,13 +57,7 @@ export function PlaceTypeTabs({
           <button
             key={type.place_type}
             onClick={() =>
-              onFilterChange({
-                ...filter,
-                place_type:
-                  filter.place_type === type.place_type
-                    ? undefined
-                    : type.place_type,
-              })
+              router.push(`/${type.place_type.toLocaleLowerCase()}`)
             }
             className={cn(
               tabBase,

@@ -246,6 +246,7 @@
     "loading": "LOADING...",
     "previous": "PREV",
     "next": "NEXT",
+    "viewPlace": "View Place",
     "types": {
       "all": "ALL",
       "cafe": "CAFE",
@@ -253,6 +254,72 @@
       "restaurant": "RESTAURANT",
       "travel": "TRAVEL",
       "nightlife": "NIGHTLIFE"
+    },
+    "cafe": {
+      "hashtag": "#CAFE_HOPPING_CNX",
+      "title": "The Art of Slow Bar",
+      "subtitle": "Chiang Mai • Coffee Culture",
+      "description": "Curated spaces for focus, conversation, and exceptional coffee.",
+      "meta": {
+        "title": "Best Cafes in Chiang Mai | Hype CNX",
+        "description": "Discover the best cafes in Chiang Mai. Specialty coffee, cozy vibes, and work-friendly spaces."
+      }
+    },
+    "food": {
+      "hashtag": "#STREET_EATS_CNX",
+      "title": "Aroi Mak Mak",
+      "subtitle": "Chiang Mai • Street Eats",
+      "description": "From spicy street stalls to legendary local spots.",
+      "meta": {
+        "title": "Street Food & Local Eats Chiang Mai | Hype CNX",
+        "description": "Must-try street food and local restaurants in Chiang Mai. Khao Soi, Sai Ua, Hang Le, and more."
+      }
+    },
+    "restaurant": {
+      "hashtag": "#FINE_DINING_CNX",
+      "title": "Culinary Excellence",
+      "subtitle": "Chiang Mai • Fine Dining",
+      "description": "Experience the pinnacle of gastronomy in an atmosphere of refined elegance.",
+      "meta": {
+        "title": "Fine Dining & Restaurants Chiang Mai | Hype CNX",
+        "description": "Discover premium dining experiences and top-rated restaurants in Chiang Mai."
+      }
+    },
+    "travel": {
+      "hashtag": "#DISCOVER_CNX",
+      "title": "Discover Chiang Mai",
+      "subtitle": "The Unseen Journey",
+      "description": "Experience the timeless elegance of Northern Thailand, where golden temples meet the endless blue sky.",
+      "meta": {
+        "title": "Travel & Nature Chiang Mai | Hype CNX",
+        "description": "Explore waterfalls, mountains, and hidden gems in Chiang Mai nature."
+      }
+    },
+    "nightlife": {
+      "hashtag": "#NIGHT_CNX",
+      "title": "Nightlife",
+      "subtitle": "Until Morning • Underground",
+      "description": "Best bars, clubs, and nightlife spots in Chiang Mai.",
+      "meta": {
+        "title": "Chiang Mai Nightlife & Bars | Hype CNX",
+        "description": "Best bars, clubs, and nightlife spots in Chiang Mai. Party guide and happy hour deals."
+      }
+    },
+    "main": {
+      "hero": {
+        "title1": "PLACES",
+        "title2": "TO VIBE",
+        "subtitle1": "Discover the best spots in CNX",
+        "subtitle2": "Curated by Locals"
+      },
+      "header": {
+        "title": "EXPLORE PLACES",
+        "subtitle": "RESTAURANTS • CAFES • ATTRACTIONS"
+      },
+      "meta": {
+        "title": "Restaurants, Cafes & Places Chiang Mai | Hype CNX",
+        "description": "Discover over 700 restaurants, cafes, travel spots, and bars in Chiang Mai. Curated by Newbie.CNX"
+      }
     }
   }
 }

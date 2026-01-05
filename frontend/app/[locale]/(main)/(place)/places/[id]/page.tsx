@@ -1,15 +1,10 @@
+import { PlaceDetailMap } from "@/components/places/place-detail-map";
+import { PlaceGallery } from "@/components/places/place-gallery";
 import { fetchPlaceById } from "@/lib/api-places";
 import { cn } from "@/lib/utils";
-import {
-  ArrowLeft,
-  Calendar,
-  ExternalLink,
-  Heart,
-  Instagram,
-  MapPin,
-  MessageCircle,
-} from "lucide-react";
+import { ArrowLeft, ImageIcon } from "lucide-react";
 import type { Metadata } from "next";
+// Removed dynamic import since we use a Client Component wrapper now
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -67,14 +62,20 @@ export default async function PlaceDetailPage({ params }: PageProps) {
     text: "text-black",
   };
 
-  // Format date
-  const postDate = place.post_date
-    ? new Date(place.post_date).toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : null;
+  const images = place.images || [];
+  // Ensure cover image is included if no images or distinct
+  const allImages = [...images];
+  if (
+    place.cover_image_url &&
+    !allImages.find((img) => img.image_url === place.cover_image_url)
+  ) {
+    allImages.unshift({
+      id: 0,
+      place_id: place.id,
+      image_url: place.cover_image_url,
+      caption: null,
+    });
+  }
 
   return (
     <main className="min-h-screen bg-neo-black text-white relative overflow-hidden">
@@ -87,7 +88,7 @@ export default async function PlaceDetailPage({ params }: PageProps) {
       ></div>
 
       {/* Back Navigation */}
-      <div className="sticky top-0 z-10 bg-neo-black/80 backdrop-blur-md border-b-4 border-neo-black">
+      <div className="sticky top-0 z-20 bg-neo-black/80 backdrop-blur-md border-b-4 border-neo-black shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <Link
             href="/places"
@@ -99,12 +100,12 @@ export default async function PlaceDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-8 pb-12">
+      {/* Detail Content */}
+      <section className="relative z-10 py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left: Info */}
-            <div className="space-y-6">
+          <div className="space-y-16">
+            {/* 1. Info Section */}
+            <div className="space-y-6 max-w-4xl">
               {/* Type Badge */}
               <span
                 className={cn(
@@ -122,147 +123,38 @@ export default async function PlaceDetailPage({ params }: PageProps) {
                 {place.name}
               </h1>
 
-              {/* Stats */}
-              <div className="flex flex-wrap gap-4">
-                {place.likes !== null && place.likes > 0 && (
-                  <div className="inline-flex items-center gap-2 px-4 py-3 bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_#ccff00] text-black">
-                    <Heart className="w-5 h-5 fill-neo-pink text-black" />
-                    <span className="font-mono font-bold">
-                      {place.likes >= 1000
-                        ? `${(place.likes / 1000).toFixed(1)}k`
-                        : place.likes}{" "}
-                      LIKES
-                    </span>
-                  </div>
-                )}
-                {place.comments !== null && place.comments > 0 && (
-                  <div className="inline-flex items-center gap-2 px-4 py-3 bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_#00ffff] text-black">
-                    <MessageCircle className="w-5 h-5 fill-neo-cyan text-black" />
-                    <span className="font-mono font-bold">
-                      {place.comments} COMMENTS
-                    </span>
-                  </div>
-                )}
-                {postDate && (
-                  <div className="inline-flex items-center gap-2 px-4 py-3 bg-white border-2 border-neo-black shadow-[4px_4px_0px_0px_#d946ef] text-black">
-                    <Calendar className="w-5 h-5 text-black" />
-                    <span className="font-mono font-bold">{postDate}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right: Actions / Quick Links */}
-            <div className="flex flex-col gap-4 lg:items-end">
-              <div className="bg-white border-4 border-neo-black shadow-[8px_8px_0px_0px_#ccff00] p-6 max-w-sm w-full rotate-2 hover:rotate-0 transition-transform duration-300">
-                <h3 className="font-display font-black text-2xl text-black uppercase mb-4 italic">
-                  QUICK LINKS
-                </h3>
-                <div className="space-y-3">
-                  {/* Instagram */}
-                  {place.instagram_url && (
-                    <a
-                      href={place.instagram_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 w-full px-5 py-4 bg-neo-pink border-2 border-neo-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-white font-bold uppercase"
-                    >
-                      <Instagram className="w-5 h-5" />
-                      VIEW ON INSTAGRAM
-                      <ExternalLink className="w-4 h-4 ml-auto" />
-                    </a>
-                  )}
-
-                  {/* Google Maps */}
-                  {place.google_maps_url ? (
-                    <a
-                      href={place.google_maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 w-full px-5 py-4 bg-neo-lime border-2 border-neo-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-black font-bold uppercase"
-                    >
-                      <MapPin className="w-5 h-5" />
-                      OPEN MAPS
-                      <ExternalLink className="w-4 h-4 ml-auto" />
-                    </a>
-                  ) : (
-                    <a
-                      href={`https://www.google.com/maps/search/${encodeURIComponent(
-                        place.name + " เชียงใหม่"
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 w-full px-5 py-4 bg-neo-cyan border-2 border-neo-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all text-black font-bold uppercase"
-                    >
-                      <MapPin className="w-5 h-5" />
-                      SEARCH MAPS
-                      <ExternalLink className="w-4 h-4 ml-auto" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Content Section */}
-      <section className="relative z-10 pb-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-white border-4 border-neo-black shadow-[12px_12px_0px_0px_#ffffff] p-6 md:p-10 max-w-4xl mx-auto">
-            {/* Description */}
-            {place.description && (
-              <div className="mb-10">
-                <h2 className="font-display font-black text-3xl text-black uppercase mb-6 flex items-center gap-3">
-                  <span className="w-4 h-4 bg-neo-lime border-2 border-neo-black"></span>
-                  DETAILS
-                </h2>
-                <div className="font-mono text-lg text-gray-800 leading-relaxed whitespace-pre-wrap border-l-4 border-neo-lime pl-6">
-                  {place.description}
-                </div>
-              </div>
-            )}
-
-            {/* Categories */}
-            {place.category_names && place.category_names.length > 0 && (
-              <div>
-                <h2 className="font-display font-black text-3xl text-black uppercase mb-6 flex items-center gap-3">
-                  <span className="w-4 h-4 bg-neo-pink border-2 border-neo-black"></span>
-                  TAGS
-                </h2>
+              {/* Categories */}
+              {place.category_names && place.category_names.length > 0 && (
                 <div className="flex flex-wrap gap-3">
                   {place.category_names.map((cat) => (
                     <Link
                       key={cat}
                       href={`/places?category=${cat}`}
-                      className="px-4 py-2 text-sm font-bold uppercase tracking-wider bg-neo-black text-white border-2 border-transparent hover:bg-neo-lime hover:text-black hover:border-neo-black hover:-translate-y-1 transition-all"
+                      className="px-4 py-2 text-sm font-bold uppercase tracking-wider bg-neo-black text-white border-2 border-white/20 hover:bg-neo-lime hover:text-black hover:border-neo-black transition-all"
                     >
                       #{cat}
                     </Link>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Credit */}
-            <div className="mt-12 pt-6 border-t-4 border-gray-100 flex items-center justify-between flex-wrap gap-4">
-              <p className="font-mono text-sm text-gray-500">
-                DATA CURATED BY{" "}
-                <a
-                  href="https://www.instagram.com/newbie.cnx/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-black hover:text-neo-pink hover:underline"
-                >
-                  @NEWBIE.CNX
-                </a>
-              </p>
-              <div className="flex gap-2">
-                <div className="w-3 h-3 bg-neo-lime border border-neo-black"></div>
-                <div className="w-3 h-3 bg-neo-pink border border-neo-black"></div>
-                <div className="w-3 h-3 bg-neo-cyan border border-neo-black"></div>
-              </div>
+              )}
             </div>
+
+            {/* 2. Gallery Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-neo-pink p-2 border-2 border-neo-black shadow-[4px_4px_0px_0px_#ffffff] -rotate-3">
+                  <ImageIcon className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-3xl font-black uppercase italic">
+                  GALLERY
+                </h2>
+              </div>
+
+              <PlaceGallery images={allImages} placeName={place.name} />
+            </div>
+          </div>
+          <div className="mt-6">
+            <PlaceDetailMap place={place} />
           </div>
         </div>
       </section>

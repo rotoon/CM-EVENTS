@@ -90,6 +90,10 @@ export function NavbarNeo() {
                   <ul className="grid w-[240px] gap-3 p-4 bg-white border-4 border-neo-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                     {[
                       {
+                        title: "All Places",
+                        href: "/places",
+                      },
+                      {
                         title: "Cafe",
                         href: "/cafe",
                       },

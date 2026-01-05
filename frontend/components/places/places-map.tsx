@@ -30,11 +30,12 @@ const MAP_THEMES: Record<
   }
 > = {
   default: {
-    tileUrl: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    bgColor: "#212121",
-    markerColor: "bg-neo-lime text-black",
-    markerBorder: "border-white",
-    markerGlow: "shadow-[0_0_10px_rgba(204,255,0,0.6)]",
+    tileUrl:
+      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    bgColor: "#ffffff",
+    markerColor: "bg-neo-pink text-white",
+    markerBorder: "border-neo-black",
+    markerGlow: "shadow-[0_0_10px_rgba(255,0,110,0.4)]",
   },
   featured: {
     tileUrl: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
@@ -80,6 +81,14 @@ const MAP_THEMES: Record<
     markerBorder: "border-[#00FFFF]",
     markerGlow: "shadow-[0_0_15px_#FF0080]",
   },
+  places: {
+    tileUrl:
+      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    bgColor: "#ffffff",
+    markerColor: "bg-neo-pink text-white",
+    markerBorder: "border-neo-black",
+    markerGlow: "shadow-[0_0_10px_rgba(255,0,110,0.4)]",
+  },
 };
 
 // Custom Neo-Brutalist Marker Factory
@@ -98,15 +107,16 @@ const createCustomIcon = (theme: (typeof MAP_THEMES)["default"]) => {
 interface PlacesMapProps {
   places: Place[];
   variant?: string; // PlaceVariant
+  center?: [number, number];
+  zoom?: number;
 }
 
 export default function PlacesMap({
   places,
   variant = "default",
+  center = [18.7883, 98.9853], // Default: Chiang Mai Old City
+  zoom = 13,
 }: PlacesMapProps) {
-  // Default center: Chiang Mai Old City
-  const center: [number, number] = [18.7883, 98.9853];
-
   // Get Theme Config
   const mapTheme = MAP_THEMES[variant] || MAP_THEMES.default;
 
@@ -138,12 +148,12 @@ export default function PlacesMap({
 
   return (
     <div
-      className={`w-full h-[600px] border-4 border-neo-black shadow-neo relative z-10 my-8`}
+      className={`w-full h-[600px] border-4 border-neo-black shadow-neo relative z-10`}
       style={{ borderColor: variant === "nightlife" ? "#FF0080" : "" }}
     >
       <MapContainer
         center={center}
-        zoom={13}
+        zoom={zoom}
         scrollWheelZoom={false}
         className="w-full h-full"
         style={{ background: mapTheme.bgColor }}

@@ -5,12 +5,36 @@ import {
   fetchPlaceTypes,
 } from "@/lib/api-places";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
-export const metadata: Metadata = {
-  title: "Cafe Hopping Chiang Mai | Hype CNX",
-  description:
-    "Best cafes in Chiang Mai. Specialty coffee, cozy vibes, and work-friendly spaces.",
+type Props = {
+  params: Promise<{ locale: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "places.cafe.meta" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      type: "website",
+      locale: locale === "th" ? "th_TH" : "en_US",
+    },
+    keywords: [
+      "คาเฟ่เชียงใหม่",
+      "cafe chiang mai",
+      "coffee shop",
+      "specialty coffee",
+      "working space",
+      "nimman cafe",
+    ],
+  };
+}
 
 export default async function CafePage() {
   const [placesResponse, categories, placeTypes] = await Promise.all([
@@ -24,10 +48,13 @@ export default async function CafePage() {
       {/* Hero Section */}
       <div className="relative h-[60vh] overflow-hidden">
         <div className="absolute inset-0 bg-black/50 z-10" />
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop"
           alt="Chiang Mai Cafe"
-          className="w-full h-full object-cover"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
         />
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
           <div className="inline-block bg-[#FDFBF7]/95 backdrop-blur-md text-[#2C1810] px-6 py-2 rounded-full font-bold uppercase tracking-[0.2em] text-xs mb-6 shadow-sm border border-[#E5E5E5]">

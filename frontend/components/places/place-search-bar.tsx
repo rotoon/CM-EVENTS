@@ -46,8 +46,8 @@ export function PlaceSearchBar({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSearch()}
           className={cn(
-            "relative w-full px-6 py-5 pl-16",
-            "text-2xl uppercase font-display placeholder:text-gray-300 focus:outline-none transition-all duration-200",
+            "relative w-full px-4 py-4 md:px-6 md:py-5 pl-12 md:pl-16",
+            "text-lg md:text-2xl uppercase font-display placeholder:text-gray-300 focus:outline-none transition-all duration-200",
             theme.searchInput
           )}
         />

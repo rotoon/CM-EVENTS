@@ -10,7 +10,8 @@ export type PlaceVariant =
   | "restaurant"
   | "travel"
   | "nightlife"
-  | "featured";
+  | "featured"
+  | "places";
 
 // Emoji mapping for place types
 export const TYPE_EMOJI: Record<string, string> = {
@@ -261,41 +262,39 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
   travel: {
     searchGlow: "bg-[#FFD700]/20",
     searchInput:
-      "bg-[#0E1C36]/80 border-b-2 border-[#FFD700]/50 backdrop-blur-md text-[#FFD700] font-serif placeholder:text-white/40 focus:bg-[#0E1C36] focus:border-[#FFD700] transition-colors pl-12 rounded-none shadow-lg",
+      "bg-[#0E1C36] border-b-2 border-[#FFD700]/50 text-[#FFD700] font-serif placeholder:text-white/40 focus:border-[#FFD700] transition-colors pl-12 rounded-none shadow-lg",
     searchIcon: "text-[#FFD700]",
     searchClear:
       "bg-[#FFD700] text-[#0E1C36] rounded-full hover:bg-white border border-[#FFD700]",
     chipBase: "",
     chipActive: "bg-[#FFD700] text-[#0E1C36] border border-[#FFD700]",
     chipInactive:
-      "bg-[#0E1C36]/50 text-[#FFD700] border border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0E1C36]",
+      "bg-[#0E1C36] text-[#FFD700] border border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0E1C36]",
     resultsText: "text-[#FFD700] border-[#FFD700]/30",
     resultsCount: "text-white hover:text-[#FFD700] transition-colors",
     resultsType: "text-[#FFD700]",
     cardBase: [
-      "bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border border-[#FFD700]/60",
-      "shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] shadow-[#FFD700]/10",
-      "hover:bg-[#0E1C36] hover:border-[#FFD700] hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all duration-500",
+      "bg-[#142847] border border-[#FFD700]/60",
+      "shadow-md",
+      "hover:border-[#FFD700] hover:shadow-lg transition-shadow duration-200",
       "text-white",
     ],
     cardText: "text-white",
     cardHoverText: "group-hover:text-[#FFD700]",
-    cardTag:
-      "bg-[#0E1C36]/80 text-[#FFD700] border-[#FFD700]/30 backdrop-blur-sm",
+    cardTag: "bg-[#0E1C36] text-[#FFD700] border-[#FFD700]/30",
     cardTagHover:
       "hover:bg-[#FFD700] hover:text-[#0E1C36] hover:border-[#FFD700]",
     paginationButton:
-      "bg-[#0E1C36]/80 text-[#FFD700] border-2 border-[#FFD700] backdrop-blur-md hover:bg-[#FFD700] hover:text-[#0E1C36]",
+      "bg-[#0E1C36] text-[#FFD700] border-2 border-[#FFD700] hover:bg-[#FFD700] hover:text-[#0E1C36]",
     paginationButtonDisabled: "opacity-50 cursor-not-allowed",
     paginationActive: "bg-[#FFD700] text-[#0E1C36] border-[#FFD700]",
     paginationInactive:
-      "bg-[#0E1C36]/50 text-[#FFD700] border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0E1C36]",
-    loadingContainer:
-      "bg-[#0E1C36] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]",
+      "bg-[#0E1C36] text-[#FFD700] border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0E1C36]",
+    loadingContainer: "bg-[#0E1C36] border-[#FFD700] shadow-lg",
     loadingText: "text-[#FFD700]",
     divider: "border-[#FFD700]/20",
     mutedText: "text-[#FFD700]/60",
-    skeleton: "bg-[#0E1C36]/50 border border-[#FFD700]/30",
+    skeleton: "bg-[#0E1C36] border border-[#FFD700]/30",
     emptyState: "text-[#FFD700] border-[#FFD700]/20",
   },
   nightlife: {
@@ -336,6 +335,43 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     mutedText: "text-[#FF0080]/60",
     skeleton: "bg-black border border-[#FF0080]",
     emptyState: "text-[#00FFFF] border-[#FF0080]/40",
+  },
+  places: {
+    searchGlow: "bg-gradient-to-r from-[#FF006E] via-[#8338EC] to-[#3A86FF]",
+    searchInput:
+      "bg-[#1a1a2e]/80 border-b-2 border-[#FF006E]/50 text-white font-sans placeholder:text-white/40 focus:border-[#FF006E] transition-colors pl-12 rounded-none shadow-lg backdrop-blur-sm",
+    searchIcon: "text-[#FF006E]",
+    searchClear:
+      "bg-[#FF006E] text-white rounded-full hover:bg-white hover:text-[#1a1a2e] border border-[#FF006E]",
+    chipBase: "",
+    chipActive: "bg-[#FF006E] text-white border border-[#FF006E]",
+    chipInactive:
+      "bg-[#1a1a2e] text-white border border-[#FF006E]/30 hover:bg-[#FF006E] hover:text-white",
+    resultsText: "text-white border-[#FF006E]/30",
+    resultsCount: "text-[#FF006E] hover:text-white transition-colors",
+    resultsType: "text-[#8338EC]",
+    cardBase: [
+      "bg-[#252547] border border-[#FF006E]/40",
+      "shadow-md",
+      "hover:border-[#FF006E] hover:shadow-lg hover:shadow-[#FF006E]/20 transition-all duration-200",
+      "text-white",
+    ],
+    cardText: "text-white",
+    cardHoverText: "group-hover:text-[#FF006E]",
+    cardTag: "bg-[#1a1a2e] text-[#FF006E] border-[#FF006E]/30",
+    cardTagHover: "hover:bg-[#FF006E] hover:text-white hover:border-[#FF006E]",
+    paginationButton:
+      "bg-[#1a1a2e] text-[#FF006E] border-2 border-[#FF006E] hover:bg-[#FF006E] hover:text-white",
+    paginationButtonDisabled: "opacity-50 cursor-not-allowed",
+    paginationActive: "bg-[#FF006E] text-white border-[#FF006E]",
+    paginationInactive:
+      "bg-[#1a1a2e] text-[#FF006E] border-[#FF006E]/30 hover:bg-[#FF006E] hover:text-white",
+    loadingContainer: "bg-[#1a1a2e] border-[#FF006E] shadow-lg",
+    loadingText: "text-[#FF006E]",
+    divider: "border-[#FF006E]/20",
+    mutedText: "text-white/60",
+    skeleton: "bg-[#1a1a2e] border border-[#FF006E]/30",
+    emptyState: "text-white border-[#FF006E]/20",
   },
 };
 
