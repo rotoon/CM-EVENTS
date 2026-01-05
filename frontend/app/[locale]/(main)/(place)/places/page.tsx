@@ -45,37 +45,29 @@ export default async function PlacesPage(props: {
   const totalPlaces = (placeTypes || []).reduce((sum, t) => sum + t.count, 0);
 
   return (
-    <main className="min-h-screen bg-neo-black text-white relative overflow-hidden">
-      {/* Noise Texture Overlay */}
+    <main className="min-h-screen bg-white relative overflow-hidden">
+      {/* Grid Pattern Background */}
       <div
-        className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03]"
-        style={{ filter: "url(#noiseFilter)" }}
-      >
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <filter id="noiseFilter">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.65"
-              numOctaves="3"
-              stitchTiles="stitch"
-            />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#noiseFilter)" />
-        </svg>
-      </div>
+        className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 pt-16 md:pt-24 pb-8 relative z-10">
         {/* Hashtag Badge */}
-        <div className="inline-block bg-neo-pink text-white px-4 py-2 font-display font-black text-sm border-2 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] mb-6 animate-bounce-slow -rotate-2">
+        <div className="inline-block bg-neo-pink text-white px-4 py-2 font-display font-black text-sm border-2 border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6 animate-bounce-slow -rotate-2">
           #CHIANGMAI_EATS
         </div>
 
         {/* Hero Title */}
-        <h1 className="font-black text-6xl md:text-8xl lg:text-9xl leading-[0.8] mb-8 text-neo-lime uppercase italic">
+        <h1 className="font-black text-6xl md:text-8xl lg:text-9xl leading-tight mb-8 uppercase text-neo-black">
           PLACES <br />
           <span
-            className="text-white animate-pulse"
-            style={{ WebkitTextStroke: "2px #a3e635" }}
+            className="text-white bg-neo-black px-4 inline-block mt-2"
+            style={{ WebkitTextStroke: "2px black" }}
           >
             TO&nbsp;VIBE
           </span>

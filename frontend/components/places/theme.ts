@@ -74,6 +74,11 @@ export interface VariantTheme {
   // Loading
   loadingContainer: string;
   loadingText: string;
+  // Layout (New)
+  divider: string;
+  mutedText: string;
+  skeleton: string;
+  emptyState: string;
 }
 
 export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
@@ -87,10 +92,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     chipActive:
       "bg-neo-purple text-white border-white shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]",
     chipInactive:
-      "bg-black text-white border-neo-lime hover:bg-neo-lime hover:text-black hover:border-black",
-    resultsText: "text-white",
-    resultsCount: "text-neo-lime",
-    resultsType: "text-neo-pink",
+      "bg-white text-black border-neo-black hover:bg-neo-lime hover:text-black hover:border-black",
+    resultsText: "text-neo-black",
+    resultsCount: "text-neo-pink",
+    resultsType: "text-neo-purple",
     cardBase: [
       "bg-white border-4 border-neo-black",
       "shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]",
@@ -100,13 +105,17 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     cardTag: "bg-gray-100 text-black border-neo-black",
     cardTagHover: "hover:bg-neo-lime hover:border-black",
     paginationButton:
-      "bg-neo-black text-white border-4 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-white hover:text-black",
+      "bg-neo-black text-white border-4 border-neo-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black",
     paginationButtonDisabled: "opacity-50 cursor-not-allowed",
-    paginationActive: "bg-neo-lime text-black border-white",
+    paginationActive: "bg-neo-lime text-black border-neo-black",
     paginationInactive:
-      "bg-neo-black text-white border-white hover:bg-white hover:text-black",
+      "bg-neo-black text-white border-neo-black hover:bg-white hover:text-black",
     loadingContainer: "bg-white border-black shadow-[8px_8px_0px_0px_#000]",
     loadingText: "text-black",
+    divider: "border-neo-black/10",
+    mutedText: "text-neo-black/60",
+    skeleton: "bg-gray-100 border-2 border-gray-200",
+    emptyState: "text-neo-black border-neo-black/20",
   },
   featured: {
     searchGlow: "bg-gradient-to-r from-neo-lime via-neo-pink to-neo-cyan",
@@ -138,6 +147,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
       "bg-neo-black text-white border-white hover:bg-white hover:text-black",
     loadingContainer: "bg-white border-black shadow-[8px_8px_0px_0px_#000]",
     loadingText: "text-black",
+    divider: "border-white/20",
+    mutedText: "text-white/60",
+    skeleton: "bg-white/10 border-4 border-white/20",
+    emptyState: "text-white border-white/20",
   },
   cafe: {
     searchGlow: "bg-[#A58D71]",
@@ -169,6 +182,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     loadingContainer:
       "bg-white border-[#6F4E37] shadow-[8px_8px_0px_0px_#6F4E37]",
     loadingText: "text-[#6F4E37]",
+    divider: "border-[#E5E5E5]",
+    mutedText: "text-[#A58D71]",
+    skeleton: "bg-[#FDFBF7] border border-[#E5E5E5] rounded-xl",
+    emptyState: "text-[#2C1810] border-[#E5E5E5]",
   },
   food: {
     searchGlow: "bg-[#EA580C]",
@@ -199,6 +216,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     paginationInactive: "bg-white text-black border-black hover:bg-orange-50",
     loadingContainer: "bg-white border-black shadow-[8px_8px_0px_0px_#EA580C]",
     loadingText: "text-[#EA580C]",
+    divider: "border-black/10",
+    mutedText: "text-black/60",
+    skeleton: "bg-white border-2 border-black",
+    emptyState: "text-black border-black/20",
   },
   restaurant: {
     searchGlow: "bg-[#FFD700]",
@@ -232,6 +253,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     loadingContainer:
       "bg-[#2A2A2A] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]",
     loadingText: "text-[#FFD700]",
+    divider: "border-[#FFD700]/20",
+    mutedText: "text-[#FFD700]/60",
+    skeleton: "bg-[#2A2A2A] border border-[#FFD700]/30",
+    emptyState: "text-[#FFD700] border-[#FFD700]/20",
   },
   travel: {
     searchGlow: "bg-[#FFD700]/20",
@@ -268,6 +293,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
     loadingContainer:
       "bg-[#0E1C36] border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)]",
     loadingText: "text-[#FFD700]",
+    divider: "border-[#FFD700]/20",
+    mutedText: "text-[#FFD700]/60",
+    skeleton: "bg-[#0E1C36]/50 border border-[#FFD700]/30",
+    emptyState: "text-[#FFD700] border-[#FFD700]/20",
   },
   nightlife: {
     searchGlow: "bg-gradient-to-r from-[#FF0080] to-[#00FFFF]",
@@ -303,6 +332,10 @@ export const VARIANT_THEMES: Record<PlaceVariant, VariantTheme> = {
       "bg-black text-[#00FFFF] border-[#FF0080] hover:bg-[#FF0080] hover:text-black",
     loadingContainer: "bg-black border-[#FF0080] shadow-[0_0_20px_#FF0080]",
     loadingText: "text-[#00FFFF]",
+    divider: "border-[#FF0080]/30",
+    mutedText: "text-[#FF0080]/60",
+    skeleton: "bg-black border border-[#FF0080]",
+    emptyState: "text-[#00FFFF] border-[#FF0080]/40",
   },
 };
 

@@ -75,7 +75,7 @@ export function PlaceCategoryChips({
       case "nightlife":
         return "text-[#00FFFF]/80";
       default:
-        return "text-white/70";
+        return "text-black/70";
     }
   };
 
@@ -92,7 +92,7 @@ export function PlaceCategoryChips({
       case "nightlife":
         return "bg-[#FF0080]/20 text-[#FF0080]";
       default:
-        return "bg-white/20 text-white";
+        return "bg-black/20 text-black";
     }
   };
 

@@ -151,7 +151,12 @@ export function PlacesGrid({
       />
 
       {/* Results Count & Map Toggle */}
-      <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-white/20 pb-4 gap-4">
+      <div
+        className={cn(
+          "flex flex-col sm:flex-row items-center justify-between border-b-2 pb-4 gap-4",
+          theme.divider
+        )}
+      >
         <p className={cn("text-lg font-mono", theme.resultsText)}>
           {t("found")}{" "}
           <span className={cn("font-bold text-2xl", theme.resultsCount)}>
@@ -164,7 +169,7 @@ export function PlacesGrid({
             </span>
           )}
           {totalPages > 1 && (
-            <span className="ml-4 text-white/60">
+            <span className={cn("ml-4", theme.mutedText)}>
               ({t("page")} {currentPage} {t("of")} {totalPages})
             </span>
           )}
@@ -207,7 +212,10 @@ export function PlacesGrid({
                 setSearchQuery("");
                 applyFilter({ ...initialFilter, categories: undefined });
               }}
-              className="text-sm font-bold text-white hover:text-neo-pink underline decoration-2 underline-offset-4 cursor-pointer uppercase"
+              className={cn(
+                "text-sm font-bold underline decoration-2 underline-offset-4 cursor-pointer uppercase hover:text-neo-pink",
+                theme.resultsText
+              )}
             >
               {t("clearFilters")}
             </button>
@@ -256,17 +264,29 @@ export function PlacesGrid({
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="animate-pulse bg-white/10 border-4 border-white/20 aspect-[4/5]"
+              className={cn("animate-pulse aspect-[4/5]", theme.skeleton)}
             />
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 border-4 border-dashed border-white/20">
+        <div
+          className={cn(
+            "text-center py-20 border-4 border-dashed",
+            theme.emptyState
+          )}
+        >
           <p className="text-6xl mb-4">🍜</p>
-          <p className="text-2xl font-black text-white uppercase mb-2">
+          <p
+            className={cn(
+              "text-2xl font-black uppercase mb-2",
+              theme.resultsText
+            )}
+          >
             {t("noPlacesFound")}
           </p>
-          <p className="text-gray-400 font-mono">{t("tryDifferent")}</p>
+          <p className={cn("font-mono", theme.mutedText)}>
+            {t("tryDifferent")}
+          </p>
         </div>
       )}
 
