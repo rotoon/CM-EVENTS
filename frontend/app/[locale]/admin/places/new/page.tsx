@@ -6,34 +6,42 @@ import {
   HIGCardContent,
   HIGCardHeader,
   HIGCardTitle,
+  higColors,
   HIGInput,
   HIGLabel,
+  HIGSelect,
+  HIGSelectContent,
+  HIGSelectItem,
+  HIGSelectTrigger,
+  HIGSelectValue,
   HIGTextarea,
-  higColors,
 } from "@/components/ui/hig-components";
-import { useCreateEvent } from "@/hooks/use-admin";
-import { EventFormData } from "@/lib/admin-api";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { useCreatePlace } from "@/hooks/use-admin-places";
+import { PlaceFormData } from "@/types";
+import { ArrowLeft, Loader2, Plus, Save, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function NewEventPage() {
-  const router = useRouter();
-  const createMutation = useCreateEvent();
+const PLACE_TYPES = ["Cafe", "Food", "Restaurant", "Travel", "Bar/Nightlife"];
 
-  const [formData, setFormData] = useState<EventFormData>({
-    title: "",
+export default function NewPlacePage() {
+  const router = useRouter();
+  const createMutation = useCreatePlace();
+
+  const [formData, setFormData] = useState<PlaceFormData>({
+    name: "",
+    place_type: "Cafe",
     description: "",
-    location: "",
-    date_text: "",
-    time_text: "",
-    cover_image_url: "",
+    instagram_url: "",
     latitude: "",
     longitude: "",
     google_maps_url: "",
-    facebook_url: "",
+    cover_image_url: "",
+    categories: [],
   });
+
+  const [categoryInput, setCategoryInput] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -42,12 +50,32 @@ export default function NewEventPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleAddCategory = () => {
+    if (
+      categoryInput.trim() &&
+      !formData.categories?.includes(categoryInput.trim())
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        categories: [...(prev.categories || []), categoryInput.trim()],
+      }));
+      setCategoryInput("");
+    }
+  };
+
+  const handleRemoveCategory = (cat: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      categories: prev.categories?.filter((c) => c !== cat),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     createMutation.mutate(formData, {
       onSuccess: () => {
-        router.push("/admin/events");
+        router.push("/admin/places");
       },
     });
   };
@@ -56,7 +84,7 @@ export default function NewEventPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/admin/events">
+        <Link href="/admin/places">
           <HIGButton variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </HIGButton>
@@ -69,10 +97,10 @@ export default function NewEventPage() {
               fontWeight: 700,
             }}
           >
-            เพิ่ม Event ใหม่
+            เพิ่ม Place ใหม่
           </h1>
           <p style={{ color: higColors.labelSecondary, fontSize: "15px" }}>
-            กรอกข้อมูล Event ที่ต้องการเพิ่ม
+            กรอกข้อมูล Place ที่ต้องการเพิ่ม
           </p>
         </div>
       </div>
@@ -86,16 +114,38 @@ export default function NewEventPage() {
                 <HIGCardTitle>ข้อมูลหลัก</HIGCardTitle>
               </HIGCardHeader>
               <HIGCardContent className="space-y-4">
-                <div className="space-y-2">
-                  <HIGLabel htmlFor="title">ชื่อ Event *</HIGLabel>
-                  <HIGInput
-                    id="title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="ชื่อ Event"
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <HIGLabel htmlFor="name">ชื่อ Place *</HIGLabel>
+                    <HIGInput
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="ชื่อร้าน/สถานที่"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <HIGLabel htmlFor="place_type">ประเภท *</HIGLabel>
+                    <HIGSelect
+                      value={formData.place_type}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, place_type: value }))
+                      }
+                    >
+                      <HIGSelectTrigger>
+                        <HIGSelectValue placeholder="เลือกประเภท" />
+                      </HIGSelectTrigger>
+                      <HIGSelectContent>
+                        {PLACE_TYPES.map((type) => (
+                          <HIGSelectItem key={type} value={type}>
+                            {type}
+                          </HIGSelectItem>
+                        ))}
+                      </HIGSelectContent>
+                    </HIGSelect>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -105,31 +155,8 @@ export default function NewEventPage() {
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    placeholder="รายละเอียด Event"
+                    placeholder="รายละเอียดร้าน/สถานที่"
                   />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <HIGLabel htmlFor="date_text">วันที่</HIGLabel>
-                    <HIGInput
-                      id="date_text"
-                      name="date_text"
-                      value={formData.date_text}
-                      onChange={handleChange}
-                      placeholder="เช่น 1-31 มกราคม 2568"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <HIGLabel htmlFor="time_text">เวลา</HIGLabel>
-                    <HIGInput
-                      id="time_text"
-                      name="time_text"
-                      value={formData.time_text}
-                      onChange={handleChange}
-                      placeholder="เช่น 10:00 - 22:00"
-                    />
-                  </div>
                 </div>
               </HIGCardContent>
             </HIGCard>
@@ -139,17 +166,6 @@ export default function NewEventPage() {
                 <HIGCardTitle>สถานที่</HIGCardTitle>
               </HIGCardHeader>
               <HIGCardContent className="space-y-4">
-                <div className="space-y-2">
-                  <HIGLabel htmlFor="location">ชื่อสถานที่</HIGLabel>
-                  <HIGInput
-                    id="location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="เช่น One Nimman, Chiang Mai"
-                  />
-                </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <HIGLabel htmlFor="latitude">Latitude</HIGLabel>
@@ -229,14 +245,64 @@ export default function NewEventPage() {
               </HIGCardHeader>
               <HIGCardContent className="space-y-4">
                 <div className="space-y-2">
-                  <HIGLabel htmlFor="facebook_url">Facebook URL</HIGLabel>
+                  <HIGLabel htmlFor="instagram_url">Instagram URL</HIGLabel>
                   <HIGInput
-                    id="facebook_url"
-                    name="facebook_url"
-                    value={formData.facebook_url}
+                    id="instagram_url"
+                    name="instagram_url"
+                    value={formData.instagram_url}
                     onChange={handleChange}
-                    placeholder="https://facebook.com/..."
+                    placeholder="https://instagram.com/..."
                   />
+                </div>
+              </HIGCardContent>
+            </HIGCard>
+
+            <HIGCard>
+              <HIGCardHeader>
+                <HIGCardTitle>Categories</HIGCardTitle>
+              </HIGCardHeader>
+              <HIGCardContent className="space-y-4">
+                <div className="flex gap-2">
+                  <HIGInput
+                    value={categoryInput}
+                    onChange={(e) => setCategoryInput(e.target.value)}
+                    placeholder="เพิ่ม category"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddCategory();
+                      }
+                    }}
+                  />
+                  <HIGButton
+                    type="button"
+                    onClick={handleAddCategory}
+                    variant="secondary"
+                    size="icon"
+                  >
+                    <Plus size={18} />
+                  </HIGButton>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.categories?.map((cat) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium"
+                      style={{
+                        backgroundColor: `${higColors.blue}15`,
+                        color: higColors.blue,
+                      }}
+                    >
+                      #{cat}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCategory(cat)}
+                        className="hover:opacity-70 cursor-pointer"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
                 </div>
               </HIGCardContent>
             </HIGCard>
@@ -268,11 +334,11 @@ export default function NewEventPage() {
                   ) : (
                     <>
                       <Save size={18} />
-                      บันทึก Event
+                      บันทึก Place
                     </>
                   )}
                 </HIGButton>
-                <Link href="/admin/events" className="block">
+                <Link href="/admin/places" className="block">
                   <HIGButton type="button" variant="outline" className="w-full">
                     ยกเลิก
                   </HIGButton>

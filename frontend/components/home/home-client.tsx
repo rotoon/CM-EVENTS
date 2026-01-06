@@ -1,8 +1,8 @@
 'use client'
 
-import { CategoryFilter } from '@/components/category-filter'
+import { CategoryFilter } from '@/components/shared/category-filter'
 import { EventsContent } from '@/components/events/events-content'
-import { HeroSection } from '@/components/hero-section'
+import { HeroSection } from '@/components/home/hero-section'
 import { useSearchParams } from 'next/navigation'
 
 import { Event } from '@/types'

@@ -3,6 +3,7 @@
  */
 
 import type { Event } from "./event";
+import type { Place } from "./place";
 
 export interface AdminDashboard {
   stats: {
@@ -45,4 +46,44 @@ export interface EventFormData {
 
 export interface LoginResponse {
   token: string;
+}
+
+// ============================================================================
+// Admin Places Types
+// ============================================================================
+
+export interface AdminPlacesDashboard {
+  stats: {
+    total: number;
+    byType: { place_type: string; count: number }[];
+  };
+  recentPlaces: {
+    id: number;
+    name: string;
+    place_type: string;
+    cover_image_url: string | null;
+    category_names: string[];
+  }[];
+}
+
+export interface AdminPlacesResponse {
+  places: Place[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
+export interface PlaceFormData {
+  name: string;
+  place_type: string;
+  description?: string;
+  instagram_url?: string;
+  latitude?: string;
+  longitude?: string;
+  google_maps_url?: string;
+  cover_image_url?: string;
+  categories?: string[];
 }

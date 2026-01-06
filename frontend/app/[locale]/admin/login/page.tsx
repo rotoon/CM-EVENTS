@@ -1,173 +1,170 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Eye, EyeOff, Lock, ArrowRight } from 'lucide-react'
-import { useAdminLogin } from '@/hooks/use-admin'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAdminLogin } from "@/hooks/use-admin";
+import { Eye, EyeOff, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-// Color palette
-const colors = {
-  primary: '#2563EB',
-  primaryHover: '#1D4ED8',
-  background: '#F8FAFC',
-  text: '#1E293B',
-  textMuted: '#64748B',
-  border: '#E2E8F0',
-}
+// Apple HIG System Colors
+const hig = {
+  blue: "#007AFF",
+  red: "#FF3B30",
+  labelPrimary: "#000000",
+  labelSecondary: "rgba(60, 60, 67, 0.6)",
+  labelTertiary: "rgba(60, 60, 67, 0.3)",
+  bgPrimary: "#FFFFFF",
+  bgSecondary: "#F2F2F7",
+  separator: "rgba(60, 60, 67, 0.12)",
+};
 
 export default function AdminLoginPage() {
-  const router = useRouter()
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const loginMutation = useAdminLogin()
+  const loginMutation = useAdminLogin();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     loginMutation.mutate(password, {
       onSuccess: () => {
-        router.push('/admin')
+        router.push("/admin");
       },
-    })
-  }
+    });
+  };
 
   return (
     <div
-      className='min-h-screen flex items-center justify-center p-4'
+      className="min-h-screen flex items-center justify-center p-4"
       style={{
-        backgroundColor: colors.background,
-        backgroundImage: `
-          radial-gradient(circle at 20% 50%, ${colors.primary}08 0%, transparent 50%),
-          radial-gradient(circle at 80% 50%, ${colors.primary}05 0%, transparent 50%)
-        `,
+        backgroundColor: hig.bgSecondary,
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
       }}
     >
-      <div className='w-full max-w-md'>
-        {/* Logo */}
-        <div className='text-center mb-8'>
+      <div className="w-full max-w-sm">
+        {/* Logo - iOS App Icon Style */}
+        <div className="text-center mb-10">
           <div
-            className='inline-flex items-center justify-center w-16 h-16 rounded-2xl text-white text-2xl font-bold mb-4'
-            style={{
-              backgroundColor: colors.primary,
-              boxShadow: `0 8px 24px ${colors.primary}40`,
-            }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-[22px] text-white text-3xl font-semibold mb-4"
+            style={{ backgroundColor: hig.blue }}
           >
             H
           </div>
           <h1
-            className='text-2xl font-bold'
-            style={{ color: colors.text }}
+            style={{
+              color: hig.labelPrimary,
+              fontSize: "28px",
+              fontWeight: 700,
+            }}
           >
             HYPE CNX
           </h1>
-          <p style={{ color: colors.textMuted }}>Admin Panel</p>
+          <p
+            style={{
+              color: hig.labelSecondary,
+              fontSize: "15px",
+              marginTop: "4px",
+            }}
+          >
+            Admin Panel
+          </p>
         </div>
 
-        {/* Login Card */}
+        {/* Login Card - iOS Card Style */}
         <div
-          className='rounded-2xl p-8 shadow-xl'
-          style={{
-            backgroundColor: '#FFFFFF',
-            border: `1px solid ${colors.border}`,
-            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-          }}
+          className="rounded-2xl p-6"
+          style={{ backgroundColor: hig.bgPrimary }}
         >
-          <div className='mb-6'>
+          <div className="mb-6 text-center">
             <h2
-              className='text-xl font-semibold'
-              style={{ color: colors.text }}
+              style={{
+                color: hig.labelPrimary,
+                fontSize: "22px",
+                fontWeight: 600,
+              }}
             >
               เข้าสู่ระบบ
             </h2>
             <p
-              className='text-sm mt-1'
-              style={{ color: colors.textMuted }}
+              style={{
+                color: hig.labelSecondary,
+                fontSize: "15px",
+                marginTop: "4px",
+              }}
             >
-              กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ
+              กรุณาใส่รหัสผ่าน
             </p>
           </div>
 
-          <form
-            onSubmit={handleLogin}
-            className='space-y-5'
-          >
-            <div className='space-y-2'>
-              <Label
-                htmlFor='password'
-                className='text-sm font-medium'
-                style={{ color: colors.text }}
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Password Input - iOS Style */}
+            <div
+              className="flex items-center gap-3 rounded-xl px-4"
+              style={{
+                backgroundColor: hig.bgSecondary,
+                minHeight: "50px",
+              }}
+            >
+              <Lock size={20} style={{ color: hig.labelTertiary }} />
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="รหัสผ่าน"
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                style={{
+                  fontSize: "17px",
+                  color: hig.labelPrimary,
+                }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="p-1.5 rounded-full transition-colors cursor-pointer"
+                style={{ color: hig.labelTertiary }}
               >
-                รหัสผ่าน
-              </Label>
-              <div className='relative'>
-                <div className='absolute left-3 top-1/2 -translate-y-1/2'>
-                  <Lock
-                    size={18}
-                    style={{ color: colors.textMuted }}
-                  />
-                </div>
-                <Input
-                  id='password'
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder='ใส่รหัสผ่าน'
-                  className='pl-10 pr-10 h-12 rounded-xl border-2 focus:ring-2 focus:ring-offset-0 transition-all'
-                  style={{
-                    borderColor: colors.border,
-                  }}
-                  required
-                />
-                <button
-                  type='button'
-                  onClick={() => setShowPassword(!showPassword)}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-gray-100 transition-colors'
-                  style={{ color: colors.textMuted }}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
 
+            {/* Error Message - iOS Alert Style */}
             {loginMutation.error && (
               <div
-                className='text-sm p-4 rounded-xl flex items-center gap-2'
+                className="text-center p-3 rounded-xl"
                 style={{
-                  backgroundColor: '#FEF2F2',
-                  color: '#DC2626',
-                  border: '1px solid #FECACA',
+                  backgroundColor: "rgba(255, 59, 48, 0.1)",
+                  color: hig.red,
+                  fontSize: "15px",
                 }}
               >
-                <span>⚠️</span>
-                <span>
-                  {loginMutation.error.message || 'รหัสผ่านไม่ถูกต้อง'}
-                </span>
+                {loginMutation.error.message || "รหัสผ่านไม่ถูกต้อง"}
               </div>
             )}
 
+            {/* Submit Button - iOS Capsule Style */}
             <Button
-              type='submit'
-              className='w-full h-12 rounded-xl text-base font-medium transition-all duration-200 cursor-pointer'
+              type="submit"
+              className="w-full rounded-full transition-all duration-200 cursor-pointer"
               style={{
-                backgroundColor: colors.primary,
-                boxShadow: `0 4px 14px ${colors.primary}40`,
+                backgroundColor: hig.blue,
+                fontSize: "17px",
+                fontWeight: 600,
+                minHeight: "50px",
               }}
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (
-                <span className='flex items-center gap-2'>
-                  <div className='w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin' />
+                <span className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   กำลังเข้าสู่ระบบ...
                 </span>
               ) : (
-                <span className='flex items-center gap-2'>
-                  เข้าสู่ระบบ
-                  <ArrowRight size={18} />
-                </span>
+                "เข้าสู่ระบบ"
               )}
             </Button>
           </form>
@@ -175,12 +172,12 @@ export default function AdminLoginPage() {
 
         {/* Footer */}
         <p
-          className='text-center mt-6 text-sm'
-          style={{ color: colors.textMuted }}
+          className="text-center mt-8"
+          style={{ color: hig.labelTertiary, fontSize: "13px" }}
         >
-          © 2024 HYPE CNX. All rights reserved.
+          © 2026 HYPE CNX
         </p>
       </div>
     </div>
-  )
+  );
 }

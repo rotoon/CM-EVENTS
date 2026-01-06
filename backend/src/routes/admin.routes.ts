@@ -1,18 +1,32 @@
-import { Router } from 'express'
-import { AdminController } from '../controllers/admin.controller'
-import { requireAdmin } from '../middlewares/auth.middleware'
+import { Router } from "express";
+import { AdminPlaceController } from "../controllers/admin-place.controller";
+import { AdminController } from "../controllers/admin.controller";
+import { requireAdmin } from "../middlewares/auth.middleware";
 
-const router = Router()
+const router = Router();
 
 // Public route - Login
-router.post('/login', AdminController.login)
+router.post("/login", AdminController.login);
 
 // Protected routes - require admin authentication
-router.get('/dashboard', requireAdmin, AdminController.getDashboard)
-router.get('/events', requireAdmin, AdminController.getEvents)
-router.get('/events/:id', requireAdmin, AdminController.getEvent)
-router.post('/events', requireAdmin, AdminController.createEvent)
-router.put('/events/:id', requireAdmin, AdminController.updateEvent)
-router.delete('/events/:id', requireAdmin, AdminController.deleteEvent)
+// Events
+router.get("/dashboard", requireAdmin, AdminController.getDashboard);
+router.get("/events", requireAdmin, AdminController.getEvents);
+router.get("/events/:id", requireAdmin, AdminController.getEvent);
+router.post("/events", requireAdmin, AdminController.createEvent);
+router.put("/events/:id", requireAdmin, AdminController.updateEvent);
+router.delete("/events/:id", requireAdmin, AdminController.deleteEvent);
 
-export default router
+// Places
+router.get(
+  "/places/dashboard",
+  requireAdmin,
+  AdminPlaceController.getDashboard
+);
+router.get("/places", requireAdmin, AdminPlaceController.getPlaces);
+router.get("/places/:id", requireAdmin, AdminPlaceController.getPlace);
+router.post("/places", requireAdmin, AdminPlaceController.createPlace);
+router.put("/places/:id", requireAdmin, AdminPlaceController.updatePlace);
+router.delete("/places/:id", requireAdmin, AdminPlaceController.deletePlace);
+
+export default router;

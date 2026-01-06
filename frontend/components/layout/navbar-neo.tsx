@@ -1,6 +1,6 @@
 "use client";
 
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import {
   NavigationMenu,
   NavigationMenuContent,

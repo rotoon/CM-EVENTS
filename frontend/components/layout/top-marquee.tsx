@@ -1,4 +1,4 @@
-import { Marquee } from "@/components/marquee";
+import { Marquee } from "@/components/layout/marquee";
 
 const MARQUEE_ITEMS = [
   "★ CHIANG MAI EVENTS 2026",

@@ -1,0 +1,118 @@
+/**
+ * Apple Human Interface Guidelines - CSS Variables
+ * สำหรับ Admin Panel
+ */
+
+/* Apple System Colors */
+:root {
+  /* Font System */
+  --hig-font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --hig-font-mono: "SF Mono", SFMono-Regular, Menlo, Monaco, monospace;
+
+  /* Font Sizes */
+  --hig-text-caption: 12px;
+  --hig-text-footnote: 13px;
+  --hig-text-subhead: 15px;
+  --hig-text-body: 17px;
+  --hig-text-headline: 17px;
+  --hig-text-title3: 20px;
+  --hig-text-title2: 22px;
+  --hig-text-title1: 28px;
+  --hig-text-large-title: 34px;
+
+  /* Primary Colors */
+  --hig-blue: #007aff;
+  --hig-green: #34c759;
+  --hig-indigo: #5856d6;
+  --hig-orange: #ff9500;
+  --hig-pink: #ff2d55;
+  --hig-purple: #af52de;
+  --hig-red: #ff3b30;
+  --hig-teal: #5ac8fa;
+  --hig-yellow: #ffcc00;
+
+  /* Gray Scale */
+  --hig-gray: #8e8e93;
+  --hig-gray2: #aeaeb2;
+  --hig-gray3: #c7c7cc;
+  --hig-gray4: #d1d1d6;
+  --hig-gray5: #e5e5ea;
+  --hig-gray6: #f2f2f7;
+
+  /* Semantic Colors - Light Mode */
+  --hig-label-primary: #000000;
+  --hig-label-secondary: rgba(60, 60, 67, 0.6);
+  --hig-label-tertiary: rgba(60, 60, 67, 0.3);
+  --hig-label-quaternary: rgba(60, 60, 67, 0.18);
+
+  /* Backgrounds - Light Mode */
+  --hig-bg-primary: #ffffff;
+  --hig-bg-secondary: #f2f2f7;
+  --hig-bg-tertiary: #ffffff;
+
+  /* Separators */
+  --hig-separator: rgba(60, 60, 67, 0.29);
+  --hig-separator-opaque: #c6c6c8;
+
+  /* Spacing (8pt Grid) */
+  --hig-space-1: 4px;
+  --hig-space-2: 8px;
+  --hig-space-3: 12px;
+  --hig-space-4: 16px;
+  --hig-space-5: 20px;
+  --hig-space-6: 24px;
+  --hig-space-8: 32px;
+  --hig-space-10: 40px;
+
+  /* Border Radius */
+  --hig-radius-sm: 8px;
+  --hig-radius-md: 12px;
+  --hig-radius-lg: 16px;
+  --hig-radius-xl: 20px;
+  --hig-radius-full: 9999px;
+
+  /* Shadows */
+  --hig-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --hig-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.02),
+    0 12px 24px rgba(0, 0, 0, 0.04);
+
+  /* Transitions */
+  --hig-duration-fast: 0.1s;
+  --hig-duration-normal: 0.25s;
+  --hig-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hig-blue: #0a84ff;
+    --hig-green: #30d158;
+    --hig-indigo: #5e5ce6;
+    --hig-orange: #ff9f0a;
+    --hig-pink: #ff375f;
+    --hig-purple: #bf5af2;
+    --hig-red: #ff453a;
+    --hig-teal: #64d2ff;
+    --hig-yellow: #ffd60a;
+
+    --hig-gray: #8e8e93;
+    --hig-gray2: #636366;
+    --hig-gray3: #48484a;
+    --hig-gray4: #3a3a3c;
+    --hig-gray5: #2c2c2e;
+    --hig-gray6: #1c1c1e;
+
+    --hig-label-primary: #ffffff;
+    --hig-label-secondary: rgba(235, 235, 245, 0.6);
+    --hig-label-tertiary: rgba(235, 235, 245, 0.3);
+    --hig-label-quaternary: rgba(235, 235, 245, 0.18);
+
+    --hig-bg-primary: #000000;
+    --hig-bg-secondary: #1c1c1e;
+    --hig-bg-tertiary: #2c2c2e;
+
+    --hig-separator: rgba(84, 84, 88, 0.6);
+    --hig-separator-opaque: #38383a;
+  }
+}

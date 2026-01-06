@@ -70,6 +70,7 @@
 12. ✅ **Deep Refactored Places Components** - Split into sub-components: `theme.ts`, `place-search-bar.tsx`, `place-pagination.tsx`, `place-category-chips.tsx`, `place-type-tabs.tsx`, `index.ts`. Reduced code from 500+ to ~180 lines.
 13. ✅ Added i18n translations for Places (`places` namespace in th.json/en.json).
 14. ✅ **Refactored frontend/lib** - Created `api-config.ts` for shared API_BASE, moved types to `frontend/types/` folder with separate files (event.ts, place.ts, trip.ts, admin.ts, common.ts).
+15. ✅ **Admin Places Management** - Full CRUD for Places (backend: `admin-place.controller.ts`, frontend: pages + hooks + API).
 
 ## Next Steps
 

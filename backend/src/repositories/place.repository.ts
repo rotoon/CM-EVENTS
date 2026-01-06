@@ -236,4 +236,214 @@ export const placeRepository = {
       category_names: place.categories.map((c) => c.category),
     }));
   },
+
+  // ============================================================================
+  // Admin CRUD Methods
+  // ============================================================================
+
+  /**
+   * ดึงสถิติ places สำหรับ Admin Dashboard
+   */
+  async getStats(): Promise<{
+    total: number;
+    byType: { place_type: string; count: number }[];
+  }> {
+    const total = await prisma.places.count();
+    const byType = await prisma.places.groupBy({
+      by: ["place_type"],
+      _count: { place_type: true },
+      orderBy: { _count: { place_type: "desc" } },
+    });
+
+    return {
+      total,
+      byType: byType.map((t) => ({
+        place_type: t.place_type,
+        count: t._count.place_type,
+      })),
+    };
+  },
+
+  /**
+   * ดึง places ทั้งหมดสำหรับ Admin (ไม่ exclude categories)
+   */
+  async findAllAdmin(filters: PlaceFilters): Promise<PlacePaginationResult> {
+    const { place_type, search, limit = 20, offset = 0 } = filters;
+
+    const where: Record<string, unknown> = {};
+
+    if (place_type) {
+      where.place_type = place_type;
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    const total = await prisma.places.count({ where });
+
+    const places = await prisma.places.findMany({
+      where,
+      include: {
+        categories: true,
+        images: true,
+      },
+      orderBy: [{ updated_at: "desc" }, { id: "desc" }],
+      take: limit,
+      skip: offset,
+    });
+
+    const data: PlaceWithCategories[] = places.map((place) => ({
+      ...place,
+      category_names: place.categories.map((c) => c.category),
+    }));
+
+    return {
+      data,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
+      },
+    };
+  },
+
+  /**
+   * สร้าง place ใหม่
+   */
+  async create(input: {
+    name: string;
+    place_type: string;
+    description?: string;
+    instagram_url?: string;
+    latitude?: number;
+    longitude?: number;
+    google_maps_url?: string;
+    cover_image_url?: string;
+    categories?: string[];
+  }): Promise<PlaceWithCategories> {
+    const { categories, ...placeData } = input;
+
+    const place = await prisma.places.create({
+      data: {
+        ...placeData,
+        categories: categories?.length
+          ? {
+              create: categories.map((cat) => ({ category: cat })),
+            }
+          : undefined,
+      },
+      include: {
+        categories: true,
+        images: true,
+      },
+    });
+
+    return {
+      ...place,
+      category_names: place.categories.map((c) => c.category),
+    };
+  },
+
+  /**
+   * อัพเดท place
+   */
+  async update(
+    id: number,
+    input: {
+      name?: string;
+      place_type?: string;
+      description?: string;
+      instagram_url?: string;
+      latitude?: number;
+      longitude?: number;
+      google_maps_url?: string;
+      cover_image_url?: string;
+      categories?: string[];
+    }
+  ): Promise<PlaceWithCategories | null> {
+    const { categories, ...placeData } = input;
+
+    // Update place
+    const place = await prisma.places.update({
+      where: { id },
+      data: {
+        ...placeData,
+        updated_at: new Date(),
+      },
+      include: {
+        categories: true,
+        images: true,
+      },
+    });
+
+    // Update categories if provided
+    if (categories !== undefined) {
+      // Delete existing categories
+      await prisma.place_categories.deleteMany({
+        where: { place_id: id },
+      });
+
+      // Create new categories
+      if (categories.length > 0) {
+        await prisma.place_categories.createMany({
+          data: categories.map((cat) => ({
+            place_id: id,
+            category: cat,
+          })),
+        });
+      }
+
+      // Refetch with updated categories
+      const updated = await prisma.places.findUnique({
+        where: { id },
+        include: {
+          categories: true,
+          images: true,
+        },
+      });
+
+      if (!updated) return null;
+
+      return {
+        ...updated,
+        category_names: updated.categories.map((c) => c.category),
+      };
+    }
+
+    return {
+      ...place,
+      category_names: place.categories.map((c) => c.category),
+    };
+  },
+
+  /**
+   * ลบ place พร้อม categories และ images
+   */
+  async delete(id: number): Promise<boolean> {
+    try {
+      // Delete categories
+      await prisma.place_categories.deleteMany({
+        where: { place_id: id },
+      });
+
+      // Delete images
+      await prisma.place_images.deleteMany({
+        where: { place_id: id },
+      });
+
+      // Delete place
+      await prisma.places.delete({
+        where: { id },
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };

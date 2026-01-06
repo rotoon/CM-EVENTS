@@ -1,4 +1,4 @@
-import { ErrorBoundary } from "@/components/error-boundary";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { routing } from "@/i18n/routing";
 import QueryProvider from "@/lib/query-provider";
 import type { Metadata } from "next";

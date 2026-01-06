@@ -67,3 +67,25 @@ export const PLACE_TYPES = [
 ] as const;
 
 export type PlaceType = (typeof PLACE_TYPES)[number];
+
+// Admin CRUD Types
+export interface CreatePlaceInput {
+  name: string;
+  place_type: string;
+  description?: string;
+  instagram_url?: string;
+  latitude?: number;
+  longitude?: number;
+  google_maps_url?: string;
+  cover_image_url?: string;
+  categories?: string[];
+}
+
+export interface UpdatePlaceInput extends Partial<CreatePlaceInput> {
+  id: number;
+}
+
+export interface PlaceStats {
+  total: number;
+  byType: { place_type: string; count: number }[];
+}

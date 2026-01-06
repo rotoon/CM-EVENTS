@@ -1,11 +1,11 @@
 'use client'
 
-import { EventsGrid } from '@/components/events-grid'
+import { EventsGrid } from '@/components/events/events-grid'
 import { EventsHeader } from '@/components/events/events-header'
 import { EventsSentinel } from '@/components/events/events-sentinel'
 import { EventsSkeleton } from '@/components/events/events-skeleton'
 import { EventsMap } from '@/components/events/map-wrapper'
-import { ViewToggle } from '@/components/view-toggle'
+import { ViewToggle } from '@/components/shared/view-toggle'
 import { useEventsInfinite } from '@/hooks/use-events'
 import { useTranslations } from 'next-intl'
 import { useCallback, useState } from 'react'

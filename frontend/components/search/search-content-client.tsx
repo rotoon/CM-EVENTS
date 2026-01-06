@@ -1,6 +1,6 @@
 'use client'
 
-import { EventsGrid } from '@/components/events-grid'
+import { EventsGrid } from '@/components/events/events-grid'
 import { useEventsPaginated, useSearchEvents } from '@/hooks/use-events'
 import { EventsResponse } from '@/types'
 import { useTranslations } from 'next-intl'

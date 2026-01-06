@@ -1,16 +1,16 @@
 "use client";
 
-import { DeleteEventDialog } from "@/components/admin/events/delete-event-dialog";
-import { EventTable } from "@/components/admin/events/event-table";
-import { EventForList } from "@/components/admin/types";
+import { DeletePlaceDialog } from "@/components/admin/places/delete-place-dialog";
+import { PlaceTable } from "@/components/admin/places/place-table";
+import { PlaceForList } from "@/components/admin/types";
 import { HIGButton, HIGInput } from "@/components/ui/hig-components";
 import { higColors } from "@/components/ui/hig/shared";
-import { useAdminEvents, useDeleteEvent } from "@/hooks/use-admin";
+import { useAdminPlaces, useDeletePlace } from "@/hooks/use-admin-places";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function AdminEventsPage() {
+export default function AdminPlacesPage() {
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [offset, setOffset] = useState(0);
@@ -18,20 +18,20 @@ export default function AdminEventsPage() {
 
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
-    event: EventForList | null;
+    place: PlaceForList | null;
   }>({
     open: false,
-    event: null,
+    place: null,
   });
 
-  const { data, isLoading } = useAdminEvents(
+  const { data, isLoading } = useAdminPlaces(
     offset,
     limit,
     searchQuery || undefined
   );
-  const deleteMutation = useDeleteEvent();
+  const deleteMutation = useDeletePlace();
 
-  const events = (data?.events || []) as EventForList[];
+  const places = (data?.places || []) as PlaceForList[];
   const pagination = data?.pagination || {
     total: 0,
     limit,
@@ -46,11 +46,11 @@ export default function AdminEventsPage() {
   };
 
   const handleDelete = async () => {
-    if (!deleteDialog.event) return;
+    if (!deleteDialog.place) return;
 
-    deleteMutation.mutate(deleteDialog.event.id, {
+    deleteMutation.mutate(deleteDialog.place.id, {
       onSuccess: () => {
-        setDeleteDialog({ open: false, event: null });
+        setDeleteDialog({ open: false, place: null });
       },
     });
   };
@@ -64,13 +64,13 @@ export default function AdminEventsPage() {
             className="text-2xl font-bold"
             style={{ color: higColors.labelPrimary }}
           >
-            จัดการ Events
+            จัดการ Places
           </h1>
           <p style={{ color: higColors.labelSecondary }}>
-            รายการ Events ทั้งหมด {pagination.total.toLocaleString()} รายการ
+            ร้านอาหาร/คาเฟ่ทั้งหมด {pagination.total.toLocaleString()} รายการ
           </p>
         </div>
-        <Link href="/admin/events/new">
+        <Link href="/admin/places/new">
           <HIGButton
             className="gap-2 h-11 px-5 rounded-xl font-medium cursor-pointer"
             style={{
@@ -79,7 +79,7 @@ export default function AdminEventsPage() {
             }}
           >
             <Plus size={18} />
-            เพิ่ม Event ใหม่
+            เพิ่ม Place ใหม่
           </HIGButton>
         </Link>
       </div>
@@ -100,7 +100,7 @@ export default function AdminEventsPage() {
               style={{ color: higColors.labelSecondary }}
             />
             <HIGInput
-              placeholder="ค้นหา Events..."
+              placeholder="ค้นหา Places..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-11 h-11 rounded-xl border-2"
@@ -118,19 +118,19 @@ export default function AdminEventsPage() {
       </div>
 
       {/* Table */}
-      <EventTable
-        events={events}
+      <PlaceTable
+        places={places}
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={setOffset}
-        onDeleteClick={(event) => setDeleteDialog({ open: true, event })}
+        onDeleteClick={(place) => setDeleteDialog({ open: true, place })}
       />
 
       {/* Delete Dialog */}
-      <DeleteEventDialog
+      <DeletePlaceDialog
         open={deleteDialog.open}
-        event={deleteDialog.event}
-        onClose={() => setDeleteDialog({ open: false, event: null })}
+        place={deleteDialog.place}
+        onClose={() => setDeleteDialog({ open: false, place: null })}
         onConfirm={handleDelete}
         isDeleting={deleteMutation.isPending}
       />

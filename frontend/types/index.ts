@@ -17,6 +17,7 @@ export type {
   Place,
   PlaceCategory,
   PlaceFilter,
+  PlaceImage,
   PlaceTypeCount,
   PlacesResponse,
 } from "./place";
@@ -34,8 +35,11 @@ export type {
 export type {
   AdminDashboard,
   AdminEventsResponse,
+  AdminPlacesDashboard,
+  AdminPlacesResponse,
   EventFormData,
   LoginResponse,
+  PlaceFormData,
 } from "./admin";
 
 // Common types

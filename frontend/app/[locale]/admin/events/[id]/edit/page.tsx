@@ -1,308 +1,337 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Save, Loader2 } from 'lucide-react'
-import Link from 'next/link'
-import { useAdminEvent, useUpdateEvent } from '@/hooks/use-admin'
-import { EventFormData } from '@/lib/admin-api'
+import {
+  HIGButton,
+  HIGCard,
+  HIGCardContent,
+  HIGCardHeader,
+  HIGCardTitle,
+  HIGInput,
+  HIGLabel,
+  HIGTextarea,
+  higColors,
+} from "@/components/ui/hig-components";
+import { useAdminEvent, useUpdateEvent } from "@/hooks/use-admin";
+import { EventFormData } from "@/lib/admin-api";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function EditEventPage() {
-  const router = useRouter()
-  const params = useParams()
-  const eventId = parseInt(params.id as string)
+  const router = useRouter();
+  const params = useParams();
+  const eventId = parseInt(params.id as string);
 
-  const { data: event, isLoading, error } = useAdminEvent(eventId)
-  const updateMutation = useUpdateEvent(eventId)
+  const { data: event, isLoading, error } = useAdminEvent(eventId);
+  const updateMutation = useUpdateEvent(eventId);
 
   const [formData, setFormData] = useState<EventFormData>({
-    title: '',
-    description: '',
-    location: '',
-    date_text: '',
-    time_text: '',
-    cover_image_url: '',
-    latitude: '',
-    longitude: '',
-    google_maps_url: '',
-    facebook_url: '',
+    title: "",
+    description: "",
+    location: "",
+    date_text: "",
+    time_text: "",
+    cover_image_url: "",
+    latitude: "",
+    longitude: "",
+    google_maps_url: "",
+    facebook_url: "",
     is_ended: false,
-  })
+  });
 
   useEffect(() => {
     if (event) {
       setFormData({
-        title: event.title || '',
-        description: event.description || '',
-        location: event.location || '',
-        date_text: event.date_text || '',
-        time_text: event.time_text || '',
-        cover_image_url: event.cover_image_url || '',
-        latitude: event.latitude?.toString() || '',
-        longitude: event.longitude?.toString() || '',
-        google_maps_url: event.google_maps_url || '',
-        facebook_url: event.facebook_url || '',
+        title: event.title || "",
+        description: event.description || "",
+        location: event.location || "",
+        date_text: event.date_text || "",
+        time_text: event.time_text || "",
+        cover_image_url: event.cover_image_url || "",
+        latitude: event.latitude?.toString() || "",
+        longitude: event.longitude?.toString() || "",
+        google_maps_url: event.google_maps_url || "",
+        facebook_url: event.facebook_url || "",
         is_ended: Boolean(event.is_ended),
-      })
+      });
     }
-  }, [event])
+  }, [event]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target
+    const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]:
-        type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-    }))
-  }
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     updateMutation.mutate(formData, {
       onSuccess: () => {
-        router.push('/admin/events')
+        router.push("/admin/events");
       },
-    })
-  }
+    });
+  };
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center min-h-[400px]'>
-        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900' />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div
+          className="animate-spin rounded-full h-8 w-8 border-2 border-t-transparent"
+          style={{
+            borderColor: `${higColors.blue} transparent ${higColors.blue} ${higColors.blue}`,
+          }}
+        />
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className='text-center py-12'>
-        <p className='text-red-600'>{error.message}</p>
-        <Link href='/admin/events'>
-          <Button className='mt-4'>กลับ</Button>
+      <div className="text-center py-12">
+        <p style={{ color: higColors.red, fontSize: "17px" }}>
+          {error.message}
+        </p>
+        <Link href="/admin/events">
+          <HIGButton className="mt-4">กลับ</HIGButton>
         </Link>
       </div>
-    )
+    );
   }
 
   return (
-    <div className='space-y-6'>
+    <div className="space-y-6">
       {/* Header */}
-      <div className='flex items-center gap-4'>
-        <Link href='/admin/events'>
-          <Button
-            variant='ghost'
-            size='icon'
-          >
+      <div className="flex items-center gap-4">
+        <Link href="/admin/events">
+          <HIGButton variant="ghost" size="icon">
             <ArrowLeft size={20} />
-          </Button>
+          </HIGButton>
         </Link>
         <div>
-          <h1 className='text-2xl font-bold'>แก้ไข Event</h1>
-          <p className='text-gray-500'>ID: {eventId}</p>
+          <h1
+            style={{
+              color: higColors.labelPrimary,
+              fontSize: "28px",
+              fontWeight: 700,
+            }}
+          >
+            แก้ไข Event
+          </h1>
+          <p style={{ color: higColors.labelSecondary, fontSize: "15px" }}>
+            ID: {eventId}
+          </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Info */}
-          <div className='lg:col-span-2 space-y-6'>
-            <Card>
-              <CardHeader>
-                <CardTitle>ข้อมูลหลัก</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='space-y-2'>
-                  <Label htmlFor='title'>ชื่อ Event *</Label>
-                  <Input
-                    id='title'
-                    name='title'
+          <div className="lg:col-span-2 space-y-6">
+            <HIGCard>
+              <HIGCardHeader>
+                <HIGCardTitle>ข้อมูลหลัก</HIGCardTitle>
+              </HIGCardHeader>
+              <HIGCardContent className="space-y-4">
+                <div className="space-y-2">
+                  <HIGLabel htmlFor="title">ชื่อ Event *</HIGLabel>
+                  <HIGInput
+                    id="title"
+                    name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    placeholder='ชื่อ Event'
+                    placeholder="ชื่อ Event"
                     required
                   />
                 </div>
 
-                <div className='space-y-2'>
-                  <Label htmlFor='description'>รายละเอียด</Label>
-                  <Textarea
-                    id='description'
-                    name='description'
+                <div className="space-y-2">
+                  <HIGLabel htmlFor="description">รายละเอียด</HIGLabel>
+                  <HIGTextarea
+                    id="description"
+                    name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    placeholder='รายละเอียด Event'
-                    rows={5}
+                    placeholder="รายละเอียด Event"
                   />
                 </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='date_text'>วันที่</Label>
-                    <Input
-                      id='date_text'
-                      name='date_text'
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <HIGLabel htmlFor="date_text">วันที่</HIGLabel>
+                    <HIGInput
+                      id="date_text"
+                      name="date_text"
                       value={formData.date_text}
                       onChange={handleChange}
-                      placeholder='เช่น 1-31 มกราคม 2568'
+                      placeholder="เช่น 1-31 มกราคม 2568"
                     />
                   </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='time_text'>เวลา</Label>
-                    <Input
-                      id='time_text'
-                      name='time_text'
+                  <div className="space-y-2">
+                    <HIGLabel htmlFor="time_text">เวลา</HIGLabel>
+                    <HIGInput
+                      id="time_text"
+                      name="time_text"
                       value={formData.time_text}
                       onChange={handleChange}
-                      placeholder='เช่น 10:00 - 22:00'
+                      placeholder="เช่น 10:00 - 22:00"
                     />
                   </div>
                 </div>
 
-                <div className='flex items-center gap-2'>
+                <div
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                  style={{ backgroundColor: higColors.bgSecondary }}
+                >
                   <input
-                    type='checkbox'
-                    id='is_ended'
-                    name='is_ended'
+                    type="checkbox"
+                    id="is_ended"
+                    name="is_ended"
                     checked={formData.is_ended}
                     onChange={handleChange}
-                    className='rounded'
+                    className="w-5 h-5 rounded"
+                    style={{ accentColor: higColors.blue }}
                   />
-                  <Label htmlFor='is_ended'>Event จบแล้ว</Label>
+                  <HIGLabel htmlFor="is_ended">Event จบแล้ว</HIGLabel>
                 </div>
-              </CardContent>
-            </Card>
+              </HIGCardContent>
+            </HIGCard>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>สถานที่</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='space-y-2'>
-                  <Label htmlFor='location'>ชื่อสถานที่</Label>
-                  <Input
-                    id='location'
-                    name='location'
+            <HIGCard>
+              <HIGCardHeader>
+                <HIGCardTitle>สถานที่</HIGCardTitle>
+              </HIGCardHeader>
+              <HIGCardContent className="space-y-4">
+                <div className="space-y-2">
+                  <HIGLabel htmlFor="location">ชื่อสถานที่</HIGLabel>
+                  <HIGInput
+                    id="location"
+                    name="location"
                     value={formData.location}
                     onChange={handleChange}
-                    placeholder='เช่น One Nimman, Chiang Mai'
+                    placeholder="เช่น One Nimman, Chiang Mai"
                   />
                 </div>
 
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='latitude'>Latitude</Label>
-                    <Input
-                      id='latitude'
-                      name='latitude'
-                      type='number'
-                      step='any'
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <HIGLabel htmlFor="latitude">Latitude</HIGLabel>
+                    <HIGInput
+                      id="latitude"
+                      name="latitude"
+                      type="number"
+                      step="any"
                       value={formData.latitude}
                       onChange={handleChange}
-                      placeholder='18.7883'
+                      placeholder="18.7883"
                     />
                   </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='longitude'>Longitude</Label>
-                    <Input
-                      id='longitude'
-                      name='longitude'
-                      type='number'
-                      step='any'
+                  <div className="space-y-2">
+                    <HIGLabel htmlFor="longitude">Longitude</HIGLabel>
+                    <HIGInput
+                      id="longitude"
+                      name="longitude"
+                      type="number"
+                      step="any"
                       value={formData.longitude}
                       onChange={handleChange}
-                      placeholder='98.9853'
+                      placeholder="98.9853"
                     />
                   </div>
                 </div>
 
-                <div className='space-y-2'>
-                  <Label htmlFor='google_maps_url'>Google Maps URL</Label>
-                  <Input
-                    id='google_maps_url'
-                    name='google_maps_url'
+                <div className="space-y-2">
+                  <HIGLabel htmlFor="google_maps_url">Google Maps URL</HIGLabel>
+                  <HIGInput
+                    id="google_maps_url"
+                    name="google_maps_url"
                     value={formData.google_maps_url}
                     onChange={handleChange}
-                    placeholder='https://maps.google.com/...'
+                    placeholder="https://maps.google.com/..."
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </HIGCardContent>
+            </HIGCard>
           </div>
 
           {/* Sidebar */}
-          <div className='space-y-6'>
-            <Card>
-              <CardHeader>
-                <CardTitle>รูปภาพ</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='space-y-2'>
-                  <Label htmlFor='cover_image_url'>URL รูปปก</Label>
-                  <Input
-                    id='cover_image_url'
-                    name='cover_image_url'
+          <div className="space-y-6">
+            <HIGCard>
+              <HIGCardHeader>
+                <HIGCardTitle>รูปภาพ</HIGCardTitle>
+              </HIGCardHeader>
+              <HIGCardContent className="space-y-4">
+                <div className="space-y-2">
+                  <HIGLabel htmlFor="cover_image_url">URL รูปปก</HIGLabel>
+                  <HIGInput
+                    id="cover_image_url"
+                    name="cover_image_url"
                     value={formData.cover_image_url}
                     onChange={handleChange}
-                    placeholder='https://...'
+                    placeholder="https://..."
                   />
                 </div>
                 {formData.cover_image_url && (
-                  <div className='aspect-video bg-gray-100 rounded-lg overflow-hidden'>
+                  <div
+                    className="aspect-video rounded-xl overflow-hidden"
+                    style={{ backgroundColor: higColors.bgSecondary }}
+                  >
                     <img
                       src={formData.cover_image_url}
-                      alt='Preview'
-                      className='w-full h-full object-cover'
+                      alt="Preview"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </HIGCardContent>
+            </HIGCard>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>ลิงก์</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='space-y-2'>
-                  <Label htmlFor='facebook_url'>Facebook URL</Label>
-                  <Input
-                    id='facebook_url'
-                    name='facebook_url'
+            <HIGCard>
+              <HIGCardHeader>
+                <HIGCardTitle>ลิงก์</HIGCardTitle>
+              </HIGCardHeader>
+              <HIGCardContent className="space-y-4">
+                <div className="space-y-2">
+                  <HIGLabel htmlFor="facebook_url">Facebook URL</HIGLabel>
+                  <HIGInput
+                    id="facebook_url"
+                    name="facebook_url"
                     value={formData.facebook_url}
                     onChange={handleChange}
-                    placeholder='https://facebook.com/...'
+                    placeholder="https://facebook.com/..."
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </HIGCardContent>
+            </HIGCard>
 
             {/* Actions */}
-            <Card>
-              <CardContent className='p-4 space-y-3'>
+            <HIGCard>
+              <HIGCardContent className="space-y-3">
                 {updateMutation.error && (
-                  <div className='text-sm text-red-600 bg-red-50 p-3 rounded-lg'>
+                  <div
+                    className="text-sm p-3 rounded-xl"
+                    style={{
+                      backgroundColor: "rgba(255, 59, 48, 0.1)",
+                      color: higColors.red,
+                    }}
+                  >
                     {updateMutation.error.message}
                   </div>
                 )}
-                <Button
-                  type='submit'
-                  className='w-full gap-2'
+                <HIGButton
+                  type="submit"
+                  className="w-full gap-2"
                   disabled={updateMutation.isPending}
                 >
                   {updateMutation.isPending ? (
                     <>
-                      <Loader2
-                        size={18}
-                        className='animate-spin'
-                      />
+                      <Loader2 size={18} className="animate-spin" />
                       กำลังบันทึก...
                     </>
                   ) : (
@@ -311,24 +340,17 @@ export default function EditEventPage() {
                       บันทึกการแก้ไข
                     </>
                   )}
-                </Button>
-                <Link
-                  href='/admin/events'
-                  className='block'
-                >
-                  <Button
-                    type='button'
-                    variant='outline'
-                    className='w-full'
-                  >
+                </HIGButton>
+                <Link href="/admin/events" className="block">
+                  <HIGButton type="button" variant="outline" className="w-full">
                     ยกเลิก
-                  </Button>
+                  </HIGButton>
                 </Link>
-              </CardContent>
-            </Card>
+              </HIGCardContent>
+            </HIGCard>
           </div>
         </div>
       </form>
     </div>
-  )
+  );
 }
