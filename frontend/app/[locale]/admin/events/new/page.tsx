@@ -24,7 +24,7 @@ export default function NewEventPage() {
 
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
-    description: "",
+    description_markdown: "",
     location: "",
     date_text: "",
     time_text: "",
@@ -99,11 +99,11 @@ export default function NewEventPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <HIGLabel htmlFor="description">รายละเอียด</HIGLabel>
+                  <HIGLabel htmlFor="description_markdown">รายละเอียด</HIGLabel>
                   <HIGTextarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
+                    id="description_markdown"
+                    name="description_markdown"
+                    value={formData.description_markdown}
                     onChange={handleChange}
                     placeholder="รายละเอียด Event"
                   />
