@@ -112,11 +112,6 @@ export async function generateMetadata({
       description: t("description"),
       images: ["/logo-v2.png"],
     },
-    icons: {
-      icon: "/icon.png",
-      shortcut: "/icon.png",
-      apple: "/icon.png",
-    },
   };
 }
 

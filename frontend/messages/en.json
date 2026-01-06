@@ -320,6 +320,18 @@
         "title": "Restaurants, Cafes & Places Chiang Mai | Hype CNX",
         "description": "Discover over 700 restaurants, cafes, travel spots, and bars in Chiang Mai. Curated by Newbie.CNX"
       }
+    },
+    "placeDetail": {
+      "notFound": "Place Not Found",
+      "backToPlaces": "BACK TO PLACES",
+      "gallery": "GALLERY",
+      "noVisuals": "NO VISUALS YET.",
+      "vibeReal": "BUT THE VIBE IS REAL.",
+      "direction": "Get Direction",
+      "viewOnGoogleMaps": "View on Google Maps",
+      "address": "Address",
+      "location": "LOCATION",
+      "loadingMap": "LOADING MAP..."
     }
   }
 }

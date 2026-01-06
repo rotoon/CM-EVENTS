@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -13,6 +14,7 @@ interface PlaceGalleryProps {
 
 export function PlaceGallery({ images, placeName }: PlaceGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const t = useTranslations("places.placeDetail");
 
   // Navigation handlers
   const handlePrev = useCallback(
@@ -52,11 +54,9 @@ export function PlaceGallery({ images, placeName }: PlaceGalleryProps) {
     return (
       <div className="bg-white border-4 border-neo-black p-8 text-center rotate-2 max-w-2xl mx-auto">
         <p className="text-black font-bold text-xl uppercase">
-          NO VISUALS YET.
+          {t("noVisuals")}
         </p>
-        <p className="text-gray-500 font-mono text-sm mt-2">
-          BUT THE VIBE IS REAL.
-        </p>
+        <p className="text-gray-500 font-mono text-sm mt-2">{t("vibeReal")}</p>
       </div>
     );
   }

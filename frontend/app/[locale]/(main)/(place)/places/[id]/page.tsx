@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft, ImageIcon } from "lucide-react";
 import type { Metadata } from "next";
 // Removed dynamic import since we use a Client Component wrapper now
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -21,7 +22,7 @@ const TYPE_STYLES: Record<string, { bg: string; text: string }> = {
 };
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export async function generateMetadata({
@@ -50,8 +51,9 @@ export async function generateMetadata({
 }
 
 export default async function PlaceDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const place = await fetchPlaceById(parseInt(id));
+  const t = await getTranslations({ locale, namespace: "places.placeDetail" });
 
   if (!place) {
     notFound();
@@ -95,7 +97,7 @@ export default async function PlaceDetailPage({ params }: PageProps) {
             className="inline-flex items-center gap-2 text-sm font-bold uppercase text-white hover:text-neo-lime transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            BACK TO PLACES
+            {t("backToPlaces")}
           </Link>
         </div>
       </div>
@@ -146,7 +148,7 @@ export default async function PlaceDetailPage({ params }: PageProps) {
                   <ImageIcon className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-3xl font-black uppercase italic">
-                  GALLERY
+                  {t("gallery")}
                 </h2>
               </div>
 

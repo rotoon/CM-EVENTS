@@ -320,6 +320,18 @@
         "title": "ร้านอาหาร คาเฟ่ ที่เที่ยว เชียงใหม่ | Hype CNX",
         "description": "รวมร้านอาหาร คาเฟ่ ที่เที่ยว บาร์ และสถานที่น่าไปในเชียงใหม่ กว่า 700 ร้าน คัดสรรโดย Newbie.CNX"
       }
+    },
+    "placeDetail": {
+      "notFound": "ไม่พบสถานที่",
+      "backToPlaces": "กลับไปหน้าสถานที่",
+      "gallery": "แกลเลอรี่",
+      "noVisuals": "ยังไม่มีรูปภาพ",
+      "vibeReal": "แต่บรรยากาศของจริง",
+      "direction": "นำทาง",
+      "viewOnGoogleMaps": "ดูใน Google Maps",
+      "address": "ที่อยู่",
+      "location": "สถานที่ตั้ง",
+      "loadingMap": "กำลังโหลดแผนที่..."
     }
   }
 }
