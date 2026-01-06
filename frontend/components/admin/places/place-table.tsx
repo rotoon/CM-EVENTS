@@ -1,7 +1,14 @@
 "use client";
 
 import { AdminPagination, PlaceForList } from "@/components/admin/types";
-import { HIGButton } from "@/components/ui/hig-components";
+import {
+  HIGButton,
+  HIGSelect,
+  HIGSelectContent,
+  HIGSelectItem,
+  HIGSelectTrigger,
+  HIGSelectValue,
+} from "@/components/ui/hig-components";
 import { higColors } from "@/components/ui/hig/shared";
 import {
   Table,
@@ -18,6 +25,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface PlaceTableProps {
@@ -25,6 +33,7 @@ interface PlaceTableProps {
   isLoading: boolean;
   pagination: AdminPagination;
   onPageChange: (offset: number) => void;
+  onLimitChange?: (limit: number) => void;
   onDeleteClick: (place: PlaceForList) => void;
 }
 
@@ -33,6 +42,7 @@ export function PlaceTable({
   isLoading,
   pagination,
   onPageChange,
+  onLimitChange,
   onDeleteClick,
 }: PlaceTableProps) {
   const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
@@ -136,11 +146,13 @@ export function PlaceTable({
                   className="w-16 h-16 rounded-xl overflow-hidden shadow-sm"
                   style={{ backgroundColor: `${higColors.blue}10` }}
                 >
-                  {place.cover_image_url ? (
-                    <img
-                      src={place.cover_image_url}
+                  {place.images.length > 0 ? (
+                    <Image
+                      src={place.images[0].image_url}
                       alt={place.name}
                       className="w-full h-full object-cover"
+                      width={100}
+                      height={100}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -173,7 +185,7 @@ export function PlaceTable({
                 style={{ color: higColors.labelSecondary }}
               >
                 <div className="flex flex-wrap gap-1">
-                  {place.category_names.slice(0, 3).map((cat) => (
+                  {place.category_names.map((cat) => (
                     <span
                       key={cat}
                       className="text-xs px-2 py-0.5 rounded bg-gray-100"
@@ -181,11 +193,6 @@ export function PlaceTable({
                       {cat}
                     </span>
                   ))}
-                  {place.category_names.length > 3 && (
-                    <span className="text-xs px-2 py-0.5 rounded bg-gray-200">
-                      +{place.category_names.length - 3}
-                    </span>
-                  )}
                 </div>
               </TableCell>
               <TableCell className="py-4 px-4">
@@ -215,16 +222,51 @@ export function PlaceTable({
       </Table>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {totalPages > 0 && (
         <div
-          className="flex items-center justify-between p-4"
+          className="flex flex-col sm:flex-row items-center justify-between p-4 gap-4"
           style={{ borderTop: `1px solid ${higColors.separator}` }}
         >
-          <p className="text-sm" style={{ color: higColors.labelSecondary }}>
-            แสดง {pagination.offset + 1}-
-            {Math.min(pagination.offset + pagination.limit, pagination.total)}{" "}
-            จาก {pagination.total} รายการ
-          </p>
+          <div className="flex items-center gap-4">
+            {onLimitChange && (
+              <div className="flex items-center gap-2">
+                <p
+                  className="text-sm"
+                  style={{ color: higColors.labelSecondary }}
+                >
+                  แสดง
+                </p>
+                <HIGSelect
+                  value={pagination.limit.toString()}
+                  onValueChange={(val) => onLimitChange(Number(val))}
+                >
+                  <HIGSelectTrigger
+                    className="h-8 w-[70px]"
+                    style={{ backgroundColor: higColors.bgSecondary }}
+                  >
+                    <HIGSelectValue />
+                  </HIGSelectTrigger>
+                  <HIGSelectContent>
+                    {[10, 20, 50, 100].map((pageSize) => (
+                      <HIGSelectItem key={pageSize} value={pageSize.toString()}>
+                        {pageSize}
+                      </HIGSelectItem>
+                    ))}
+                  </HIGSelectContent>
+                </HIGSelect>
+                <p
+                  className="text-sm"
+                  style={{ color: higColors.labelSecondary }}
+                >
+                  ต่อหน้า
+                </p>
+              </div>
+            )}
+            <p className="text-sm" style={{ color: higColors.labelSecondary }}>
+              หน้า {currentPage} จาก {totalPages} ({pagination.total} รายการ)
+            </p>
+          </div>
+
           <div className="flex items-center gap-1">
             <HIGButton
               variant="outline"
@@ -242,6 +284,8 @@ export function PlaceTable({
               let start = Math.max(1, currentPage - Math.floor(showPages / 2));
               const end = Math.min(totalPages, start + showPages - 1);
               start = Math.max(1, end - showPages + 1);
+              // Ensure start is at least 1
+              if (start < 1) start = 1;
 
               if (start > 1) {
                 pages.push(1);

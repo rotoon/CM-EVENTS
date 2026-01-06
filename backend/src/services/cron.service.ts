@@ -1,3 +1,4 @@
+import { EventRepository } from "../repositories/event/prisma";
 import { cronLogger } from "../utils/logger";
 import { runDetailScraper } from "./detail-scraper.service";
 import { runScraper } from "./scraper.service";
@@ -51,18 +52,37 @@ export class CronService {
     // Check every minute for scheduled runs
     setInterval(() => {
       const now = new Date();
-      if (
-        (now.getHours() === 0 || now.getHours() === 12) &&
-        now.getMinutes() === 0
-      ) {
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+
+      // Run Scraper at 00:00 and 12:00
+      if ((hours === 0 || hours === 12) && minutes === 0) {
         this.scheduledScrape();
+      }
+
+      // Run Sync Status at 00:00
+      if (hours === 0 && minutes === 0) {
+        this.scheduledSyncStatus();
       }
     }, 60 * 1000);
 
     cronLogger.info(
       { intervalHours: 12 },
-      "Cron scheduled: Scraper will run every 12 hours"
+      "Cron scheduled: Scraper every 12h, Sync Status every 24h (midnight)"
     );
+  }
+
+  static async scheduledSyncStatus() {
+    try {
+      cronLogger.info("Scheduled sync status starting...");
+      const count = await EventRepository.syncEventStatus();
+      cronLogger.info(
+        { updatedCount: count, completedAt: new Date().toISOString() },
+        "Scheduled sync status completed"
+      );
+    } catch (err) {
+      cronLogger.error({ err }, "Scheduled sync status failed");
+    }
   }
 
   static getStatus() {

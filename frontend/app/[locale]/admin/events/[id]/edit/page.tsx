@@ -13,13 +13,17 @@ import {
 } from "@/components/ui/hig-components";
 import { useAdminEvent, useUpdateEvent } from "@/hooks/use-admin";
 import { EventFormData } from "@/lib/admin-api";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
-import Link from "next/link";
+import { ArrowLeft, Loader2, Plus, Save } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function EditEventPage() {
   const router = useRouter();
+  // ... (rest of the file until the error area)
+  // Since I can't see the exact context of the error easily without viewing, I will just view the file around the error first.
+  // Wait, I can see the error in the diff.
+  // The error at 320 is likely due to mismatched braces in the previous replace.
+  // Let me first view the file to be sure about the closing brace location.
   const params = useParams();
   const eventId = parseInt(params.id as string);
 
@@ -28,7 +32,7 @@ export default function EditEventPage() {
 
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
-    description: "",
+    description_markdown: "",
     location: "",
     date_text: "",
     time_text: "",
@@ -40,11 +44,13 @@ export default function EditEventPage() {
     is_ended: false,
   });
 
+  const [newImageUrl, setNewImageUrl] = useState("");
+
   useEffect(() => {
     if (event) {
       setFormData({
         title: event.title || "",
-        description: event.description || "",
+        description_markdown: event.description_markdown || "",
         location: event.location || "",
         date_text: event.date_text || "",
         time_text: event.time_text || "",
@@ -54,6 +60,7 @@ export default function EditEventPage() {
         google_maps_url: event.google_maps_url || "",
         facebook_url: event.facebook_url || "",
         is_ended: Boolean(event.is_ended),
+        images: event.images?.map((img) => img.image_url) || [],
       });
     }
   }, [event]);
@@ -69,12 +76,40 @@ export default function EditEventPage() {
     }));
   };
 
+  const handleAddImage = () => {
+    if (newImageUrl.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        images: [...(prev.images || []), newImageUrl.trim()],
+      }));
+      setNewImageUrl("");
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images?.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSetCover = (url: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      cover_image_url: url,
+    }));
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     updateMutation.mutate(formData, {
       onSuccess: () => {
-        router.push("/admin/events");
+        router.back();
       },
     });
   };
@@ -98,9 +133,9 @@ export default function EditEventPage() {
         <p style={{ color: higColors.red, fontSize: "17px" }}>
           {error.message}
         </p>
-        <Link href="/admin/events">
-          <HIGButton className="mt-4">กลับ</HIGButton>
-        </Link>
+        <HIGButton className="mt-4" onClick={handleBack}>
+          กลับ
+        </HIGButton>
       </div>
     );
   }
@@ -109,11 +144,9 @@ export default function EditEventPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/admin/events">
-          <HIGButton variant="ghost" size="icon">
-            <ArrowLeft size={20} />
-          </HIGButton>
-        </Link>
+        <HIGButton variant="ghost" size="icon" onClick={handleBack}>
+          <ArrowLeft size={20} />
+        </HIGButton>
         <div>
           <h1
             style={{
@@ -152,11 +185,11 @@ export default function EditEventPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <HIGLabel htmlFor="description">รายละเอียด</HIGLabel>
+                  <HIGLabel htmlFor="description_markdown">รายละเอียด</HIGLabel>
                   <HIGTextarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
+                    id="description_markdown"
+                    name="description_markdown"
+                    value={formData.description_markdown}
                     onChange={handleChange}
                     placeholder="รายละเอียด Event"
                   />
@@ -289,6 +322,67 @@ export default function EditEventPage() {
                     />
                   </div>
                 )}
+
+                {/* Image Management */}
+                <div className="space-y-3 pt-4 border-t border-gray-100">
+                  <HIGLabel>
+                    จัดการรูปภาพ ({formData.images?.length || 0})
+                  </HIGLabel>
+
+                  {/* Add New Image */}
+                  <div className="flex gap-2">
+                    <HIGInput
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      placeholder="URL รูปภาพใหม่..."
+                      className="flex-1"
+                    />
+                    <HIGButton
+                      type="button"
+                      onClick={handleAddImage}
+                      variant="secondary"
+                      size="icon"
+                      className="shrink-0"
+                    >
+                      <Plus size={18} />
+                    </HIGButton>
+                  </div>
+
+                  {/* Image Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {formData.images?.map((url, idx) => (
+                      <div
+                        key={idx}
+                        className="aspect-square rounded-lg overflow-hidden relative group"
+                        style={{ backgroundColor: higColors.bgSecondary }}
+                      >
+                        <img
+                          src={url}
+                          alt={`Gallery ${idx}`}
+                          className="w-full h-full object-cover"
+                        />
+
+                        {/* Actions Overlay */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSetCover(url)}
+                            className="text-white text-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                          >
+                            ตั้งเป็นปก
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(idx)}
+                            className="text-white text-xs px-2 py-1 rounded bg-red-500 hover:bg-red-600 cursor-pointer"
+                          >
+                            ลบ
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </HIGCardContent>
             </HIGCard>
 
@@ -341,11 +435,14 @@ export default function EditEventPage() {
                     </>
                   )}
                 </HIGButton>
-                <Link href="/admin/events" className="block">
-                  <HIGButton type="button" variant="outline" className="w-full">
-                    ยกเลิก
-                  </HIGButton>
-                </Link>
+                <HIGButton
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleBack}
+                >
+                  ยกเลิก
+                </HIGButton>
               </HIGCardContent>
             </HIGCard>
           </div>

@@ -34,12 +34,18 @@ export async function fetchAdminDashboard(): Promise<AdminDashboard> {
 export async function fetchAdminEvents(
   offset: number = 0,
   limit: number = 20,
-  search?: string
+  search?: string,
+  month?: string,
+  category?: string,
+  status?: string
 ): Promise<AdminEventsResponse> {
   const params = new URLSearchParams();
   params.set("limit", limit.toString());
   params.set("offset", offset.toString());
   if (search) params.set("search", search);
+  if (month) params.set("month", month);
+  if (category) params.set("category", category);
+  if (status) params.set("status", status);
 
   const response = await fetch(`${API_BASE}/admin/events?${params}`, {
     headers: getAuthHeaders(),
@@ -47,6 +53,26 @@ export async function fetchAdminEvents(
   });
 
   return handleApiResponse<AdminEventsResponse>(response);
+}
+
+export async function fetchEventMonths(): Promise<string[]> {
+  const response = await fetch(`${API_BASE}/admin/events/months`, {
+    headers: getAuthHeaders(),
+    cache: "no-store",
+  });
+
+  return handleApiResponse<string[]>(response);
+}
+
+export async function syncEventStatus(): Promise<{
+  message: string;
+  updatedCount: number;
+}> {
+  const response = await fetch(`${API_BASE}/admin/events/sync-status`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return handleApiResponse<{ message: string; updatedCount: number }>(response);
 }
 
 export async function fetchAdminEvent(id: number): Promise<EventWithImages> {

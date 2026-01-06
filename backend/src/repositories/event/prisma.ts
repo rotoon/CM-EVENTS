@@ -25,6 +25,7 @@ export interface EventFilters {
   category?: string;
   limit?: number;
   offset?: number;
+  is_ended?: boolean;
 }
 
 export interface PaginatedResult<T> {
@@ -46,7 +47,7 @@ export class EventRepository {
   static async findAll(
     filters: EventFilters
   ): Promise<PaginatedResult<EventRow>> {
-    const { month, category, limit = 20, offset = 0 } = filters;
+    const { month, category, is_ended, limit = 20, offset = 0 } = filters;
 
     dbLogger.debug({ filters }, "Finding events with filters");
 
@@ -56,6 +57,11 @@ export class EventRepository {
       is_fully_scraped: true,
       description: { not: null },
     };
+
+    // Filter by ended status if provided
+    if (is_ended !== undefined) {
+      whereConditions.is_ended = is_ended;
+    }
 
     // Month filter
     if (month) {
@@ -80,7 +86,7 @@ export class EventRepository {
     // Fetch paginated events sorted by end_date DESC (latest end date first)
     const eventsList = await prisma.events.findMany({
       where: whereConditions,
-      orderBy: { end_date: "desc" },
+      orderBy: { end_date: { sort: "desc", nulls: "last" } },
       skip: offset,
       take: limit,
     });
@@ -350,5 +356,24 @@ export class EventRepository {
         image_url: url,
       })),
     });
+  }
+  /**
+   * Sync event status (mark past events as ended)
+   */
+  static async syncEventStatus() {
+    const now = new Date();
+    // Using raw query or updateMany if supported fully.
+    // Logic: update events where end_date < now AND (is_ended = false OR is_ended is null)
+    const result = await prisma.events.updateMany({
+      where: {
+        end_date: { lt: now },
+        OR: [{ is_ended: false }, { is_ended: null }],
+      },
+      data: {
+        is_ended: true,
+      },
+    });
+
+    return result.count;
   }
 }

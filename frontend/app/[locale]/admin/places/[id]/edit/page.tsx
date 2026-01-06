@@ -27,7 +27,6 @@ import {
   Tag,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -66,12 +65,19 @@ export default function EditPlacePage() {
   // Existing images from database (read-only display)
   const [existingImages, setExistingImages] = useState<PlaceImage[]>([]);
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // Populate form when place data loads
   useEffect(() => {
-    if (place) {
+    if (place && !isInitialized) {
+      // Find matching place type (case-insensitive)
+      const matchingType = PLACE_TYPES.find(
+        (t) => t.toLowerCase() === (place.place_type || "").toLowerCase()
+      );
+
       setFormData({
         name: place.name,
-        place_type: place.place_type,
+        place_type: matchingType || place.place_type || "Cafe", // Use matching type if found, else original, else default
         description: place.description || "",
         instagram_url: place.instagram_url || "",
         latitude: place.latitude?.toString() || "",
@@ -82,8 +88,9 @@ export default function EditPlacePage() {
         images: [],
       });
       setExistingImages(place.images || []);
+      setIsInitialized(true);
     }
-  }, [place]);
+  }, [place, isInitialized]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -145,12 +152,19 @@ export default function EditPlacePage() {
     }));
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     updateMutation.mutate(formData, {
       onSuccess: () => {
-        router.push("/admin/places");
+        router.back();
+      },
+      onError: (error) => {
+        // Optional: Error handling logic if needed, currently displayed in UI
       },
     });
   };
@@ -172,11 +186,14 @@ export default function EditPlacePage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/admin/places">
-          <HIGButton variant="ghost" size="icon">
-            <ArrowLeft size={20} />
-          </HIGButton>
-        </Link>
+        <HIGButton
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="cursor-pointer"
+        >
+          <ArrowLeft size={20} />
+        </HIGButton>
         <div>
           <h1
             style={{
@@ -217,7 +234,7 @@ export default function EditPlacePage() {
                   <div className="space-y-2">
                     <HIGLabel htmlFor="place_type">ประเภท *</HIGLabel>
                     <HIGSelect
-                      value={formData.place_type}
+                      defaultValue={formData.place_type}
                       onValueChange={(value) =>
                         setFormData((prev) => ({ ...prev, place_type: value }))
                       }
@@ -607,11 +624,14 @@ export default function EditPlacePage() {
                     </>
                   )}
                 </HIGButton>
-                <Link href="/admin/places" className="block">
-                  <HIGButton type="button" variant="outline" className="w-full">
-                    ยกเลิก
-                  </HIGButton>
-                </Link>
+                <HIGButton
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleBack}
+                >
+                  ยกเลิก
+                </HIGButton>
               </HIGCardContent>
             </HIGCard>
           </div>

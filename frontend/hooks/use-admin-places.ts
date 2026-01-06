@@ -49,6 +49,7 @@ export function useAdminPlace(id: number) {
     queryKey: ["admin", "place", id],
     queryFn: () => fetchAdminPlace(id),
     enabled: !!id,
+    staleTime: 60 * 1000, // 1 minute
   });
 }
 

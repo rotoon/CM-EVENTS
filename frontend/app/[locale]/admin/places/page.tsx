@@ -8,13 +8,23 @@ import { higColors } from "@/components/ui/hig/shared";
 import { useAdminPlaces, useDeletePlace } from "@/hooks/use-admin-places";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function AdminPlacesPage() {
-  const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [offset, setOffset] = useState(0);
-  const limit = 20;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // URL Params
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 20;
+  const searchQuery = searchParams.get("search") || "";
+
+  // Local state for search input
+  const [search, setSearch] = useState(searchQuery);
+
+  const offset = (page - 1) * limit;
 
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
@@ -23,6 +33,11 @@ export default function AdminPlacesPage() {
     open: false,
     place: null,
   });
+
+  // Sync search input with URL if URL changes externally
+  // useEffect(() => {
+  //   setSearch(searchQuery);
+  // }, [searchQuery]);
 
   const { data, isLoading } = useAdminPlaces(
     offset,
@@ -39,10 +54,46 @@ export default function AdminPlacesPage() {
     hasMore: false,
   };
 
+  const updateUrl = (newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (key === "page") {
+        if (Number(value) === 1 || !value) params.delete("page");
+        else params.set("page", String(value));
+        return;
+      }
+
+      if (key === "limit") {
+        if (Number(value) === 20 || !value) params.delete("limit");
+        else params.set("limit", String(value));
+        return;
+      }
+
+      if (value === null || value === "" || value === 0) {
+        if (key === "search") params.delete("search");
+        // For other params, if empty/0, delete them
+        else params.delete(key);
+      } else {
+        params.set(key, String(value));
+      }
+    });
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setOffset(0);
-    setSearchQuery(search);
+    updateUrl({ search, page: 1 });
+  };
+
+  const handlePageChange = (newOffset: number) => {
+    const newPage = Math.floor(newOffset / limit) + 1;
+    updateUrl({ page: newPage });
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    updateUrl({ limit: newLimit, page: 1 });
   };
 
   const handleDelete = async () => {
@@ -122,7 +173,8 @@ export default function AdminPlacesPage() {
         places={places}
         isLoading={isLoading}
         pagination={pagination}
-        onPageChange={setOffset}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
         onDeleteClick={(place) => setDeleteDialog({ open: true, place })}
       />
 

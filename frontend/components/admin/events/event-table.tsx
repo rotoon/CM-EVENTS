@@ -1,7 +1,14 @@
 "use client";
 
 import { AdminPagination, EventForList } from "@/components/admin/types";
-import { HIGButton } from "@/components/ui/hig-components";
+import {
+  HIGButton,
+  HIGSelect,
+  HIGSelectContent,
+  HIGSelectItem,
+  HIGSelectTrigger,
+  HIGSelectValue,
+} from "@/components/ui/hig-components";
 import { higColors } from "@/components/ui/hig/shared";
 import {
   Table,
@@ -18,6 +25,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface EventTableProps {
@@ -25,6 +33,7 @@ interface EventTableProps {
   isLoading: boolean;
   pagination: AdminPagination;
   onPageChange: (offset: number) => void;
+  onLimitChange?: (limit: number) => void;
   onDeleteClick: (event: EventForList) => void;
 }
 
@@ -33,6 +42,7 @@ export function EventTable({
   isLoading,
   pagination,
   onPageChange,
+  onLimitChange,
   onDeleteClick,
 }: EventTableProps) {
   const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
@@ -137,10 +147,12 @@ export function EventTable({
                   style={{ backgroundColor: `${higColors.blue}10` }}
                 >
                   {event.cover_image_url ? (
-                    <img
+                    <Image
                       src={event.cover_image_url}
                       alt={event.title}
                       className="w-full h-full object-cover"
+                      width={100}
+                      height={100}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -210,18 +222,52 @@ export function EventTable({
       </Table>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {totalPages > 0 && (
         <div
-          className="flex items-center justify-between p-4"
+          className="flex flex-col sm:flex-row items-center justify-between p-4 gap-4"
           style={{ borderTop: `1px solid ${higColors.separator}` }}
         >
-          <p className="text-sm" style={{ color: higColors.labelSecondary }}>
-            แสดง {pagination.offset + 1}-
-            {Math.min(pagination.offset + pagination.limit, pagination.total)}{" "}
-            จาก {pagination.total} รายการ
-          </p>
+          <div className="flex items-center gap-4">
+            {onLimitChange && (
+              <div className="flex items-center gap-2">
+                <p
+                  className="text-sm"
+                  style={{ color: higColors.labelSecondary }}
+                >
+                  แสดง
+                </p>
+                <HIGSelect
+                  value={pagination.limit.toString()}
+                  onValueChange={(val) => onLimitChange(Number(val))}
+                >
+                  <HIGSelectTrigger
+                    className="h-8 w-[70px]"
+                    style={{ backgroundColor: higColors.bgSecondary }}
+                  >
+                    <HIGSelectValue />
+                  </HIGSelectTrigger>
+                  <HIGSelectContent>
+                    {[10, 20, 50, 100].map((pageSize) => (
+                      <HIGSelectItem key={pageSize} value={pageSize.toString()}>
+                        {pageSize}
+                      </HIGSelectItem>
+                    ))}
+                  </HIGSelectContent>
+                </HIGSelect>
+                <p
+                  className="text-sm"
+                  style={{ color: higColors.labelSecondary }}
+                >
+                  ต่อหน้า
+                </p>
+              </div>
+            )}
+            <p className="text-sm" style={{ color: higColors.labelSecondary }}>
+              หน้า {currentPage} จาก {totalPages} ({pagination.total} รายการ)
+            </p>
+          </div>
+
           <div className="flex items-center gap-1">
-            {/* Previous */}
             <HIGButton
               variant="outline"
               size="sm"
@@ -232,13 +278,13 @@ export function EventTable({
               <ChevronLeft size={16} />
             </HIGButton>
 
-            {/* Page Numbers */}
             {(() => {
               const pages: (number | string)[] = [];
               const showPages = 5;
               let start = Math.max(1, currentPage - Math.floor(showPages / 2));
               const end = Math.min(totalPages, start + showPages - 1);
               start = Math.max(1, end - showPages + 1);
+              if (start < 1) start = 1;
 
               if (start > 1) {
                 pages.push(1);
@@ -282,7 +328,6 @@ export function EventTable({
               );
             })()}
 
-            {/* Next */}
             <HIGButton
               variant="outline"
               size="sm"

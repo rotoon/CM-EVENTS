@@ -35,7 +35,7 @@ function HIGTextarea({
   return (
     <textarea
       className={cn(
-        "flex min-h-[120px] w-full rounded-xl px-4 py-3 text-[17px] transition-colors resize-none",
+        "flex min-h-[500px] w-full rounded-xl px-4 py-3 text-[17px] transition-colors resize-auto",
         "placeholder:text-[rgba(60,60,67,0.3)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]",
         "disabled:cursor-not-allowed disabled:opacity-50",

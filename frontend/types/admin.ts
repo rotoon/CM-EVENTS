@@ -32,7 +32,7 @@ export interface AdminEventsResponse {
 
 export interface EventFormData {
   title: string;
-  description?: string;
+  description_markdown?: string;
   location?: string;
   date_text?: string;
   time_text?: string;
@@ -42,6 +42,7 @@ export interface EventFormData {
   google_maps_url?: string;
   facebook_url?: string;
   is_ended?: boolean;
+  images?: string[];
 }
 
 export interface LoginResponse {

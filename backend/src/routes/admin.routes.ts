@@ -11,6 +11,12 @@ router.post("/login", AdminController.login);
 // Protected routes - require admin authentication
 // Events
 router.get("/dashboard", requireAdmin, AdminController.getDashboard);
+router.get("/events/months", requireAdmin, AdminController.getEventMonths);
+router.post(
+  "/events/sync-status",
+  requireAdmin,
+  AdminController.syncEventStatus
+);
 router.get("/events", requireAdmin, AdminController.getEvents);
 router.get("/events/:id", requireAdmin, AdminController.getEvent);
 router.post("/events", requireAdmin, AdminController.createEvent);
