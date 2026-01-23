@@ -129,14 +129,14 @@ export function NavbarNeo() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              <NavigationMenuItem>
+              {/* <NavigationMenuItem>
                 <NavigationMenuLink
                   href="/plan"
                   className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-neo-lime hover:text-black border-2 border-transparent hover:border-neo-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black tracking-tight text-neo-black`}
                 >
                   {t("plan")}
                 </NavigationMenuLink>
-              </NavigationMenuItem>
+              </NavigationMenuItem> */}
             </NavigationMenuList>
           </NavigationMenu>
 
@@ -217,13 +217,13 @@ export function NavbarNeo() {
               ))}
             </div>
 
-            <Link
+            {/* <Link
               href="/plan"
               onClick={() => setIsOpen(false)}
               className="block bg-white border-4 border-neo-black p-4 text-center font-display font-black text-2xl uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-2 active:translate-y-2 hover:bg-neo-lime hover:text-black"
             >
               {t("plan")}
-            </Link>
+            </Link> */}
           </div>
         </div>
       )}
