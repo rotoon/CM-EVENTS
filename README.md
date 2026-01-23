@@ -50,6 +50,13 @@ CM-EVENTS/
 │   │   └── utils/         # Helpers
 │   └── api/               # Legacy entry point
 │
+├── docs/               # Documentation
+│   ├── API.md              # API endpoints
+│   ├── ARCHITECTURE.md    # System architecture
+│   ├── DEVELOPMENT.md      # Development guide
+│   ├── DEPLOYMENT.md      # Deployment instructions
+│   └── ENV.md             # Environment variables
+│
 └── design/            # Design assets & mockups
 ```
 
@@ -89,6 +96,10 @@ CM-EVENTS/
 - pnpm (recommended)
 - PostgreSQL database
 
+### Quick Start
+
+For detailed setup instructions, see [Development Guide](docs/DEVELOPMENT.md).
+
 ### Frontend
 
 ```bash
@@ -121,6 +132,7 @@ pnpm install
 # Set environment variables
 cp .env.example .env
 # Edit .env with your database credentials
+# See [ENV.md](docs/ENV.md) for all variables
 
 # Run development server
 pnpm dev
@@ -132,6 +144,8 @@ pnpm deploy
 ---
 
 ## 🌐 API Endpoints
+
+For complete API documentation, see [API.md](docs/API.md).
 
 | Method | Endpoint         | Description                            |
 | ------ | ---------------- | -------------------------------------- |
@@ -204,6 +218,8 @@ pnpm deploy   # Deploy to Railway
 
 ## 🚢 Deployment
 
+For detailed deployment instructions, see [Deployment Guide](docs/DEPLOYMENT.md).
+
 Both frontend and backend are configured for Railway deployment:
 
 ```bash
@@ -215,6 +231,18 @@ cd backend && railway up
 ```
 
 Docker files are included for containerized deployment.
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [API Documentation](docs/API.md) | Complete API reference with all endpoints |
+| [Architecture](docs/ARCHITECTURE.md) | System architecture, tech stack, data flow |
+| [Development Guide](docs/DEVELOPMENT.md) | Setup, workflow, best practices |
+| [Deployment Guide](docs/DEPLOYMENT.md) | Railway, Vercel, AWS deployment |
+| [Environment Variables](docs/ENV.md) | All required and optional env vars |
 
 ---
 
