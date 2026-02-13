@@ -2,7 +2,6 @@
 
 import { ButtonNeo } from "@/components/ui/button-neo";
 import { Event } from "@/types";
-import { useTranslations } from "next-intl";
 
 interface EventActionsProps {
   event: Event;
@@ -17,11 +16,8 @@ function FacebookIcon({ className }: { className?: string }) {
 }
 
 export function EventActions({ event }: EventActionsProps) {
-  const t = useTranslations("eventDetail");
+  const shareUrl = `https://hypecnx.com/events/${event.id}`;
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-
-  console.log("shareUrl", shareUrl);
   const handleFacebookShare = () => {
     const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(event.title)}`;
     window.open(fbUrl, "_blank", "width=600,height=400");
@@ -32,7 +28,7 @@ export function EventActions({ event }: EventActionsProps) {
       <div className="p-4 bg-white/80 backdrop-blur-md border-t-4 border-neo-black md:bg-transparent md:border-none md:p-0 md:backdrop-blur-none">
         <div className="grid grid-cols-1 gap-4">
           <ButtonNeo
-            variant="primary"
+            variant="accent"
             className="h-12 border-4 w-full flex items-center justify-center gap-2 font-bold uppercase shadow-neo-sm"
             onClick={handleFacebookShare}
           >
