@@ -45,7 +45,7 @@ export class EventRepository {
    * Get paginated events with optional filters
    */
   static async findAll(
-    filters: EventFilters
+    filters: EventFilters,
   ): Promise<PaginatedResult<EventRow>> {
     const { month, category, is_ended, limit = 20, offset = 0 } = filters;
 
@@ -86,7 +86,7 @@ export class EventRepository {
     // Fetch paginated events sorted by end_date DESC (latest end date first)
     const eventsList = await prisma.events.findMany({
       where: whereConditions,
-      orderBy: { end_date: { sort: "desc", nulls: "last" } },
+      orderBy: { end_date: { sort: "asc", nulls: "last" } },
       skip: offset,
       take: limit,
     });
@@ -218,7 +218,7 @@ export class EventRepository {
           } else if (THAI_MONTH_TO_INDEX[m]) {
             const monthIndex = THAI_MONTH_TO_INDEX[m];
             monthSet.add(
-              `${currentYear}-${String(monthIndex).padStart(2, "0")}`
+              `${currentYear}-${String(monthIndex).padStart(2, "0")}`,
             );
           }
         });
@@ -305,7 +305,9 @@ export class EventRepository {
       googleMapsUrl?: string;
       facebookUrl?: string;
       isEnded?: boolean;
-    }
+      startDate?: Date;
+      endDate?: Date;
+    },
   ) {
     return prisma.events.update({
       where: { id },
@@ -319,6 +321,8 @@ export class EventRepository {
         google_maps_url: data.googleMapsUrl,
         facebook_url: data.facebookUrl,
         is_ended: data.isEnded,
+        start_date: data.startDate,
+        end_date: data.endDate,
         is_fully_scraped: true,
         last_updated_at: new Date(),
       },

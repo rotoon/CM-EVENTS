@@ -46,7 +46,12 @@ export function sortByEndDate(events: Event[]): Event[] {
   return [...events].sort((a, b) => {
     const endA = getEndDateTimestamp(a.date_text);
     const endB = getEndDateTimestamp(b.date_text);
-    return endB - endA;
+    // Push events with no end_date (0) to the end
+    if (endA === 0 && endB === 0) return 0;
+    if (endA === 0) return 1;
+    if (endB === 0) return -1;
+    // ASC: ending soonest first
+    return endA - endB;
   });
 }
 
@@ -128,7 +133,7 @@ export function parseThaiDates(dateText: string | null): Date[] {
  */
 export function isEventEnded(
   dateText: string | null,
-  manualIsEnded?: number | boolean | null
+  manualIsEnded?: number | boolean | null,
 ): boolean {
   if (manualIsEnded === true || manualIsEnded === 1) return true;
   if (!dateText) return false;

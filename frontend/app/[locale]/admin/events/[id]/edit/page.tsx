@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  DateRangePicker,
+  formatToThaiDateText,
+  parseThaiDateText,
+} from "@/components/admin/events/date-range-picker";
+import {
+  TimeRangePicker,
+  formatTimeText,
+  parseTimeText,
+} from "@/components/admin/events/time-range-picker";
+import {
   HIGButton,
   HIGCard,
   HIGCardContent,
@@ -45,6 +55,10 @@ export default function EditEventPage() {
   });
 
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     if (event) {
@@ -62,11 +76,25 @@ export default function EditEventPage() {
         is_ended: Boolean(event.is_ended),
         images: event.images?.map((img) => img.image_url) || [],
       });
+
+      // Parse existing date_text to dates for the picker
+      if (event.date_text) {
+        const parsed = parseThaiDateText(event.date_text);
+        if (parsed.start) setStartDate(parsed.start);
+        if (parsed.end) setEndDate(parsed.end);
+      }
+
+      // Parse existing time_text for the time picker
+      if (event.time_text) {
+        const parsed = parseTimeText(event.time_text);
+        if (parsed.start) setStartTime(parsed.start);
+        if (parsed.end) setEndTime(parsed.end);
+      }
     }
   }, [event]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
@@ -107,7 +135,16 @@ export default function EditEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    updateMutation.mutate(formData, {
+    // Convert dates and time to text
+    const dateText = formatToThaiDateText(startDate, endDate);
+    const timeText = formatTimeText(startTime, endTime);
+    const submitData = {
+      ...formData,
+      date_text: dateText,
+      time_text: timeText,
+    };
+
+    updateMutation.mutate(submitData, {
       onSuccess: () => {
         router.back();
       },
@@ -197,23 +234,26 @@ export default function EditEventPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <HIGLabel htmlFor="date_text">วันที่</HIGLabel>
-                    <HIGInput
-                      id="date_text"
-                      name="date_text"
-                      value={formData.date_text}
-                      onChange={handleChange}
-                      placeholder="เช่น 1-31 มกราคม 2568"
+                    <HIGLabel>วันที่จัดงาน</HIGLabel>
+                    <DateRangePicker
+                      startDate={startDate}
+                      endDate={endDate}
+                      onChange={(start, end) => {
+                        setStartDate(start);
+                        setEndDate(end);
+                      }}
+                      placeholder="เลือกวันเริ่ม - วันสิ้นสุด"
                     />
                   </div>
                   <div className="space-y-2">
-                    <HIGLabel htmlFor="time_text">เวลา</HIGLabel>
-                    <HIGInput
-                      id="time_text"
-                      name="time_text"
-                      value={formData.time_text}
-                      onChange={handleChange}
-                      placeholder="เช่น 10:00 - 22:00"
+                    <HIGLabel>เวลา</HIGLabel>
+                    <TimeRangePicker
+                      startTime={startTime}
+                      endTime={endTime}
+                      onChange={(start, end) => {
+                        setStartTime(start);
+                        setEndTime(end);
+                      }}
                     />
                   </div>
                 </div>

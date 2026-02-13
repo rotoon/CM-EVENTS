@@ -1,6 +1,14 @@
 "use client";
 
 import {
+  DateRangePicker,
+  formatToThaiDateText,
+} from "@/components/admin/events/date-range-picker";
+import {
+  TimeRangePicker,
+  formatTimeText,
+} from "@/components/admin/events/time-range-picker";
+import {
   HIGButton,
   HIGCard,
   HIGCardContent,
@@ -35,8 +43,13 @@ export default function NewEventPage() {
     facebook_url: "",
   });
 
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -45,7 +58,16 @@ export default function NewEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    createMutation.mutate(formData, {
+    // Convert dates and time to text
+    const dateText = formatToThaiDateText(startDate, endDate);
+    const timeText = formatTimeText(startTime, endTime);
+    const submitData = {
+      ...formData,
+      date_text: dateText,
+      time_text: timeText,
+    };
+
+    createMutation.mutate(submitData, {
       onSuccess: () => {
         router.push("/admin/events");
       },
@@ -111,23 +133,26 @@ export default function NewEventPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <HIGLabel htmlFor="date_text">วันที่</HIGLabel>
-                    <HIGInput
-                      id="date_text"
-                      name="date_text"
-                      value={formData.date_text}
-                      onChange={handleChange}
-                      placeholder="เช่น 1-31 มกราคม 2568"
+                    <HIGLabel>วันที่จัดงาน</HIGLabel>
+                    <DateRangePicker
+                      startDate={startDate}
+                      endDate={endDate}
+                      onChange={(start, end) => {
+                        setStartDate(start);
+                        setEndDate(end);
+                      }}
+                      placeholder="เลือกวันเริ่ม - วันสิ้นสุด"
                     />
                   </div>
                   <div className="space-y-2">
-                    <HIGLabel htmlFor="time_text">เวลา</HIGLabel>
-                    <HIGInput
-                      id="time_text"
-                      name="time_text"
-                      value={formData.time_text}
-                      onChange={handleChange}
-                      placeholder="เช่น 10:00 - 22:00"
+                    <HIGLabel>เวลา</HIGLabel>
+                    <TimeRangePicker
+                      startTime={startTime}
+                      endTime={endTime}
+                      onChange={(start, end) => {
+                        setStartTime(start);
+                        setEndTime(end);
+                      }}
                     />
                   </div>
                 </div>

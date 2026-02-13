@@ -51,7 +51,7 @@ function getBrowserHeaders(url: string) {
 // ============================================================================
 async function rewriteDescriptionWithAI(
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
-  rawHTML: string
+  rawHTML: string,
 ): Promise<string> {
   if (!rawHTML || rawHTML.length < 50) return rawHTML || "";
 
@@ -82,11 +82,11 @@ async function rewriteDescriptionWithAI(
 // ============================================================================
 async function scrapeEventDetail(
   model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
-  event: EventDetail
+  event: EventDetail,
 ) {
   scraperLogger.debug(
     { eventId: event.id, url: event.source_url },
-    "Scraping detail"
+    "Scraping detail",
   );
 
   try {
@@ -111,7 +111,7 @@ async function scrapeEventDetail(
           // Sometimes it's an array
           const eventSchema = jsonLd.find(
             (item: any) =>
-              item["@type"] === "Event" && item.location && item.location.geo
+              item["@type"] === "Event" && item.location && item.location.geo,
           );
           if (eventSchema) {
             lat = parseFloat(eventSchema.location.geo.latitude);
@@ -138,7 +138,7 @@ async function scrapeEventDetail(
     let timeText = "";
     // Time is usually in the first ul.list-unstyled inside section.pb-3
     const timeLi = $("section.pb-3 ul.list-unstyled li").filter(
-      (_, el) => $(el).find(".bi-calendar3-week").length > 0
+      (_, el) => $(el).find(".bi-calendar3-week").length > 0,
     );
     if (timeLi.length) {
       timeText = timeLi.text().trim().replace(/\s+/g, " "); // Clean excessive whitespace
@@ -167,16 +167,22 @@ async function scrapeEventDetail(
     const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
 
     // 4. Images Logic
+    const BLOCKED_IMAGE_URLS = new Set([
+      "https://www.cmhy.city/assets/android/google-play-badge.png",
+    ]);
+
     const imageUrls = new Set<string>();
 
     // Banner
-    if (bannerSrc) imageUrls.add(bannerSrc);
+    if (bannerSrc && !BLOCKED_IMAGE_URLS.has(bannerSrc))
+      imageUrls.add(bannerSrc);
 
     // Gallery (.img-fluid) filtering
     const allImgFluid: string[] = [];
     $("img.img-fluid").each((_, el) => {
       const src = $(el).attr("src") || $(el).attr("data-src");
-      if (src && src.startsWith("http")) allImgFluid.push(src);
+      if (src && src.startsWith("http") && !BLOCKED_IMAGE_URLS.has(src))
+        allImgFluid.push(src);
     });
 
     if (allImgFluid.length > 3) {
@@ -192,12 +198,12 @@ async function scrapeEventDetail(
 
     scraperLogger.debug(
       { eventId: event.id, images: imageUrls.size },
-      "Found images"
+      "Found images",
     );
 
     const enhancedDescription = await rewriteDescriptionWithAI(
       model,
-      descriptionHtml
+      descriptionHtml,
     );
 
     // Update event details using Prisma
@@ -235,7 +241,7 @@ async function scrapeEventDetail(
 
     scraperLogger.info(
       { eventId: event.id, images: imageUrls.size },
-      "Detail saved"
+      "Detail saved",
     );
 
     return true;
@@ -287,7 +293,7 @@ export async function runDetailScraper(limit: number = 10) {
 
   scraperLogger.info(
     { scraped: totalScraped, remaining },
-    "Detail scrape batch completed"
+    "Detail scrape batch completed",
   );
   return { scraped: totalScraped, remaining };
 }
@@ -298,7 +304,7 @@ export async function runDetailScraper(limit: number = 10) {
 export async function runDetailScraperForMonth(
   year: number,
   month: number, // 1-12
-  limit: number = 50
+  limit: number = 50,
 ) {
   if (!process.env.GEMINI_API_KEY) {
     scraperLogger.error("Missing GEMINI_API_KEY. Skipping detail scraper.");
@@ -313,7 +319,7 @@ export async function runDetailScraperForMonth(
 
   scraperLogger.info(
     { startDate, endDate },
-    "Running detail scraper for specific month"
+    "Running detail scraper for specific month",
   );
 
   const rows = await prisma.events.findMany({
@@ -335,7 +341,7 @@ export async function runDetailScraperForMonth(
 
   scraperLogger.info(
     { count: rows.length },
-    "Events found for month needing scrape"
+    "Events found for month needing scrape",
   );
 
   let totalScraped = 0;

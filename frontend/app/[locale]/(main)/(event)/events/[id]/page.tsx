@@ -1,30 +1,30 @@
-import { EventDetailClient } from '@/components/events/detail/event-detail-client'
-import { EventSchema } from '@/components/events/detail/event-schema'
-import { fetchEventById } from '@/lib/api'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { EventDetailClient } from "@/components/events/detail/event-detail-client";
+import { EventSchema } from "@/components/events/detail/event-schema";
+import { fetchEventById } from "@/lib/api";
+import { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
 interface Props {
-  params: Promise<{ id: string; locale: string }>
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id, locale } = await params
-  const event = await fetchEventById(parseInt(id))
-  const t = await getTranslations({ locale, namespace: 'meta' })
+  const { id, locale } = await params;
+  const event = await fetchEventById(parseInt(id));
+  const t = await getTranslations({ locale, namespace: "meta" });
 
   if (!event) {
     return {
-      title: t('eventNotFound'),
-    }
+      title: t("eventNotFound"),
+    };
   }
 
-  const title = event.title
+  const title = event.title;
   const description =
     event.description?.slice(0, 160) ||
-    t('eventDescriptionTemplate', { title: event.title })
-  const image = event.cover_image_url || '/hype-sticker.png'
+    t("eventDescriptionTemplate", { title: event.title });
+  const image = event.cover_image_url || "/hype-sticker.png";
 
   return {
     title,
@@ -33,35 +33,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       images: [image],
-      type: 'article',
+      type: "article",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
       images: [image],
     },
-  }
+  };
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const { id, locale } = await params
-  setRequestLocale(locale)
+  const { id, locale } = await params;
+  setRequestLocale(locale);
 
-  const eventId = parseInt(id)
-  const event = await fetchEventById(eventId)
+  const eventId = parseInt(id);
+  const event = await fetchEventById(eventId);
 
   if (!event) {
-    notFound()
+    notFound();
   }
 
   return (
     <>
       <EventSchema event={event} />
-      <EventDetailClient
-        initialEvent={event}
-        eventId={eventId}
-      />
+      <EventDetailClient initialEvent={event} eventId={eventId} />
     </>
-  )
+  );
 }

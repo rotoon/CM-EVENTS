@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { AdminRequest, verifyAdminLogin } from "../middlewares/auth.middleware";
 import { EventRepository } from "../repositories";
+import {
+  extractStartEndDates,
+  extractYearMonthsFromThaiDate,
+} from "../utils/date.util";
 import { httpLogger } from "../utils/logger";
 import { error, success } from "../utils/response.util";
 
@@ -53,7 +57,7 @@ export class AdminController {
             cover_image_url: e.cover_image_url,
             date_text: e.date_text,
           })),
-        })
+        }),
       );
     } catch (err) {
       httpLogger.error({ err }, "Failed to fetch dashboard");
@@ -106,7 +110,7 @@ export class AdminController {
             offset: result.offset,
             hasMore: result.hasMore,
           },
-        })
+        }),
       );
     } catch (err) {
       httpLogger.error({ err }, "Failed to fetch admin events");
@@ -157,6 +161,7 @@ export class AdminController {
       const {
         title,
         description,
+        description_markdown,
         location,
         date_text,
         time_text,
@@ -172,6 +177,24 @@ export class AdminController {
         return;
       }
 
+      // Auto-compute month_wrapped & start/end dates from date_text
+      let monthWrapped: string | undefined;
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+
+      if (date_text) {
+        const yearMonths = extractYearMonthsFromThaiDate(date_text);
+        if (yearMonths.length > 0) {
+          monthWrapped = JSON.stringify(yearMonths);
+        }
+        const { startDate: sd, endDate: ed } = extractStartEndDates(date_text);
+        if (sd) startDate = sd;
+        if (ed) endDate = ed;
+      }
+
+      // Frontend sends description_markdown, use it as description too
+      const finalDescription = description || description_markdown || title;
+
       // Generate a unique source_url for manually created events
       const sourceUrl = `admin://manual/${Date.now()}`;
 
@@ -181,17 +204,21 @@ export class AdminController {
         coverImageUrl: cover_image_url,
         location,
         dateText: date_text,
+        monthWrapped,
       });
 
       // Update with additional details
       if (event.id) {
         await EventRepository.updateDetails(event.id, {
-          description,
+          description: finalDescription,
+          descriptionMarkdown: description_markdown,
           timeText: time_text,
           latitude: latitude ? parseFloat(latitude) : undefined,
           longitude: longitude ? parseFloat(longitude) : undefined,
           googleMapsUrl: google_maps_url,
           facebookUrl: facebook_url,
+          startDate,
+          endDate,
         });
       }
 
@@ -219,6 +246,7 @@ export class AdminController {
       const {
         title,
         description,
+        description_markdown,
         location,
         date_text,
         time_text,
@@ -230,19 +258,46 @@ export class AdminController {
         is_ended,
       } = req.body;
 
+      // Auto-compute month_wrapped & start/end dates from date_text
+      const effectiveDateText = date_text || existing.date_text;
+      let monthWrapped: string | undefined;
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+
+      if (effectiveDateText) {
+        const yearMonths = extractYearMonthsFromThaiDate(effectiveDateText);
+        if (yearMonths.length > 0) {
+          monthWrapped = JSON.stringify(yearMonths);
+        }
+        const { startDate: sd, endDate: ed } =
+          extractStartEndDates(effectiveDateText);
+        if (sd) startDate = sd;
+        if (ed) endDate = ed;
+      }
+
+      // Frontend sends description_markdown, use it as description too
+      const finalDescription =
+        description ||
+        description_markdown ||
+        existing.description ||
+        title ||
+        existing.title;
+
       await EventRepository.updateDetails(id, {
         coverImageUrl: cover_image_url,
-        description,
+        description: finalDescription,
+        descriptionMarkdown: description_markdown,
         timeText: time_text,
         latitude: latitude ? parseFloat(latitude) : undefined,
         longitude: longitude ? parseFloat(longitude) : undefined,
         googleMapsUrl: google_maps_url,
         facebookUrl: facebook_url,
         isEnded: is_ended,
+        startDate,
+        endDate,
       });
 
-      // Note: title, location, date_text require raw SQL update
-      // For now, we use upsert with existing source_url
+      // Update title, location, date_text via upsert
       if (title || location || date_text) {
         await EventRepository.upsert({
           sourceUrl: existing.source_url,
@@ -251,6 +306,7 @@ export class AdminController {
           dateText: date_text || existing.date_text || undefined,
           coverImageUrl:
             cover_image_url || existing.cover_image_url || undefined,
+          monthWrapped,
         });
       }
 
@@ -306,7 +362,7 @@ export class AdminController {
     try {
       const updatedCount = await EventRepository.syncEventStatus();
       res.json(
-        success({ message: `Synced ${updatedCount} events`, updatedCount })
+        success({ message: `Synced ${updatedCount} events`, updatedCount }),
       );
     } catch (err) {
       httpLogger.error({ err }, "Failed to sync event status");

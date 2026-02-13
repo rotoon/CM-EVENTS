@@ -29,6 +29,7 @@ export class EventController {
         month: validated?.month || (req.query.month as string | undefined),
         category:
           validated?.category || (req.query.category as string | undefined),
+        is_ended: false,
         limit: validated?.limit ?? 20,
         offset: validated?.offset ?? 0,
       });
@@ -47,7 +48,7 @@ export class EventController {
             offset: result.offset,
             hasMore: result.hasMore,
           },
-        })
+        }),
       );
     } catch (err) {
       console.error("getEvents error:", err);
@@ -76,7 +77,7 @@ export class EventController {
           ...event,
           image: event.cover_image_url,
           images,
-        })
+        }),
       );
     } catch (err) {
       httpLogger.error({ err }, "Failed to fetch event");
@@ -123,8 +124,8 @@ export class EventController {
           events.map((e) => ({
             ...e,
             image: e.cover_image_url,
-          }))
-        )
+          })),
+        ),
       );
     } catch (err) {
       httpLogger.error({ err }, "Search failed");
@@ -141,8 +142,8 @@ export class EventController {
           events.map((e) => ({
             ...e,
             image: e.cover_image_url,
-          }))
-        )
+          })),
+        ),
       );
     } catch (err) {
       httpLogger.error({ err }, "Failed to fetch upcoming events");
