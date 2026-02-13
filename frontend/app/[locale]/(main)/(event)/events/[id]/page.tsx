@@ -33,7 +33,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     cleanDescription.slice(0, 160) ||
     t("eventDescriptionTemplate", { title: event.title });
 
-  const image = event.cover_image_url || "/hype-sticker.png";
+  const baseUrl = "https://hypecnx.com";
+  const url =
+    locale === "th"
+      ? `${baseUrl}/events/${id}`
+      : `${baseUrl}/${locale}/events/${id}`;
+
+  let imageUrl = event.cover_image_url || "/hype-sticker.png";
+  if (imageUrl.startsWith("/")) {
+    imageUrl = `${baseUrl}${imageUrl}`;
+  }
 
   return {
     title,
@@ -41,14 +50,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [image],
+      url,
+      // images handled by opengraph-image.tsx
       type: "article",
+      siteName: "Hype CNX",
+      locale: locale === "th" ? "th_TH" : "en_US",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      // images handled by opengraph-image.tsx
+    },
+    alternates: {
+      canonical: url,
+      languages: {
+        th: `${baseUrl}/events/${id}`,
+        en: `${baseUrl}/en/events/${id}`,
+      },
     },
   };
 }
