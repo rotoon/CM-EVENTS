@@ -21,9 +21,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const title = event.title;
+  // Clean description for social sharing (remove markdown)
+  const rawDescription = event.description || event.description_markdown || "";
+  const cleanDescription = rawDescription
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Remove links
+    .replace(/[*_#`]/g, "") // Remove formatting chars
+    .replace(/\n+/g, " ") // Collapse newlines
+    .trim();
+
   const description =
-    event.description?.slice(0, 160) ||
+    cleanDescription.slice(0, 160) ||
     t("eventDescriptionTemplate", { title: event.title });
+
   const image = event.cover_image_url || "/hype-sticker.png";
 
   return {
