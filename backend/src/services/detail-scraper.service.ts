@@ -161,7 +161,11 @@ async function scrapeEventDetail(
     contentSection.find("style").remove(); // Styles
 
     // What remains should be the description paragraphs
-    const descriptionHtml = contentSection.html() || "";
+    // Strip HTML comments (<!-- ... -->) that remain after element removal
+    const descriptionHtml = (contentSection.html() || "").replace(
+      /<!--[\s\S]*?-->/g,
+      "",
+    );
 
     const bannerSrc = $("img.activity-image").attr("src") || "";
     const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
@@ -211,7 +215,11 @@ async function scrapeEventDetail(
       where: { id: event.id },
       data: {
         cover_image_url: bannerSrc || undefined,
-        description: descriptionHtml.replace(/<[^>]*>?/gm, "").trim(),
+        description: descriptionHtml
+          .replace(/<!--[\s\S]*?-->/g, "")
+          .replace(/<[^>]*>?/gm, "")
+          .replace(/\s+/g, " ")
+          .trim(),
         description_markdown: enhancedDescription,
         time_text: timeText,
         latitude: lat,

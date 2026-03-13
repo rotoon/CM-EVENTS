@@ -4,7 +4,7 @@ import * as cheerio from "cheerio";
 import "dotenv/config";
 
 const url =
-  "https://www.cmhy.city/event/1695-Chiang-Mai-International-Food-Festival-2026-CMFF";
+  "https://www.cmhy.city/event/1737-The-Lanna-Wisdom-Heritage-School-offers-courses";
 
 // ============================================================================
 // Logic copied from detail-scraper.service.ts
@@ -160,25 +160,39 @@ async function scrapeReal() {
     contentSection.find("style").remove(); // Styles
 
     // What remains should be the description paragraphs
-    let descriptionHtml = contentSection.html() || "";
+    // Strip HTML comments (<!-- ... -->) that remain after element removal
+    let descriptionHtml = (contentSection.html() || "")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/^\s*\n/gm, "") // Remove blank lines left by comment removal
+      .trim();
 
-    // Clean description for logging
-    const cleanDesc = contentSection.text().trim().substring(0, 100) + "...";
+    // Clean text description (strip all HTML)
+    const cleanDescription = descriptionHtml
+      .replace(/<[^>]*>?/gm, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
     const bannerSrc = $("img.activity-image").attr("src") || "";
     const isEnded = /Event has ended|จบกิจกรรมแล้ว/i.test(data);
 
     // 4. Images Logic
+    const BLOCKED_IMAGE_URLS = new Set([
+      "https://www.cmhy.city/assets/android/google-play-badge.png",
+    ]);
+
     const imageUrls = new Set<string>();
 
     // Banner
-    if (bannerSrc) imageUrls.add(bannerSrc);
+    if (bannerSrc && !BLOCKED_IMAGE_URLS.has(bannerSrc))
+      imageUrls.add(bannerSrc);
 
     // Gallery (.img-fluid) filtering
     const allImgFluid: string[] = [];
     $("img.img-fluid").each((_, el) => {
       const src = $(el).attr("src") || $(el).attr("data-src");
-      if (src && src.startsWith("http")) allImgFluid.push(src);
+      if (src && src.startsWith("http") && !BLOCKED_IMAGE_URLS.has(src))
+        allImgFluid.push(src);
     });
 
     if (allImgFluid.length > 3) {
@@ -206,7 +220,11 @@ async function scrapeReal() {
     console.log("   - FB:", facebookLink);
     console.log(`   - Lat/Lng: ${lat}, ${lng}`);
     console.log(`   - Ended: ${isEnded}`);
-    console.log(`   - Desc (First 100 chars): ${cleanDesc}`);
+    console.log("\n📝 Clean Text Description:");
+    console.log("----------------------------------------");
+    console.log(cleanDescription);
+    console.log("----------------------------------------");
+
     console.log("\n🖼️  Images:");
     console.log("   - Banner:", bannerSrc);
     console.log(`   - Total Unique Images: ${imageUrls.size}`);
@@ -215,7 +233,7 @@ async function scrapeReal() {
       console.log(`     [${i}] ${img}`)
     );
 
-    console.log("\n🧠 AI Enhanced Description:");
+    console.log("\n🧠 AI Enhanced Description (Markdown):");
     console.log("----------------------------------------");
     console.log(enhancedDescription);
     console.log("----------------------------------------");

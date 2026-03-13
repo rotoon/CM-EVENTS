@@ -58,8 +58,19 @@ export class EventRepository {
       description: { not: null },
     };
 
-    // Filter by ended status if provided
-    if (is_ended !== undefined) {
+    // Filter by ended status using real-time end_date check
+    // Don't rely solely on is_ended flag (synced by cron once daily)
+    if (is_ended === false) {
+      // Show only active events:
+      // - is_ended must be false (or null)
+      // - AND end_date must be today or in the future (or null = no end date)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      whereConditions.AND = [
+        { OR: [{ is_ended: false }, { is_ended: null }] },
+        { OR: [{ end_date: { gte: today } }, { end_date: null }] },
+      ];
+    } else if (is_ended !== undefined) {
       whereConditions.is_ended = is_ended;
     }
 
