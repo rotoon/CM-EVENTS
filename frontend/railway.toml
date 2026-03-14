@@ -4,10 +4,10 @@ builder = "dockerfile"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 30
+healthcheckPath = "/api/health"
+healthcheckTimeout = 10
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 10
 
 # Enable instrumentation for cron jobs
 [deploy.env]
